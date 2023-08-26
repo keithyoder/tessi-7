@@ -1,0 +1,33 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Conexao Verificar Atributos</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Conexao</th>
+      <th>Atributo</th>
+      <th>Op</th>
+      <th>Valor</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @conexao_verificar_atributos.each do |conexao_verificar_atributo| %>
+      <tr>
+        <td><%= conexao_verificar_atributo.conexao %></td>
+        <td><%= conexao_verificar_atributo.atributo %></td>
+        <td><%= conexao_verificar_atributo.op %></td>
+        <td><%= conexao_verificar_atributo.valor %></td>
+        <td><%= link_to 'Show', conexao_verificar_atributo %></td>
+        <td><%= link_to 'Edit', edit_conexao_verificar_atributo_path(conexao_verificar_atributo) %></td>
+        <td><%= link_to 'Destroy', conexao_verificar_atributo, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Conexao Verificar Atributo', new_conexao_verificar_atributo_path %>

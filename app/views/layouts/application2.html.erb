@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Tessi7</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= stylesheet_link_tag "application.bootstrap", "data-turbo-track": "reload" %>
+    <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
+  </head>
+
+  <body>
+    <%- if controller.controller_name == 'sac' %>
+      <%= yield %>
+    <%- else %>
+      <div class="container-fluid page-wrapper light-theme sidebar toggled">
+        <div class="row h-100">
+          <%= render partial: 'shared/navigation' %>
+          <div class="offset-2 col-lg-10 mt-3">
+            <%= yield %>
+          </div>
+      </div>
+    <%- end %>
+  </body>
+</html>

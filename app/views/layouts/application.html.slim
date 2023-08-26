@@ -1,0 +1,19 @@
+doctype html
+html
+  head
+    title Tessi Telecom
+    meta name="viewport" content="width=device-width, initial-scale=1.0"
+    = stylesheet_link_tag "application.bootstrap", "data-turbo-track": "reload"
+    = javascript_include_tag "application", "data-turbo-track": "reload", defer: true
+    = csrf_meta_tags
+  body
+    - if controller.controller_name == 'sac'
+      = yield
+    - else
+      .container-fluid
+        .row.flex-nowrap
+          .col-auto.col-md-3.col-xl-2.px-sm-2.px-0.bg-light
+            = render 'shared/new_navigation'
+          .col.py-3
+            = flash_message
+            = yield

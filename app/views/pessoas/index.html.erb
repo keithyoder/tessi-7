@@ -1,0 +1,27 @@
+<div class="card">
+  <%= render '/shared/table_header', {object: @pessoas, search_string: :nome_cont} %>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>CPF/CNPJ</th>
+            <th>Cidade</th>
+         </tr>
+        </thead>
+
+        <tbody>
+          <% @pessoas.each do |pessoa| %>
+            <tr>
+              <td><%= link_to pessoa.nome, pessoa_path(id: pessoa.id, params: @params) %></td>
+              <td><%= pessoa.cpf_cnpj_formatado %></td>
+              <td><%= pessoa.logradouro.bairro.nome_cidade_uf %></td>
+           </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <%= paginate @pessoas %>
+</div>

@@ -1,0 +1,26 @@
+= simple_form_for @atendimento, wrapper: :vertical_form do |f|
+  = f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present?
+
+  .row
+    .col-6
+      = f.association :pessoa, label_method: :nome
+    .col
+      = f.association :classificacao, collection: Classificacao.atendimentos, label_method: :nome
+    .col
+      = f.association :responsavel, label_method: :primeiro_nome
+  .row
+    .col
+      = f.input :contrato, label_method: :id, input_html: { :'data-remote' => true, :'data-url' => '/contratos', :'data-params' => 'id=4', :'data-type' => 'json' }
+    .col
+      = f.input :conexao, label_method: :ip
+    .col
+      = f.input :fatura
+  .row
+    .col
+      = f.input :detalhe_tipo, collection: AtendimentoDetalhe.tipos
+    .col-10
+      = f.input :detalhe_descricao
+  .form-actions
+    = button_tag(:class => "btn btn-primary") do
+      i.fas.fa-save[aria-hidden="true"]
+      |  Salvar 

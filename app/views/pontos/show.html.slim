@@ -1,0 +1,37 @@
+ul.nav.nav-pills
+  li.nav-item
+    a.nav-link class="#{params.key?(:conexao_q) ? '' : 'active'}" data-toggle='tab' href='#ponto' Ponto de Acesso
+  li.nav-item
+    a.nav-link class="#{params.key?(:conexao_q) ? 'active' : ''}" data-toggle='tab' href='#conexoes' Conexões
+.tab-content
+  #ponto.tab-pane.fade aria-labelledby='ponto-tab' class="#{params.key?(:conexao_q) ? '' : 'show active'}" role='tabpanel'
+    .row
+      .card
+        = render 'shared/show_header', { object: @ponto, titulo: "Ponto de Acesso #{@ponto.nome}" }
+        .card-body
+          .card-columns style='column-count: 4'
+            = render 'shared/field_card', { campo: 'Sistema', valor: @ponto.sistema }
+            = render 'shared/field_card', { campo: 'Tecnologia', valor: @ponto.tecnologia }
+            - if @ponto.ssid.present?
+              = render 'shared/field_card', { campo: 'SSID', valor: @ponto.ssid }
+            = link_to @ponto.servidor do
+              = render 'shared/field_card', { campo: 'Servidor', valor: @ponto.servidor.nome }
+            = link_to "http://#{@ponto.ip}", target: '_blank' do
+              = render 'shared/field_card', { campo: 'IP', valor: @ponto.ip }
+            -if @ponto.ipv6.present?
+              = link_to "http://[#{@ponto.ipv6}]", target: '_blank' do
+                = render 'shared/field_card', { campo: 'IPv6', valor: @ponto.ipv6 }
+            = render 'shared/field_card', { campo: 'Usuário', valor: @ponto.usuario }
+            = render 'shared/field_card', { campo: 'Conexões', valor: @ponto.conexoes.count }
+            = render 'shared/field_card', { campo: 'Bloqueados', valor: @ponto.conexoes.bloqueado.count }
+            - if @ponto.frequencia.present?
+              = render 'shared/field_card', { campo: 'Frequência', valor: "#{@ponto.frequencia} Mhz" }
+              = render 'shared/field_card', { campo: 'Largura Canal', valor: "#{@ponto.canal_tamanho} Mhz" }
+            = render 'shared/field_card', { campo: 'Equipamento', valor: @ponto.equipamento }
+          .card-columns style='column-count: 1'
+            = link_to "http://maps.google.com/maps?#{@ponto.google_maps_pins}&z=18", target: '_blank' do
+              p align='center'
+                = image_tag "https://maps.googleapis.com/maps/api/staticmap?maptype=hybrid&size=1200x400&#{@ponto.google_maps_pins}&key=#{Rails.application.credentials.google_maps_api_key}", alt: 'Map'
+  #conexoes.tab-pane-fade aria-labelledby='conexoes-tab' class="#{params.key?(:conexao_q) ? 'show active' : ''}" role='tabpanel'
+    h3 = @ponto.nome
+    = render 'conexoes/table', { exclude: %w[ponto equipamento] }

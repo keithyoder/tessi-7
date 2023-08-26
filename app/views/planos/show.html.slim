@@ -1,0 +1,24 @@
+ul.nav.nav-pills
+  li.nav-item
+    a.nav-link.active[data-toggle="tab" href="#home"]
+      | Plano
+  li.nav-item
+    a.nav-link[data-toggle="tab" href="#radius"]
+      | Radius
+#planos-pills.tab-content.h-100
+  #home.tab-pane.h-100.fade.show.active[role="tabpanel" aria-labelledby="home-tab"]
+    .card.h-100
+      = render 'shared/show_header', {object: @plano, titulo: "Plano de Acesso "+ @plano.nome}
+      .card-body.h-100
+        .card-columns.h-100[style="column-count: 4"]
+          = render 'shared/field_card', {campo: "Mensalidade", valor: number_to_currency(@plano.mensalidade)}
+          = render 'shared/field_card', {campo: "Desconto", valor: number_to_currency(@plano.desconto)}
+          = render 'shared/field_card', {campo: "Download", valor: @plano.download.to_s + " Mbps"}
+          = render 'shared/field_card', {campo: "Upload", valor: @plano.upload.to_s + " Mbps"}
+          = render 'shared/field_card', {campo: "Burst", valor: @plano.burst.as_simnao.capitalize}
+          = render 'shared/field_card', {campo: "Ativo", valor: @plano.ativo.as_simnao.capitalize}
+  #radius.tab-pane.fade[role="tabpanel" aria-labelledby="radius-tab"]
+    h3
+      = @plano.nome
+    = render 'plano_verificar_atributos/table'
+    = render 'plano_enviar_atributos/table'

@@ -1,0 +1,11 @@
+.row
+  .card.col-lg
+    = render 'shared/show_header', {object: @ip_rede, titulo: "Rede IP #{@ip_rede.cidr}"}
+    .card-body
+      .card-columns[style="column-count: 3"]
+        = link_to @ip_rede.ponto do
+          = render 'shared/field_card', {campo: "Ponto de Acesso", valor: @ip_rede.ponto.nome}
+        = render 'shared/field_card', {campo: "Rede", valor: @ip_rede.cidr}
+        = render 'shared/field_card', {campo: "Subnet", valor: @ip_rede.subnet}
+        = render 'shared/field_card', {campo: "Início", valor: rede_inicio(@ip_rede) }
+        = render 'shared/field_card', {campo: "Fim", valor: rede_fim(@ip_rede) }

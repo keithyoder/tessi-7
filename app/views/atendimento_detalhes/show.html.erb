@@ -1,0 +1,24 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Atendimento:</strong>
+  <%= @atendimento_detalhe.atendimento %>
+</p>
+
+<p>
+  <strong>Tipo:</strong>
+  <%= @atendimento_detalhe.tipo %>
+</p>
+
+<p>
+  <strong>Atendente:</strong>
+  <%= @atendimento_detalhe.atendente %>
+</p>
+
+<p>
+  <strong>Descricao:</strong>
+  <%= @atendimento_detalhe.descricao %>
+</p>
+
+<%= link_to 'Edit', edit_atendimento_detalhe_path(@atendimento_detalhe) %> |
+<%= link_to 'Back', @atendimento_detalhe.atendimento %>

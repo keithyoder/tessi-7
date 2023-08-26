@@ -1,0 +1,19 @@
+.card
+  .row
+    .col-md-7
+      .card
+        = render 'shared/show_header', {object: @fibra_caixa, titulo: "Caixa de Atendimento #{@fibra_caixa.nome}"}
+        .card-body
+          .card-columns[style="column-count: 2"]
+            = link_to @fibra_caixa.fibra_rede do
+              = render 'shared/field_card', {campo: "Rede", valor: @fibra_caixa.fibra_rede.nome}
+            = render 'shared/field_card', {campo: "Capacidade", valor: "#{@fibra_caixa.conexoes.count}/#{@fibra_caixa.capacidade}"}
+            = render 'shared/field_card', {campo: "Cor da Fibra", valor: @fibra_caixa.fibra_cor}
+            = link_to @fibra_caixa.logradouro do
+              = render 'shared/field_card', {campo: "Logradouro", valor: @fibra_caixa.logradouro.present? ? @fibra_caixa.logradouro.nome : ""}
+    .col-md-3
+      .card-body
+        p[align="center"]
+          = image_tag "https://maps.googleapis.com/maps/api/staticmap?size=400x310&#{markers}&key=#{Rails.application.credentials.google_maps_api_key}", alt: "Map"
+.card
+  = render 'conexoes/table', {exclude: ['ponto']}

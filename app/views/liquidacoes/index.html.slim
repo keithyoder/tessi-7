@@ -1,0 +1,39 @@
+.card
+  = render '/shared/table_header', {object: @liquidacoes, titulo: "Liquidações"}
+  .card-body
+    = column_chart @chart
+    .table-responsive
+      table.table.table-striped
+        thead
+          tr
+            - if params.key?(:mes)
+              th
+                | Mês
+            - elsif params.key?(:ano)
+              th
+                | Ano
+            - else
+              th
+                | Data
+            th.text-center
+              | Pagamentos
+            th.text-right
+              | Valor Total
+        tbody
+          - @liquidacoes.each do |liquidacao|
+            tr
+              - if params.key?(:mes)
+                td
+                  = link_to Date::MONTHNAMES[liquidacao.mes], liquidacao_path(liquidacao.mes)
+              - elsif params.key?(:ano)
+                td
+                  = link_to liquidacao.ano, liquidacoes_path(ano: liquidacao.ano, mes: 1)
+              - else
+                td
+                  = link_to l(liquidacao.data.to_date), liquidacao_path(liquidacao.data)
+              td.text-center
+                = number_with_delimiter(liquidacao.liquidacoes)
+              td.text-right
+                = number_to_currency(liquidacao.valor)
+      - #paginate @liquidacoes
+.card

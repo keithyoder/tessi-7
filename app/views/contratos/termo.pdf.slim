@@ -1,0 +1,185 @@
+html
+  head title="Print" 
+    = wicked_pdf_stylesheet_link_tag "contratos"
+    meta charset="utf-8"
+  body
+    header
+      | TERMO DE ADES&Atilde;O AO CONTRATO DE PRESTA&Ccedil;&Atilde;O DE SERVI&Ccedil;OS DE TELECOMUNICA&Ccedil;&Otilde;ES E AO CONTRATO DE COMODATO
+    table.no-border
+      thead.no-border 
+        tr.no-border
+        th.no-border
+          div.page-header &nbsp;
+      tbody
+        tr
+          td.no-border 
+            = render 'termo_dados'
+            p.termo
+              strong CL&Aacute;USULA 1&ordf; - DA ADES&Atilde;O AO CONTRATO DE PRESTA&Ccedil;&Atilde;O DE SERVI&Ccedil;OS DE TELECOMUNICA&Ccedil;&Otilde;ES E AO CONTRATO DE COMODATO.
+            ol
+              li data-icon="1.1"
+                span.termo
+                  span Pelo presente instrumento, o ASSINANTE adere aos termos e condi&ccedil;&otilde;es do Contrato de Presta&ccedil;&atilde;o de Servi&ccedil;os de Telecomunica&ccedil;&otilde;es o qual encontra-se registrado no Cart&oacute;rio de Registro de T&iacute;tulos e Documentos da cidade de Pesqueira, no Estado de Pernambuco, e dispon&iacute;vel no endere&ccedil;o virtual eletr&ocirc;nico&nbsp;
+                  a href="http://www.tessi.com.br" www.tessi.com.br.
+              li
+                span.termo  Pelo mesmo instrumento, o ASSINANTE tamb&eacute;m adere aos termos e condi&ccedil;&otilde;es do Contrato de Comodato, o qual encontra-se registrado no Cart&oacute;rio de Registro de T&iacute;tulos e Documentos da cidade de Pesqueira, no Estado de Pernambuco, sob o n.&ordm; 6294 no livro P64, e dispon&iacute;vel no endere&ccedil;o virtual eletr&ocirc;nico www.tessi.com.br.
+              li
+                span.termo
+                  span O ASSINANTE declara neste ato&nbsp;
+                  strong DETER PLENA CAPACIDADE PARA CELEBRAR O PRESENTE, HAVER RECEBIDO, LIDO, COMPREENDIDO E CONCORDADO COM OS TERMOS E CONDI&Ccedil;&Otilde;ES DO CONTRATO DE PRESTA&Ccedil;&Atilde;O DOS SERVI&Ccedil;OS DE TELECOMUNICA&Ccedil;&Otilde;ES E COMODATO.
+            p
+              span.termo
+                strong CL&Aacute;USULA 2&ordf; - DO ENDERE&Ccedil;O PARA INSTALA&Ccedil;&Atilde;O
+            ol
+              li
+                span.termo
+                  span Para a presta&ccedil;&atilde;o dos servi&ccedil;os contratados, o&nbsp;
+                  strong ASSINANTE&nbsp;
+                  span indica o endere&ccedil;o acima (ponto de acesso) para instala&ccedil;&atilde;o dos equipamentos necess&aacute;rios para frui&ccedil;&atilde;o dos servi&ccedil;os, onde ser&aacute; observada previamente a viabilidade t&eacute;cnica pela&nbsp;
+                  strong PRESTADORA.
+            p style=("padding-left: 40px;") 
+              span.termo
+                strong Par&aacute;grafo &uacute;nico:&nbsp;
+                span O prazo de instala&ccedil;&atilde;o do SCM pela&nbsp;
+                strong PRESTADORA&nbsp;
+                span &eacute; de at&eacute;&nbsp;
+                strong 5 (cinco) dias
+                span , contados da data da ci&ecirc;ncia pela&nbsp;
+                strong PRESTADORA
+                span , da assinatura pelo &nbsp;
+                strong ASSINANTE&nbsp;
+                span do presente&nbsp;
+                strong TERMO DE ADES&Atilde;O
+                span .
+            p.termo.variable
+              | CL&Aacute;USULA 3&ordf; - DAS CONDI&Ccedil;&Otilde;ES T&Eacute;CNICAS DO PLANO ESCOLHIDO PELO ASSINANTE
+            ol
+              li
+                span.termo
+                  span O&nbsp;
+                  strong ASSINANTE&nbsp;
+                  span pagar&aacute; pelos servi&ccedil;os contratados os valores contratualmente ajustados, conforme o plano escolhido espontaneamente e detalhado abaixo:
+            table.full-width
+              thead
+                tr
+                  th
+                    span.termo TIPO DO PLANO
+                  th
+                    span.termo VELOCIDADE DE DOWNLOAD/UPLOAD
+                  th
+                    span.termo GARANTIA DE BANDA
+              tbody
+                tr
+                  td style=("width: 25%;") 
+                    span.termo.variable =@contrato.plano.nome
+                  td style=("width: 60%;") 
+                    p
+                      span.termo 
+                        | Velocidade
+                        span.variable =<> @contrato.plano.download
+                        | Mbps download /
+                        span.variable =<> @contrato.plano.upload
+                        | Mbps upload
+                  td style=("width: 15%;") 
+                    p
+                      span.termo 
+                        span.variable => "#{@contrato.plano.garantia} %"
+            p
+              span.termo
+                strong CL&Aacute;USULA 4&ordf; - DOS VALORES, FORMAS DE PAGAMENTOS E VENCIMENTOS
+            ol
+              li
+                span.termo
+                  span Para ativa&ccedil;&atilde;o e presta&ccedil;&atilde;o dos servi&ccedil;os contratados, o&nbsp;
+                  strong ASSINANTE&nbsp;
+                  span dever&aacute; pagar &agrave;&nbsp;
+                  strong PRESTADORA&nbsp;
+                  span os valores nas condi&ccedil;&otilde;es descritas a seguir:
+            table.full-width
+              thead
+                tr
+                  th width="50%"
+                    span.termo.variable TAXA DE INSTALA&Ccedil;&Atilde;O
+                  th width="50%"
+                    span.termo.variable MENSALIDADE ASSINATURA SCM
+              tbody
+                tr
+                  td
+                    p.termo.campo  Valor Total da Instala&ccedil;&atilde;o:
+                    span.termo.variable = number_to_currency(@contrato.valor_instalacao)
+                  td
+                    p.termo.campo  Valor da Mensalidade da Assinatura SCM:
+                    span.termo.variable = number_to_currency(@contrato.mensalidade)
+                tr
+                  td
+                    p.termo.campo  N&uacute;mero de Parcelas:
+                    span.termo.variable = parcelas_instalacao_display
+                  td
+                    p.termo.campo  Vencimento da Mensalidade da Assinatura SCM:
+                    span.termo.variable = "DIA #{@contrato.dia_vencimento}"
+                tr
+                  td
+                    span.termo.campo  Data(s) de Vencimento(s)
+                    br
+                    span.termo.variable = parcelas_vencimento
+                  td
+                    p.termo.campo  Documento de Cobran&ccedil;a:
+                    span.termo.variable = @contrato.pagamento_perfil.forma_pagamento
+                tr
+                  td
+                    p.termo.campo  Valor da Parcela:
+                    span.termo.variable = number_to_currency((@contrato.valor_instalacao / @contrato.parcelas_instalacao).round(2)) if @contrato.valor_instalacao > 0 && @contrato.parcelas_instalacao > 0
+                  td
+                    p.termo.campo  Entrega da Cobran&ccedil;a:
+                    span.termo.variable VIA ELETRÔNICA
+                tr
+                  td colspan="2" style=("background-color: #ecf0f1;") 
+                    span.termo.variable VISITAS DE ASSIST&Ecirc;NCIA T&Eacute;CNICA OU MANUTEN&Ccedil;&Atilde;O
+                tr
+                  td.termo colspan="2" 
+                    | Consultar previamente a Prestadora sobre os valores vigentes na data da solicita&ccedil;&atilde;o de assist&ecirc;ncia t&eacute;cnica e manuten&ccedil;&atilde;o.
+            p.termo
+              strong Par&aacute;grafo &uacute;nico:&nbsp;
+              span As penalidades pelo n&atilde;o cumprimento das obriga&ccedil;&otilde;es aqui assumidas, est&atilde;o dispostas no Contrato de Presta&ccedil;&atilde;o de Servi&ccedil;os de Telecomunica&ccedil;&otilde;es, estando ciente o&nbsp;
+              strong ASSINANTE&nbsp;
+              span das condi&ccedil;&otilde;es impostas em caso de inadimpl&ecirc;ncia.
+            p.termo.variable CL&Aacute;USULA 5&ordf; - DAS DISPOSI&Ccedil;&Otilde;ES GERAIS
+            ol
+              li
+                span.termo
+                  span O&nbsp;
+                  strong ASSINANTE&nbsp;
+                  span declara, para todos os fins de direito, que a aceita&ccedil;&atilde;o aos termos do Contrato de Presta&ccedil;&atilde;o de Servi&ccedil;os de Telecomunica&ccedil;&otilde;es e Comodato, formalizada por este&nbsp;
+                  strong TERMO DE ADES&Atilde;O
+                  span , &eacute; a express&atilde;o de sua vontade. Em face do expresso reconhecimento da legitimidade da presente contrata&ccedil;&atilde;o &eacute; que o&nbsp;
+                  strong ASSINANTE&nbsp;
+                  span n&atilde;o poder&aacute; escusar-se de cumprir as condi&ccedil;&otilde;es ora pactuadas.&nbsp;
+              li
+                span.termo
+                  span A partir da assinatura deste&nbsp;
+                  strong TERMO DE ADES&Atilde;O
+                  span , ficam as partes obrigadas ao fiel cumprimento das cl&aacute;usulas contidas no Contrato de Presta&ccedil;&atilde;o de Servi&ccedil;os de Telecomunica&ccedil;&otilde;es e Comodato. O presente&nbsp;
+                  strong TERMO DE ADES&Atilde;O&nbsp;
+                  span vigorar&aacute; enquanto estiver vigente o Contrato de Presta&ccedil;&atilde;o de Servi&ccedil;os de Telecomunica&ccedil;&otilde;es e Comodato.
+              li
+                span.termo
+                  span O presente&nbsp;
+                  strong TERMO DE ADES&Atilde;O&nbsp;
+                  span poder&aacute; ser modificado no todo ou em parte, atrav&eacute;s de termo aditivo.
+            p.termo.variable CL&Aacute;USULA 6&ordf; - DA SUCESS&Atilde;O E DO FORO
+            ol
+              li
+                span.termo
+                  span O presente instrumento obriga herdeiros e/ou sucessores, a qualquer tempo, sendo neste ato eleito pelas partes o foro da comarca da cidade de&nbsp;
+                  strong Pesqueira
+                  span , no Estado de&nbsp;
+                  strong Pernambuco
+                  span , competente para dirimir quaisquer quest&otilde;es referentes ao presente, com ren&uacute;ncia expressa de qualquer outro, por mais privilegiado que seja.&nbsp;
+            p.termo
+              span E, por estar de acordo, o&nbsp;
+              strong ASSINANTE&nbsp;
+              span adere ao presente documento assinando em 02 (duas) vias de igual teor por sua livre vontade, declarando ainda, n&atilde;o estar assinando e/ou aceitando o presente sob premente coa&ccedil;&atilde;o, estado de necessidade ou outra forma de v&iacute;cio de consentimento, tendo conhecimento de todo direito e obriga&ccedil;&atilde;o que assume nesta data.
+            p.termo.variable PESQUEIRA/PE,&nbsp;
+      tfoot 
+        tr.no-border 
+          td.no-border &nbsp;

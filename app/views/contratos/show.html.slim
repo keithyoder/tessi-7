@@ -1,0 +1,60 @@
+= flash_message
+ul.nav.nav-pills
+  li.nav-item
+    a.nav-link.active[data-bs-toggle="tab" href="#contrato"]
+      | Contrato
+  li.nav-item
+    a.nav-link[data-bs-toggle="tab" href="#faturas"]
+      | Faturas
+.tab-content
+  #contrato.tab-pane.active.show.fade[role="tabpanel" aria-labelledby="contrato-tab"]
+    .card
+      .card-header
+        .row
+          .col-sm
+            h3
+              => link_to(@contrato.pessoa, class: "btn btn-sm btn-outline-dark") do
+                i.bi.bi-backspace[aria-hidden="true"]
+              - if can? :update, @contrato
+                = link_to(edit_contrato_path, class: "btn btn-sm btn-outline-dark") do
+                  i.bi.bi-pencil-fill[aria-hidden="true"]
+              = @contrato.pessoa.nome
+          .d-print-none.col-sm-3[align="right"]
+            => link_to(boletos_contrato_path(format: :pdf), class: "btn btn-sm btn-outline-dark", target: "_blank") do
+              i.fa.fa-bank.fa-lg[aria-hidden="true"]
+              |  Boletos 
+            - if @contrato.documentos.blank? && can?(:autentique, @contrato)
+              => link_to(autentique_contrato_path(@contrato), class: "btn btn-sm btn-outline-dark") do
+                i.fa.fa-bank.fa-lg[aria-hidden="true"]
+                |  Assinar 
+            = link_to(termo_contrato_url(@contrato, format: :pdf), class: "btn btn-sm btn-outline-dark", target: "_blank") do
+              i.bi.bi-printer-fill[aria-hidden="true"]
+      .card-body
+        .row.row-cols-1.row-cols-sm-2.row-cols-md-3.row-cols-lg-4.g-4.pt-2
+          = link_to @contrato.pessoa do
+            = render 'shared/field_card', {campo: "Pessoa", valor: @contrato.pessoa.nome}
+          = link_to @contrato.plano do
+            = render 'shared/field_card', {campo: "Plano", valor: @contrato.plano.nome}
+          = render 'shared/field_card', {campo: "Perfil de Cobrança", valor: @contrato.pagamento_perfil.nome}
+          = render 'shared/field_card', {campo: "Dia Vencimento", valor: @contrato.dia_vencimento}
+          = render 'shared/field_card', {campo: "Data Adesão", valor: l(@contrato.adesao)}
+          = render 'shared/field_card', {campo: "Valor Instalação", valor: number_to_currency(@contrato.valor_instalacao)}
+          = render 'shared/field_card', {campo: "Número de Conexões", valor: @contrato.numero_conexoes}
+          = render 'shared/field_card', {campo: "Data de Cancelamento", valor: l(@contrato.cancelamento, default: "")}
+          = render 'shared/field_card', {campo: "Emitir NF", valor: @contrato.emite_nf.as_simnao}
+          = render 'shared/field_card', {campo: "Primeiro Vencimento", valor: l(@contrato.primeiro_vencimento, default: "")}
+          = render 'shared/field_card', {campo: "Prazo (meses)", valor: @contrato.prazo_meses}
+          /! - if @contrato.cartao_parcial.present?
+            = render 'shared/field_card', {campo: "Cartão", valor: @contrato.cartao_parcial}
+          - if @contrato.documentos.present?
+            = link_to @contrato.documentos.first['link'], target: "_blank" do
+              = render 'shared/field_card', {campo: @contrato.documentos.first['nome'], valor: l(@contrato.documentos.first['data'].to_date)}
+        - if can? :renovar, @contrato
+          = link_to renovar_contrato_path do
+            = button_tag("Renovar", {:class => "btn btn-success mt-1"}) do
+              i.fas.fa-refresh[aria-hidden="true"]
+              |  Renovar 
+  #faturas.tab-pane.fade[role="tabpanel" aria-labelledby="faturas-tab"]
+    h3
+      = @contrato.pessoa.nome
+    = render 'faturas/table', {exclude: 'pessoa'}

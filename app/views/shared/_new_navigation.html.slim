@@ -1,0 +1,133 @@
+.d-flex.flex-column.align-items-center.align-items-sm-start.px-3.pt-2.min-vh-100
+  a.d-flex.align-items-center.pb-3.mb-md-0.me-md-auto.text-white.text-decoration-none[href="/"]
+    span.fs-5.d-none.d-sm-inline
+      = image_tag("logo-cores.svg", id: "logo")
+  ul#menu.nav.nav-pills.flex-column.mb-sm-auto.mb-0.align-items-center.align-items-sm-start
+    li.nav-item
+      a.nav-link.align-middle.px-0[href="/"]
+        i.fs-4.bi-house
+        span.ms-1.d-none.d-sm-inline
+          | Principal
+    li
+      a.nav-link.px-0.align-middle[href="#assinantes-menu" data-bs-toggle="collapse"]
+        i.fs-4.bi-people
+        span.ms-1.d-none.d-sm-inline
+          | Assinantes
+      ul#assinantes-menu.collapse.nav.flex-column.ms-1[data-bs-parent="#menu"]
+        li.w-100
+          a.nav-link.px-0[href="#{pessoas_path}"]
+            span.d-none.d-sm-inline
+              | Pessoas
+        li
+          a.nav-link.px-0[href="#{excecoes_path}"]
+            span.d-none.d-sm-inline
+              | Exeções
+    li
+      a.nav-link.px-0.align-middle[href="#financeiro-menu" data-bs-toggle="collapse"]
+        i.fs-4.bi-cash-coin
+        span.ms-1.d-none.d-sm-inline
+          | Financeiro
+      ul#financeiro-menu.collapse.nav.flex-column.ms-1[data-bs-parent="#menu"]
+        li.w-100
+          a.nav-link.px-0[href="#{retornos_path}"]
+            span.d-none.d-sm-inline
+              | Retorno Bancário
+        li
+          a.nav-link.px-0[href="#{liquidacoes_path}"]
+            span.d-none.d-sm-inline
+              | Liquidações
+        li
+          a.nav-link.px-0[href="#{contratos_path(renovaveis: 1)}"]
+            span.d-none.d-sm-inline
+              | Contratos para Renovar
+        li
+          a.nav-link.px-0[href="#{contratos_path(cancelaveis: 1)}"]
+            span.d-none.d-sm-inline
+              | Contratos para Cancelar
+        li
+          a.nav-link.px-0[href="#{contratos_path(sem_conexao: 1)}"]
+            span.d-none.d-sm-inline
+              | Contratos sem Conexão
+        li
+          a.nav-link.px-0[href="#{pendencias_contratos_path}"]
+            span.d-none.d-sm-inline
+              | Termos não Assinados
+    li
+      a.nav-link.px-0.align-middle[href="#submenu2" data-bs-toggle="collapse"]
+        i.fs-4.bi-ethernet
+        span.ms-1.d-none.d-sm-inline
+          | Técnico
+      ul#submenu2.collapse.nav.flex-column.ms-1[data-bs-parent="#menu"]
+        li.w-100
+          a.nav-link.px-0[href="#"]
+            span.d-none.d-sm-inline
+              | Item
+            |  1
+        li
+          a.nav-link.px-0[href="#"]
+            span.d-none.d-sm-inline
+              | Item
+            |  2
+    li
+      a.nav-link.px-0.align-middle[href="#configuracoes-menu" data-bs-toggle="collapse"]
+        i.fs-4.bi-gear
+        span.ms-1.d-none.d-sm-inline
+          | Configurações
+      ul#configuracoes-menu.bg-white.collapse.nav.flex-column.ms-1[data-bs-parent="#menu"]
+        li.w-100
+          a.nav-link.px-0[href="#{estados_path}"]
+            i.fs-4.bi-globe-americas>
+            span.d-none.d-sm-inline
+              | Estados
+        li
+          a.nav-link.px-0[href="#{planos_path}"]
+            i.fs-4.bi-speedometer>
+            span.d-none.d-sm-inline
+              | Planos
+        li
+          a.nav-link.px-0[href="#{classificacoes_path}"]
+            i.fs-4.bi-list-check>
+            span.d-none.d-sm-inline
+              | Classificações
+        li
+          a.nav-link.px-0[href="#{pagamento_perfis_path}"]
+            i.fs-4.bi-credit-card>
+            span.d-none.d-sm-inline
+              | Perfis de Pagamento
+          a.nav-link.px-0[href="#{equipamentos_path}"]
+            i.fs-4.bi-router>
+            span.d-none.d-sm-inline
+              | Equipamentos
+    li
+      a.nav-link.px-0.align-middle[href="#{atendimentos_path(meus: 1, abertos: 1)}"]
+        i.fs-4.bi-telephone
+        span.ms-1.d-none.d-sm-inline
+          | Meus Atendimentos
+        span.badge.badge-pill.badge-danger = Atendimento.por_responsavel(current_user).abertos.count
+
+    li
+      a.nav-link.px-0.align-middle[href="#{os_index_path(minhas: 1, abertas: 1)}"]
+        i.fs-4.bi-truck
+        span.ms-1.d-none.d-sm-inline
+          | Minhas OS
+  hr
+  .dropdown.pb-4
+    a#dropdownUser1.d-flex.align-items-center.text-white.text-decoration-none.dropdown-toggle[href="#" data-bs-toggle="dropdown" aria-expanded="false"]
+      img.rounded-circle[src="https://github.com/mdo.png" alt="hugenerd" width="30" height="30"]
+      span.d-none.d-sm-inline.mx-1
+        | loser
+    ul.dropdown-menu.dropdown-menu-dark.text-small.shadow[aria-labelledby="dropdownUser1"]
+      li
+        a.dropdown-item[href="#"]
+          | New project...
+      li
+        a.dropdown-item[href="#"]
+          | Settings
+      li
+        a.dropdown-item[href="#"]
+          | Profile
+      li
+        hr.dropdown-divider
+      li
+        a.dropdown-item[href="#"]
+          | Sign out

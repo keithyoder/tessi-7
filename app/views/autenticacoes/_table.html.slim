@@ -1,0 +1,17 @@
+.card
+  = render '/shared/table_header', { titulo: "Autenticação" }
+  .card-body
+    .table-responsive
+      table.table.table-striped
+        thead
+          tr
+            th Usuário
+            th Resultado
+            th Data
+        tbody
+          - @autenticacoes.each do |autenticacao|
+            tr
+              td= link_to autenticacao.username, autenticacao.conexao
+              td= autenticacao.reply
+              td= autenticacao.authdate
+  = paginate @autenticacoes, :params => {:tab => "autenticacao"}

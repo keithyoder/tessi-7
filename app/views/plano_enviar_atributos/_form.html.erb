@@ -1,0 +1,26 @@
+
+<%= simple_form_for(@plano_enviar_atributo) do |f| %>
+  <%= f.error_notification %>
+  <%= f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present? %>
+
+  <div class="form-inputs">
+    <div class="row">
+      <%= f.association :plano, label_method: :nome %>
+    </div>
+    <div class="row">
+      <div class="col">
+        <%= f.input :atributo %>
+      </div>
+      <div class="col">
+        <%= f.input :op, collection: ['=', ':=', '+='] %>
+      </div>
+      <div class="col">
+        <%= f.input :valor %>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <%= f.button :submit %>
+  </div>
+<% end %>

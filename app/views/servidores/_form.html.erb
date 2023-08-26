@@ -1,0 +1,55 @@
+
+<%= simple_form_for(@servidor) do |f| %>
+  <%= f.error_notification %>
+  <%= f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present? %>
+
+  <div class="form-inputs">
+  <%= f.input :ativo %>
+    <div class="row">
+      <div class="col">
+        <%= f.input :nome %>
+      </div>
+      <div class="col">
+        <%= f.input :ip, as: :string %>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <%= f.input :usuario %>
+      </div>
+      <div class="col">
+        <%= f.input :senha %>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <%= f.input :api_porta %>
+      </div>
+      <div class="col">
+        <%= f.input :ssh_porta %>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <%= f.input :snmp_porta %>
+      </div>
+      <div class="col">
+        <%= f.input :snmp_comunidade %>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <%= f.input :radius_secret %>
+      </div>
+      <div class="col">
+        <%= f.input :radius_porta %>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <%= button_tag( :class => "btn btn-primary") do %>
+      <i class="fas fa-save" aria-hidden="true"></i> Salvar
+    <% end %>
+  </div>
+<% end %>

@@ -1,0 +1,22 @@
+.card
+  - render '/shared/table_header', {object: @pagamento_perfis, titulo: "Perfis de Pagamento", search_string: :nome_cont, query: @q}
+  .card-body
+    .table-responsive
+      table.table.table-striped.table-sm
+        thead
+          tr
+            th Nome
+            th Tipo
+            th Banco
+            th Convênio
+            th Ativo
+            th Contratos
+        tbody
+          - @pagamento_perfis.each do |perfil|
+            tr
+              td= link_to perfil.nome, perfil
+              td= perfil.tipo
+              td= perfil.banco
+              td= perfil.cedente
+              td= perfil.ativo.as_checkbox
+              td= perfil.contratos.ativos.count

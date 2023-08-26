@@ -1,0 +1,40 @@
+.card
+  - params = defined?(params) ? params : {}
+  = render '/shared/table_header', {object: @faturas, params: params}
+  .card-body
+    .table-responsive
+      table.table.table-striped.table-sm
+        thead
+          tr
+            - if !defined?(exclude) or exclude != 'pessoa'
+              th Assinante
+            th Parcela
+            th Vencimento
+            th Liquidação
+            th Valor
+            th Nosso Número
+            th Retornos
+        tbody
+          - @faturas.each do |fatura|
+            tr
+              - if !defined?(exclude) or exclude != 'pessoa'
+                td= fatura.pessoa.nome
+              td= fatura.parcela
+              td= link_to I18n.l(fatura.vencimento), fatura
+              td= I18n.l(fatura.liquidacao, default: '')
+              td= number_to_currency(fatura.valor)
+              td= fatura.nossonumero
+              td
+                small
+                  - if fatura.registro_id.present?
+                    span.badge.badge-success Registrada
+                    '
+                  - if fatura.retorno_id.present?
+                    span.badge.badge-dark Liquidada
+                    '
+                  - if fatura.baixa_id.present?
+                    span.badge.badge-warning Baixada
+                    '
+                  - if fatura.cancelamento.present?
+                    span.badge.badge-danger Cancelada
+    = paginate @faturas

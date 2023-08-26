@@ -1,0 +1,33 @@
+<div class="card">
+  <%= render '/shared/table_header', {object: @retornos, titulo: "Retorno Bancário", search_string: :pagamento_perfil_nome_cont} %>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Perfil</th>
+            <th>Data</th>
+            <th>Sequência</th>
+            <th>Liquidações</th>
+            <th>Registros</th>
+            <th>Baixas</th>
+         </tr>
+        </thead>
+
+        <tbody>
+          <% @retornos.each do |retorno| %>
+            <tr>
+              <td><%= link_to retorno.pagamento_perfil.nome, retorno.pagamento_perfil %></td>
+              <td><%= link_to l(retorno.data, default: 'Sem data'), retorno %></td>
+              <td><%= retorno.sequencia %></td>
+              <td><%= retorno.faturas.count %>
+              <td><%= retorno.registros.count %>
+              <td><%= retorno.baixas.count %>
+           </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <%= paginate @retornos %>
+</div>

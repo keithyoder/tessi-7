@@ -1,0 +1,32 @@
+= simple_form_for(@pagamento_perfil) do |f|
+  = f.error_notification
+  = f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present?
+  .form-inputs
+    .row
+      .col
+        = f.input :nome
+      .col
+        = f.input :tipo, collection: PagamentoPerfil.tipos.keys
+    .row
+      .col
+        = f.input :banco
+      .col
+        = f.input :agencia
+      .col
+        = f.input :conta
+    .row
+      .col
+        = f.input :cedente
+      .col
+        = f.input :carteira
+      .col
+        = f.input :variacao
+      .col
+        = f.input :sequencia
+    .row
+      .col
+        = f.input :ativo
+  .form-actions
+    = button_tag(:class => "btn btn-primary") do
+      i.fas.fa-save aria-hidden="true" 
+      | &nbsp; Salvar

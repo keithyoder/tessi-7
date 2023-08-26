@@ -1,0 +1,21 @@
+.card
+  .card-header
+    .row
+      .col-sm
+        h3 Radius Verificar
+  .card-body
+    .table-responsive
+      table.table.table-striped
+        thead
+          tr
+            th Usuário
+            th Atributo
+            th Op
+            th Valor
+        tbody
+          - @conexao_verificar_atributos.each do |verificar_atributo|
+            tr
+              td= verificar_atributo.conexao.usuario
+              td= verificar_atributo.atributo
+              td= verificar_atributo.op
+              td= verificar_atributo.valor

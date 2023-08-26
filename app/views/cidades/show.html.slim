@@ -1,0 +1,18 @@
+.card
+  = render 'shared/show_header', {object: @cidade}
+  .card-body
+    .row.row-cols-1.row-cols-sm-2.row-cols-md-3.row-cols-lg-4.g-4
+      = link_to @cidade.estado do
+        = render 'shared/field_card', {campo: "Estado", valor: @cidade.estado.nome}
+      = render 'shared/field_card', {campo: "IBGE", valor: @cidade.ibge}
+ul.nav.nav-pills
+  li.nav-item
+    a.nav-link class="#{params[:tab] == 'logradouros' ? '' : 'active'}" data-toggle='tab' href='#bairros' Bairro
+  li.nav-item
+    a.nav-link class="#{params[:tab] == 'logradouros' ? 'active' : ''}" data-toggle='tab' href='#logradouros' Logradouros
+.tab-content
+  #bairros.tab-pane.fade.show aria-labelledby="bairros-tab" class=("#{params[:tab] == "bairros" ? "": "show active"}") role="tabpanel" 
+    .card
+      = render 'bairros/table', bairros: @bairros
+  #logradouros.tab-pane.fade aria-labelledby="logradouros-tab" class=("#{params[:tab] == "logradouros" ? "show active": ""}") role="tabpanel" 
+    = render 'logradouros/table'

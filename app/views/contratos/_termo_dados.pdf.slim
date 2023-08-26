@@ -1,0 +1,103 @@
+.termo 
+  table border="1" style=("border-collapse: collapse; width: 30%; float: right;") 
+    tbody
+      tr
+        td 
+          p.termo TERMO N&ordm;:
+        td style=("text-align: right;") 
+            p.termo.variable = @contrato.id
+  | As partes abaixo identificadas resolvem firmar o presente&nbsp;
+  strong TERMO DE ADES&Atilde;O:
+  br &nbsp;
+table.full-width
+  thead
+    tr
+      th.termo.variable colspan="8" DADOS DA PRESTADORA
+  tbody
+    tr
+      td colspan="4" 
+        p.termo.campo Nome Empresarial:
+        span.termo.variable = Setting.razao_social
+      td colspan="2" 
+        p.termo.campo Ato de Autoriza&ccedil;&atilde;o:
+        span.termo.variable N&ordm; 3362/2010
+      td colspan="2" 
+        p.termo.campo Termo de Autoriza&ccedil;&atilde;o:
+        span.termo.variable N&ordm; 3362/2010
+    tr
+      td colspan="2" 
+        p.termo.campo CNPJ:
+        span.termo.variable = CNPJ.new(Setting.cnpj).formatted
+      td colspan="2" 
+        p.termo.campo Inscri&ccedil;&atilde;o Estadual:
+        span.termo.variable = Setting.ie
+      td colspan="4" 
+        p.termo.campo Endere&ccedil;o da Sede da Prestadora:
+        span.termo.variable RUA TREZE DE MAIO, N&deg;05 &ndash; B
+    tr
+      td colspan="3" 
+        p.termo.campo Cidade/UF:
+        span.termo.variable PESQUEIRA/PE
+      td colspan="3" 
+        p.termo.campo Bairro:
+        span.termo.variable CENTRO
+      td colspan="2" 
+        p.termo.campo CEP:
+        span.termo.variable 55.200-000
+    tr
+      td colspan="2" 
+        p.termo Telefone Comercial:
+        span.termo.variable 87 99921 1228
+      td colspan="2" 
+        p.termo S.A.C.
+        span.termo.variable 0800 725 2129
+      td colspan="4" 
+        p.termo Endere&ccedil;o de E-mail:
+        span.termo.variable financeiro@tessi.com.br
+br &nbsp;
+table.full-width
+  thead
+    tr
+      th.termo.variable colspan="8" DADOS DO ASSINANTE
+  tbody
+    tr
+      td colspan="6" 
+        p.termo.campo Nome / Raz&atilde;o Social:
+        span.termo.variable =@contrato.pessoa.nome
+      td colspan="2" 
+        p.termo.campo Data Nascimento:
+        span.termo.variable =l(@contrato.pessoa.nascimento, default: '')
+    tr
+      td colspan="4" 
+        p.termo.campo RG / IE:
+        span.termo.variable
+          =@contrato.pessoa.rg
+          =@contrato.pessoa.ie
+      td colspan="4" 
+        p.termo.campo CPF / CNPJ:
+        span.termo.variable
+          =@contrato.pessoa.cpf
+          =@contrato.pessoa.cnpj
+    tr
+      td colspan="2" 
+        p.termo.campo Telefone WhatsApp:
+        span.termo.variable = @contrato.pessoa.telefone1
+      td colspan="2" 
+        p.termo.campo Telefone:
+        span.termo.variable =@contrato.pessoa.telefone2
+      td colspan="4" 
+        p.termo.campo Email:
+        span.termo.variable =@contrato.pessoa.email
+    tr
+      td colspan="8" 
+        p.termo.campo Endere&ccedil;o Cobran&ccedil;a:
+        span.termo.variable
+          =@contrato.pessoa.endereco
+          | - 
+          =@contrato.pessoa.logradouro.bairro.nome_cidade_uf
+    tr
+      td colspan="8" 
+        p.termo.campo  Endere&ccedil;o Instala&ccedil;&atilde;o:
+        span.termo.variable
+          - @contrato.enderecos.each do |endereco|
+            =endereco

@@ -1,0 +1,25 @@
+<div class="card">
+  <%= render '/shared/table_header', {object: @classificacoes, search_string: :nome_cont, params: @params} %>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Tipo</th>
+            <th>Classificação</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <% @classificacoes.each do |classificacao| %>
+            <tr>
+              <td><%= classificacao.tipo %></td>
+              <td><%= link_to classificacao.nome, edit_classificacao_path(classificacao) %></td>
+           </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <%= paginate @classificacoes %>
+</div>

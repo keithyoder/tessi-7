@@ -1,0 +1,17 @@
+.card
+  = render '/shared/table_header', {object: @ip_redes, search_string: :rede_string_cont, params: @params, titulo: "Redes IP"}
+  .card-body
+    .table-responsive
+      table.table.table-striped
+        thead
+          tr
+            th Ponto de Acesso
+            th Rede
+            th IPs Ocupados
+        tbody
+          - @ip_redes.each do |rede|
+            tr
+              td= link_to rede.ponto.nome, rede.ponto
+              td= link_to rede.cidr, edit_ip_rede_path(rede)
+              td= "#{rede.conexoes.count}/#{rede.ips_quantidade}"
+  = paginate @ip_redes

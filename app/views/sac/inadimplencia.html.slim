@@ -1,0 +1,10 @@
+= stylesheet_link_tag params[:controller]
+.sac-center
+  p Olá #{@conexao&.pessoa&.nome}, tudo bem?
+
+  p Não identificamos o pagamento do dia #{l(@vencimento, default: '')}.
+  p Sua conexão ainda está ativa, mas será suspensa no dia #{l(@suspensao, default: '')} se não estiver confirmado o pagamento.
+  = button_tag(:class => "btn btn-primary", onclick: "location.href='https://google.com'") do
+    i.fas.fa-arrow-right aria-hidden="true" 
+    | &nbsp;Continuar
+ 

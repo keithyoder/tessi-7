@@ -1,0 +1,24 @@
+.row
+  .card.col-sm
+    = render 'shared/show_header', {object: @atendimento, titulo: 'Atendimento', params: @params}
+    .card-body
+      .card-columns style=("column-count: 3") 
+        = link_to @atendimento.pessoa do
+          = render 'shared/field_card', {campo: "Pessoa", valor: @atendimento.pessoa.nome}
+        = render 'shared/field_card', {campo: "Classificação", valor: @atendimento.classificacao.nome}
+        = render 'shared/field_card', {campo: "Responsável", valor: @atendimento.responsavel.primeiro_nome}
+        = render 'shared/field_card', {campo: "Aberto Em", valor: l(@atendimento.created_at, format: :short) }
+        = render 'shared/field_card', {campo: "Fechado Em", valor: @atendimento.fechamento}
+        - if @atendimento.contrato.present?
+          = render 'shared/field_card', {campo: "Contrato", valor: @atendimento.contrato&.id}
+        - if @atendimento.conexao.present?
+          = link_to @atendimento.conexao do
+            = render 'shared/field_card', {campo: "Conexão", valor: @atendimento.conexao&.ip.to_s}
+        - if @atendimento.fatura.present?
+          = render 'shared/field_card', {campo: "Fatura", valor: @atendimento.fatura&.id}
+      - if can? :encerrar, @atendimento
+        = link_to encerrar_atendimento_path do
+          = button_tag("Encerrar", {:class => "btn btn-warning"}) do
+            i.fas.fa-door-closed aria-hidden="true" 
+            | Encerrar
+= render 'atendimento_detalhes/table'

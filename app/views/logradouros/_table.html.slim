@@ -1,0 +1,20 @@
+.card
+  - params = defined?(params) ? params : {}
+  = render '/shared/table_header', {object: @logradouros, search_string: :nome_cont, params: params}
+  .card-body
+    .table-responsive
+      table.table.table-striped
+        thead
+          tr
+            th Nome
+            th Bairro
+            th CEP
+            th Assinantes
+        tbody
+          - @logradouros.each do |logradouro|
+            tr
+              td = link_to logradouro.nome, logradouro
+              td = logradouro.bairro.nome_cidade_uf
+              td = logradouro.cep
+              td align="center" = logradouro.assinantes.size()
+    = paginate @logradouros, params: {tab: "logradouros"}, param_name: "logradouros_page"

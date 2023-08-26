@@ -1,0 +1,33 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Nf21 Itens</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Nf 21</th>
+      <th>References</th>
+      <th>Item</th>
+      <th>Text</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @nf21_itens.each do |nf21_item| %>
+      <tr>
+        <td><%= nf21_item.nf_21 %></td>
+        <td><%= nf21_item.references %></td>
+        <td><%= nf21_item.item %></td>
+        <td><%= nf21_item.text %></td>
+        <td><%= link_to 'Show', nf21_item %></td>
+        <td><%= link_to 'Edit', edit_nf21_item_path(nf21_item) %></td>
+        <td><%= link_to 'Destroy', nf21_item, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Nf21 Item', new_nf21_item_path %>

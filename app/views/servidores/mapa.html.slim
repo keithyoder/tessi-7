@@ -1,0 +1,6 @@
+= javascript_include_tag params[:controller]
+= stylesheet_link_tag params[:controller]
+h3 Mapa das Conexões para o Concentrador #{@servidor.nome}
+#map data-conectadas=@conectadas data-desconectadas=@desconectadas
+= javascript_include_tag "https://maps.googleapis.com/maps/api/js?key=#{Rails.application.credentials.google_maps_api_key}&callback=initMap&libraries=&v=weekly", async: true
+

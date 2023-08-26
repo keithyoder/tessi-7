@@ -1,0 +1,7 @@
+= simple_form_for(@cidade) do |f|
+  .form-inputs
+    = f.input :nome
+    = f.association :estado, label_method: :nome
+    = f.input :ibge
+  .form-actions
+    = botao_salvar

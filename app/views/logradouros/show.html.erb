@@ -1,0 +1,29 @@
+<ul class="nav nav-pills">
+  <li class="nav-item">
+    <a class="nav-link active" data-toggle="tab" href="#logradouro">Logradouro</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" data-toggle="tab" href="#conexoes">Conexões</a>
+  </li>
+</ul>
+<div class="tab-content">
+  <div class="tab-pane fade show <%= params[:tab] == "conexoes" ? "": "show active" %>" id="logradouro"
+    role="tabpanel" aria-labelledby="logradouro-tab">
+    <div class="card">
+      <%= render 'shared/show_header', {object: @logradouro} %>
+      <div class="card-body">
+        <div class="card-columns" style="column-count: 3">
+          <%= link_to @logradouro.bairro do %>
+            <%= render 'shared/field_card', {campo: "Bairro", valor: @logradouro.bairro.nome_cidade_uf} %>
+          <% end %>
+          <%= render 'shared/field_card', {campo: "CEP", valor: @logradouro.cep} %>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="tab-pane fade <%= params[:tab] == "conexoes" ? "show active": "" %>" id="conexoes"
+    role="tabpanel" aria-labelledby="conexoes-tab">
+    <h3><%= @logradouro.nome %></h3>
+    <%= render 'conexoes/table', {exclude: ['equipamento']}%>
+  </div>
+</div>

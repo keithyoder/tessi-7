@@ -1,0 +1,34 @@
+ul.nav.nav-pills
+  li.nav-item
+    a.nav-link.active data-toggle="tab" href="#perfil"  Perfil
+  li.nav-item
+    a.nav-link data-toggle="tab" href="#retornos"  Retornos
+  li.nav-item
+    a.nav-link data-toggle="tab" href="#resumo"  Resumo
+.tab-content
+  #perfil.tab-pane.fade.show.active aria-labelledby="perfil-tab" role="tabpanel" 
+    .card
+      = render 'shared/show_header', {object: @pagamento_perfil, titulo: "Perfil de Pagamento "}
+      .card-body
+        .card-columns
+          = render 'shared/field_card', {campo: "Nome", valor: @pagamento_perfil.nome}
+          = render 'shared/field_card', {campo: "Tipo", valor: @pagamento_perfil.tipo}
+          = render 'shared/field_card', {campo: "Banco", valor: @pagamento_perfil.banco}
+          = render 'shared/field_card', {campo: "Agência", valor: @pagamento_perfil.agencia}
+          = render 'shared/field_card', {campo: "Conta", valor: @pagamento_perfil.conta}
+          = render 'shared/field_card', {campo: "Convênio", valor: @pagamento_perfil.cedente}
+          = render 'shared/field_card', {campo: "Carteira", valor: @pagamento_perfil.carteira}
+          = render 'shared/field_card', {campo: "Variação", valor: @pagamento_perfil.variacao}
+          = render 'shared/field_card', {campo: "Sequência", valor: @pagamento_perfil.sequencia}
+          = render 'shared/field_card', {campo: "Ativo", valor: @pagamento_perfil.ativo.as_simnao.capitalize}
+        -if can? :remessa, @pagamento_perfil
+          = link_to remessa_pagamento_perfil_path(sequencia: @pagamento_perfil.sequencia+1), target: "_blank" do
+            = button_tag("Remessa", {:class => "btn btn-warning"}) do
+              i.fas.fa-file-import aria-hidden="true" 
+              | &nbsp; Remessa
+  #retornos.tab-pane.fade aria-labelledby="retornos-tab" role="tabpanel" 
+    h3 = @pagamento_perfil.nome
+    = render 'retornos/table'
+  #resumo.tab-pane.fade aria-labelledby="resumo-tab" role="tabpanel" 
+    h3 = @pagamento_perfil.nome
+    = render 'meses'

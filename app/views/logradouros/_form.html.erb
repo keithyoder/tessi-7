@@ -1,0 +1,17 @@
+
+<%= simple_form_for(@logradouro) do |f| %>
+  <%= f.error_notification %>
+  <%= f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present? %>
+
+  <div class="form-inputs">
+    <%= f.input :nome %>
+    <%= f.association :bairro, collection: Bairro.order('nome'), label_method: :nome_cidade_uf %>
+    <%= f.input :cep %>
+  </div>
+
+  <div class="actions">
+    <%= button_tag( :class => "btn btn-primary") do %>
+      <i class="fas fa-save" aria-hidden="true"></i> Salvar
+    <% end %>
+  </div>
+<% end %>

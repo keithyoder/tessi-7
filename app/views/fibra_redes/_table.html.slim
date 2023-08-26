@@ -1,0 +1,19 @@
+.card
+  = render '/shared/table_header', {object: @fibra_redes, search_string: :nome_cont, params: @params, titulo: "Redes de Fibra"}
+  .card-body
+    .table-responsive
+      table.table.table-striped
+        thead
+          tr
+            th Rede
+            th Ponto de Acesso
+            th Conexões
+            th Ativas
+        tbody
+          - @fibra_redes.each do |rede|
+            tr
+              td= link_to rede.nome, rede
+              td= link_to rede.ponto.nome, rede.ponto
+              td= rede.conexoes.count
+              td= rede.conexoes.conectada.count
+  = paginate @fibra_redes

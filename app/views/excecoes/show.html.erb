@@ -1,0 +1,21 @@
+<div class="card">
+  <%= render 'shared/show_header', {object: @excecao, titulo: 'Exceção'} %>
+  <div class="card-body">
+    <div class="card-columns" style="column-count: 4">
+      <%= render 'shared/field_card',
+        {
+          campo: "Contrato",
+          valor: "#{@excecao.contrato.id} - #{@excecao.contrato.pessoa.nome}"
+        }
+      %>
+      <%= render 'shared/field_card', {campo: "Tipo", valor: @excecao.tipo} %>
+      <%= render 'shared/field_card',
+        {
+          campo: "Período",
+          valor: "#{l(@excecao.created_at.to_date, default: '')} - #{l(@excecao.valido_ate, default: '')}"
+        }
+      %>
+      <%= render 'shared/field_card', {campo: "Atendente", valor: @excecao.usuario} %>
+    </div>
+  </div>
+</div>

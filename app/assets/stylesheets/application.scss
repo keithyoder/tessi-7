@@ -1,0 +1,53 @@
+/*
+ * This is a manifest file that'll be compiled into application.css, which will include all the files
+ * listed below.
+ *
+ * Any CSS and SCSS file within this directory, lib/assets/stylesheets, or any plugin's
+ * vendor/assets/stylesheets directory can be referenced here using a relative path.
+ *
+ * You're free to add application-wide styles to this file and they'll appear at the bottom of the
+ * compiled file so the styles you add here take precedence over styles defined in any other CSS/SCSS
+ * files in this directory. Styles in this file should be added after the last require_* statement.
+ * It is generally better to create a new file per style scope.
+ *
+*/
+@import 'bootstrap';
+@import 'jquery-ui';
+@import 'jquery.mCustomScrollbar.min';
+/*@import 'new_nav';*/
+
+@media print {
+    /* Your styles here */
+}
+
+.base-alert {
+    position: relative;
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+    border-radius: 0.25rem;
+}
+
+.notice {
+    color: #18603a;
+    background-color: #d5f1de;
+    border-color: #c4ebd1;
+}
+
+.info {
+    color: #1b508f;
+    background-color: #d6ebff;
+    border-color: #c6e2ff;
+}
+
+.error {
+    color: #772b35;
+    background-color: #fadddd;
+    border-color: #f8cfcf;
+}
+
+.warning {
+    color: #815c15;
+    background-color: #feefd0;
+    border-color: #fde9bd;
+}

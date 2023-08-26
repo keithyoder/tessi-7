@@ -1,0 +1,29 @@
+<div class="card">
+  <%= render '/shared/table_header', {object: @planos, titulo: "Planos de Acesso", search_string: :nome_cont} %>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Plano</th>
+            <th>Mensalidade</th>
+            <th>Velocidade</th>
+            <th>Ativo</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <% @planos.each do |plano| %>
+            <tr>
+              <td><%= link_to plano.nome, plano %></td>
+              <td><%= number_with_precision(plano.mensalidade, :precision => 2) %></td>
+              <td><%= plano.velocidade %></td>
+              <td><%= plano.ativo.as_checkbox %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+      <%= paginate @planos %>
+    </div>
+  </div>
+</div>

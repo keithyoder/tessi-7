@@ -1,0 +1,33 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Atendimento Detalhes</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Atendimento</th>
+      <th>Tipo</th>
+      <th>Atendente</th>
+      <th>Descricao</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @atendimento_detalhes.each do |atendimento_detalhe| %>
+      <tr>
+        <td><%= atendimento_detalhe.atendimento %></td>
+        <td><%= atendimento_detalhe.tipo %></td>
+        <td><%= atendimento_detalhe.atendente %></td>
+        <td><%= atendimento_detalhe.descricao %></td>
+        <td><%= link_to 'Show', atendimento_detalhe %></td>
+        <td><%= link_to 'Edit', edit_atendimento_detalhe_path(atendimento_detalhe) %></td>
+        <td><%= link_to 'Destroy', atendimento_detalhe, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Atendimento Detalhe', new_atendimento_detalhe_path %>

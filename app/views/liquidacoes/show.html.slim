@@ -1,0 +1,35 @@
+.card
+  = render '/shared/table_header', {object: @liquidacoes, titulo: "Liquidações "+l(params[:id].to_date) }
+  .card-body
+    .table-responsive
+      table.table.table-striped
+        thead
+          tr
+            th
+              | Assinante
+            th
+              | Contrato
+            th
+              | Parcela
+            th
+              | Forma de Pagamento
+            th
+              | Valor
+            th
+              | Vencimento
+        tbody
+          - @liquidacoes.each do |liquidacao|
+            tr
+              td
+                = link_to liquidacao.contrato.pessoa.nome, liquidacao.contrato.pessoa
+              td
+                = link_to liquidacao.contrato.id, liquidacao.contrato
+              td
+                = link_to liquidacao.parcela, liquidacao
+              td
+                = liquidacao.meio_liquidacao
+              td
+                = number_to_currency(liquidacao.valor_liquidacao)
+              td
+                = l(liquidacao.vencimento)
+      = paginate @liquidacoes

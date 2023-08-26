@@ -1,0 +1,51 @@
+html
+  head title="Print" 
+    = wicked_pdf_stylesheet_link_tag "contratos"
+    meta charset="utf-8"
+  body
+    table.full-width.no-border
+      tbody
+        tr.no-border
+          th.no-border
+            = wicked_pdf_image_tag asset_url('logo-cores.svg')
+          th.no-border.termo.variable
+            span> ORDEM DE SERVIÇO -
+            = @os.tipo.upcase
+    p
+    = render 'cliente'
+    p
+    - if @os.conexao.present?
+      =render 'conexao'
+    p
+    table.full-width
+      thead
+        tr
+          th.termo.variable colspan="8" SOLICITAÇÃO
+      tbody
+        tr
+          td colspan="8" 
+            p.termo.campo Diagnóstico:
+            span.termo.variable =@os.descricao
+        tr
+          td colspan="8" 
+            p.termo.campo Solução:
+            p &nbsp;
+            p &nbsp;
+            p &nbsp;
+    p
+    table.full-width
+      tbody
+        tr
+          td colspan="4" 
+            p.termo.campo Data do Serviço:
+            p &nbsp;
+          td colspan="4" 
+            p.termo.campo Técnico Responsável:
+            p &nbsp;
+        tr
+          td colspan="4" 
+            p.termo.campo Assinatura do Assinante:
+            p &nbsp;
+          td colspan="4" 
+            p.termo.campo Assinatura do Técnico:
+            p &nbsp;

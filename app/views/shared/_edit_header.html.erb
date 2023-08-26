@@ -1,0 +1,8 @@
+<div class="card-header">
+  <h3><%= link_to '<i class="bi bi-backspace" aria-hidden="true"></i>'.html_safe, object, class: "btn btn-sm btn-outline-dark" %>
+  <% if can? :destroy, object %>
+  <%= link_to '<i class="bi bi-trash" aria-hidden="true"></i>'.html_safe, object, method: :delete,
+    class: "btn btn-sm btn-danger", data: { confirm: 'Você tem certeza?' } %>
+  <% end %>
+  Alterar <%= titulo %></h3>
+</div>

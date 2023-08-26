@@ -1,0 +1,25 @@
+.card
+  = render '/shared/table_header', {object: @cidades, titulo: "SICI", search_string: :nome_cont}
+  .card-body
+    .table-responsive
+      table.table.table-striped
+        thead
+          tr
+            th Município
+            th IBGE
+            th Tecnologia
+            th PF
+            th PJ
+        tbody
+          - @sici.each do |cidade|
+            tr
+              td= link_to cidade.nome_uf, cidade
+              td= cidade.ibge
+              td= Ponto.tecnologias.key(cidade.tecnologia)
+              td= cidade.quantas_conexoes("Pessoa Física")
+              td= cidade.quantas_conexoes("Pessoa Jurídica")
+        tfoot
+          tr
+            th colspan="3"  Total
+            th= @conexoes.pessoa_fisica.count
+            th= @conexoes.pessoa_juridica.count

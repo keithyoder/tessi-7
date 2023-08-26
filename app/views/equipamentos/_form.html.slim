@@ -1,0 +1,18 @@
+= simple_form_for(@equipamento) do |f|
+  = f.error_notification
+  = f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present?
+  .form-inputs
+    .row
+      .col
+        = f.input :fabricante
+      .col
+        = f.input :modelo
+    .row
+      .col
+        = f.input :tipo, collection: Equipamento.tipos.keys
+      .col
+        = f.file_field :imagem
+  .form-actions
+    = button_tag(:class => "btn btn-primary") do
+      i.fas.fa-save aria-hidden="true" 
+      | &nbsp; Salvar

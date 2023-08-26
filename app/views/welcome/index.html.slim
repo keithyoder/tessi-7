@@ -1,0 +1,35 @@
+.row.row-cols-1.row-cols-sm-2.row-cols-md-3.row-cols-lg-4.g-4
+  .card
+    .card-header
+      |  Conexões ativas 
+    .card-body.text-center
+      h1
+        = number_with_delimiter(Conexao.ativo.count)
+  .card
+    .card-header
+      |  Conexões Radius 
+    .card-body.text-center
+      h1
+        = number_with_delimiter(RadAcct.where("acctstoptime is null and acctstarttime > ?", 2.days.ago).distinct.count(:username))
+  .card
+    .card-header
+      |  Conexões suspensas 
+    .card-body.text-center
+      h1
+        = number_with_delimiter(Conexao.bloqueado.count)
+  .card
+    .card-header
+      |  Conexões inadimplentes 
+    .card-body.text-center
+      h1
+        = number_with_delimiter(Conexao.inadimplente.count)
+  .card
+    .card-header
+      |  Tecnologia 
+    .card-body.text-center
+      = pie_chart Conexao.joins(:ponto).group(:tecnologia).count.map {|k,v| [Ponto.tecnologias.key(k), v] }.to_h
+  .card
+    .card-header
+      |  Cidades 
+    .card-body.text-center
+      = pie_chart Conexao.ativo.joins(:cidade).group("cidades.nome").order(count: :desc).limit(5).count

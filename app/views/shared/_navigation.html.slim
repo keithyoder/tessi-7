@@ -1,0 +1,185 @@
+#sidebar.sidebar-wrapper.col-md-2
+  .sidebar-content
+    /! sidebar-brand
+    .sidebar-item.sidebar-brand
+      a href="#"  Tessi Telecom
+    /! sidebar-header
+    .sidebar-item.sidebar-header.d-flex.flex-nowrap
+      .user-info
+        span.user-name
+          = current_user.present? ? current_user.email : ''
+        span.user-status
+          i.bi.bi-circle
+          span Online
+    /! sidebar-menu
+    .sidebar-item.sidebar-menu
+      ul
+        li.header-menu
+          span Geral
+        li.sidebar-dropdown
+          = link_to 'javascript:;' do
+            i.bi.bi-user
+            span.menu-text Assinantes
+          .sidebar-submenu
+            ul
+              li
+                = link_to('Pessoas', pessoas_path)
+              li
+                = link_to('Exceções', excecoes_path)
+              li
+                a href="#"  Suspensos
+        li.sidebar-dropdown
+          = link_to 'javascript:;' do
+            i.bi.bi-dollar-sign
+            span.menu-text Financeiro
+          .sidebar-submenu
+            ul
+              li
+                = link_to('Retorno Bancário', retornos_path)
+              li
+                = link_to('Liquidações', liquidacoes_path)
+              li
+                = link_to('Contratos para Renovar', contratos_path(renovaveis: 1))
+              li
+                = link_to('Contratos para Cancelar', contratos_path(cancelaveis: 1))
+              li
+                = link_to('Contratos sem Conexão', contratos_path(sem_conexao: 1))
+              li
+                = link_to('Termos não Assinados', pendencias_contratos_path)
+        li.sidebar-dropdown
+          = link_to 'javascript:;' do
+            i.fas.fa-ethernet
+            span.menu-text Técnico
+          .sidebar-submenu
+            ul
+              li
+                = link_to('OS', os_index_path(abertas: 1))
+              li
+                = link_to('Conexões', conexoes_path)
+              li
+                = link_to('Concentradores', servidores_path)
+              li
+                = link_to('Pontos de Acesso', pontos_path)
+              li
+                = link_to('Fibra', fibra_redes_path)
+              li
+                = link_to('IPs', ip_redes_path)
+        li.sidebar-dropdown
+          = link_to 'javascript:;' do
+            i.fa.fa-cogs
+            span.menu-text Configurações
+          .sidebar-submenu
+            ul
+              li
+                = link_to('Estados', estados_path)
+              li
+                = link_to('Planos', planos_path)
+              li
+                = link_to('Classificações', classificacoes_path)
+              li
+                = link_to('Perfis de Pagamento', pagamento_perfis_path)
+              li
+                = link_to('Equipamentos', equipamentos_path)
+        li
+          = link_to atendimentos_path(meus: 1, abertos: 1) do
+            i.fa.fa-phone
+            span.menu-text Meus Atendimentos
+            span.badge.badge-pill.badge-danger = Atendimento.por_responsavel(current_user).abertos.count
+        li
+          = link_to os_index_path(minhas: 1, abertas: 1) do
+            i.fa.fa-truck
+            span.menu-text Minhas OS
+            span.badge.badge-pill.badge-danger = Os.por_responsavel(current_user).abertas.count
+    /! sidebar-menu
+  /! sidebar-footer
+  .sidebar-footer
+    .dropdown
+      a aria-expanded="false" aria-haspopup="true" data-toggle="dropdown" href="#" 
+        i.fa.fa-bell
+        span.badge.badge-pill.badge-warning.notification 3
+      .dropdown-menu.notifications aria-labelledby="dropdownMenuMessage" 
+        .notifications-header
+          i.fa.fa-bell
+          | Notifications
+        .dropdown-divider
+        a.dropdown-item href="#" 
+        .notification-content
+          .icon
+            i.fas.fa-check.text-success.border.border-success
+          .content
+            .notification-detail
+              | Lorem ipsum dolor sit amet consectetur adipisicing
+              | elit. In totam explicabo
+            .notification-time
+              | 6 minutes ago
+        a.dropdown-item href="#" 
+        .notification-content
+          .icon
+            i.fas.fa-exclamation.text-info.border.border-info
+          .content
+            .notification-detail
+              | Lorem ipsum dolor sit amet consectetur adipisicing
+              | elit. In totam explicabo
+            .notification-time
+              | Today
+        a.dropdown-item href="#" 
+        .notification-content
+          .icon
+            i.fas.fa-exclamation-triangle.text-warning.border.border-warning
+          .content
+            .notification-detail
+              | Lorem ipsum dolor sit amet consectetur adipisicing
+              | elit. In totam explicabo
+            .notification-time
+              | Yesterday
+        .dropdown-divider
+        a.dropdown-item.text-center href="#"  View all notifications
+    .dropdown
+      a aria-expanded="false" aria-haspopup="true" data-toggle="dropdown" href="#" 
+        i.fa.fa-envelope
+        span.badge.badge-pill.badge-success.notification 7
+      .dropdown-menu.messages aria-labelledby="dropdownMenuMessage" 
+        .messages-header
+          i.fa.fa-envelope
+          | Messages
+        .dropdown-divider
+        a.dropdown-item href="#" 
+        .message-content
+          .content
+            .message-title
+              strong Jhon doe
+            .message-detail
+              | Lorem ipsum dolor sit amet consectetur adipisicing
+              | elit. In totam explicabo
+        a.dropdown-item href="#" 
+        .message-content
+          .content
+            .message-title
+              strong Jhon doe
+            .message-detail
+              | Lorem ipsum dolor sit amet consectetur adipisicing
+              | elit. In totam explicabo
+        a.dropdown-item href="#" 
+        .message-content
+          .content
+            .message-title
+              strong Jhon doe
+            .message-detail
+              | Lorem ipsum dolor sit amet consectetur adipisicing
+              | elit. In totam explicabo
+        .dropdown-divider
+        a.dropdown-item.text-center href="#"  View all messages
+    .dropdown
+      a aria-expanded="false" aria-haspopup="true" data-toggle="dropdown" href="#" 
+        i.fa.fa-cog
+        span.badge-sonar
+      .dropdown-menu aria-labelledby="dropdownMenuMessage" 
+        a.dropdown-item href="#"  My profile
+        a.dropdown-item href="#"  Help
+        a.dropdown-item href="#"  Setting
+    div
+      a href="#" 
+        i.fa.fa-power-off
+    .pinned-footer
+      a href="#" 
+        i.fas.fa-ellipsis-h

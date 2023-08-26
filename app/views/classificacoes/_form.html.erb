@@ -1,0 +1,23 @@
+<%= simple_form_for(@classificacao) do |f| %>
+  <%= f.error_notification %>
+  <%= f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present? %>
+
+  <div class="form-inputs">
+    <div class="row">
+      <div class="col">
+        <%= f.input :tipo, collection: Classificacao.tipos.keys %>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <%= f.input :nome %>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <%= button_tag(:class => "btn btn-primary") do %>
+      <i class="fas fa-save" aria-hidden="true"></i> Salvar
+    <% end %>
+  </div>
+<% end %>

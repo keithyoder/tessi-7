@@ -1,0 +1,50 @@
+ul.nav.nav-pills
+  li.nav-item
+    a.nav-link.active[data-bs-toggle="tab" href="#pessoa"]
+      | Pessoa
+  li.nav-item
+    a.nav-link[data-bs-toggle="tab" href="#contratos"]
+      | Contratos
+  li.nav-item
+    a.nav-link[data-bs-toggle="tab" href="#conexoes"]
+      | Conexões
+  li.nav-item
+    a.nav-link[data-bs-toggle="tab" href="#atendimentos"]
+      | Atendimentos
+  li.nav-item
+    a.nav-link[data-bs-toggle="tab" href="#os"]
+      | OS
+.tab-content
+  #pessoa.tab-pane.fade.show.active[role="tabpanel" aria-labelledby="pessoa-tab"]
+    .card
+      = render 'shared/show_header', {object: @pessoa, params: @params}
+      .card-body
+        .row.row-cols-1.row-cols-sm-2.row-cols-md-3.row-cols-lg-4.g-4.pt-3
+          = render 'shared/field_card', {campo: "Tipo", valor: @pessoa.tipo}
+          = render 'shared/field_card', {campo: "CPF / CNPJ", valor: @pessoa.cpf_cnpj_formatado }
+          = render 'shared/field_card', {campo: "RG / IE", valor: @pessoa.rg_ie }
+          - if @pessoa.nascimento.present?
+            = render 'shared/field_card', {campo: "Nascimento", valor: @pessoa.nascimento.strftime("%d/%m/%Y") + " ("+ @pessoa.idade.to_s + " anos)"}
+          = render 'shared/field_card', {campo: "Endereço", valor: @pessoa.endereco + ' ' + @pessoa.logradouro.bairro.nome_cidade_uf}
+          = render 'shared/field_card', {campo: "Nome da Mãe", valor: @pessoa.nomemae}
+          = render 'shared/field_card', {campo: "E-mail", valor: @pessoa.email}
+          = render 'shared/field_card', {campo: "Telefone 1", valor: @pessoa.telefone1}
+          - if @pessoa.telefone2.present?
+            = render 'shared/field_card', {campo: "Telefone 2", valor: @pessoa.telefone2}
+      = @pessoa.rg_imagem.attached? ? image_tag(@pessoa.rg_imagem, :width => "33%") : ''
+  #contratos.tab-pane.fade[role="tabpanel" aria-labelledby="contratos-tab"]
+    h3
+      = @pessoa.nome
+    = render 'contratos/table', {exclude: "pessoa", params: {pessoa_id: @pessoa}}
+  #conexoes.tab-pane.fade[role="tabpanel" aria-labelledby="conexoes-tab"]
+    h3
+      = @pessoa.nome
+    = render 'conexoes/table', {exclude: ["pessoa", "equipamento"], params: {pessoa_id: @pessoa}}
+  #atendimentos.tab-pane.fade[role="tabpanel" aria-labelledby="atendimentos-tab"]
+    h3
+      = @pessoa.nome
+    = render 'atendimentos/table', {exclude: "pessoa", params: {pessoa_id: @pessoa}}
+  #os.tab-pane.fade[role="tabpanel" aria-labelledby="os-tab"]
+    h3
+      = @pessoa.nome
+    = render 'os/table', {exclude: "pessoa", params: {pessoa_id: @pessoa}}

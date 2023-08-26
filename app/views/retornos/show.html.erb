@@ -1,0 +1,61 @@
+<div class="card">
+  <%= render 'shared/show_header', {object: @retorno, titulo: "Retorno Bancário"} %>
+  <div class="card-body">
+    <div class="card-columns" style="column-count: 4">
+      <%= render 'shared/field_card', {campo: "Perfil", valor: @retorno.pagamento_perfil.nome} %>
+      <%= render 'shared/field_card', {campo: "Data", valor: l(@retorno.data, default: '')} %>
+      <%= render 'shared/field_card', {campo: "Sequência", valor: @retorno.sequencia} %>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Nosso Número</th>
+            <th>Ocorrência</th>
+            <th>Pagamento</th>
+            <th>Vencimento</th>
+            <th>Valor Título</th>
+            <th>Juros</th>
+            <th>Desconto</th>
+            <th>Recebido</th>
+            <th>Banco</th>
+            <th>Agência</th>
+         </tr>
+        </thead>
+
+        <tbody>
+          <% (@linhas || []).each do |linha| %>
+            <% if linha.data_vencimento.to_i > 0 %>
+              <tr>
+                <td>
+                  <% nossonumero = @retorno.pagamento_perfil.banco == 33 ? cnab_to_nosso_numero_santander(linha.nosso_numero) : cnab_to_nosso_numero_bb(linha.nosso_numero) %>
+                  <%= link_to faturas_path q: {nossonumero_eq: nossonumero}, target: "_blank" do %>
+                    <%= nossonumero %>
+                  <% end %>
+                </td>
+                <td><%= linha.codigo_ocorrencia %></td>
+                <td><%= l(cnab_to_date(linha.data_ocorrencia)) %></td>
+                <td><%= l(cnab_to_date(linha.data_vencimento)) %></td>
+                <td><%= cnab_to_currency(linha.valor_titulo) %></td>
+                <td><%= cnab_to_currency(linha.juros_mora) %></td>
+                <td><%= cnab_to_currency(linha.desconto_concedito) %></td>
+                <td><%= cnab_to_currency(linha.valor_recebido) %></td>
+                <td><%= linha.banco_recebedor %></td>
+                <td><%= linha.agencia_recebedora_com_dv %></td>
+              </tr>
+            <% end %>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+<%= simple_form_for(@retorno) do |f| %>
+  <div class="actions">
+    <%= button_tag(:class => "btn btn-primary") do %>
+      <i class="fas fa-save" aria-hidden="true"></i> Processar
+    <% end %>
+  </div>
+<% end %>
+
+</div>
+</div>

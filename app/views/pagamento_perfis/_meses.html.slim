@@ -1,0 +1,22 @@
+.card
+  = render '/shared/table_header', {titulo: 'Resumo Mensal', object: @pagamento_perfil.faturas}
+  .card-body
+    .table-responsive
+      table.table.table-striped.table-sm
+        thead
+          tr
+            th Mês
+            th Retorno Bancário
+            th Dinheiro
+            th Cartão
+            th Outro
+            th Inadimplente
+        tbody
+          - @pagamento_perfil.meses.each do |mes|
+            tr
+              td= I18n.localize(mes.mes, format: '%B/%Y')
+              td= @pagamento_perfil.liquidacoes(mes.mes, Fatura.meio_liquidacoes[:RetornoBancario]).count
+              td= @pagamento_perfil.liquidacoes(mes.mes, Fatura.meio_liquidacoes[:Dinheiro]).count
+              td= @pagamento_perfil.liquidacoes(mes.mes, Fatura.meio_liquidacoes[:CartaoCredito]).count
+              td= @pagamento_perfil.liquidacoes(mes.mes, Fatura.meio_liquidacoes[:Outros]).count
+              td= @pagamento_perfil.inadimplentes(mes.mes).count

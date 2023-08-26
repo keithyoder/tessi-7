@@ -1,0 +1,7 @@
+.card
+  = render 'shared/edit_header',
+    { object: @ponto,
+      titulo: 'Ponto de Acesso' }
+  .card-body
+    = render 'form', ponto: @ponto
+s

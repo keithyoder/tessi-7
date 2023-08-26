@@ -1,0 +1,32 @@
+= javascript_include_tag params[:controller]
+#fatura-data data-juros="#{Setting.juros.to_f}" data-multa="#{Setting.multa.to_f}" data-vencimento="#{@fatura.vencimento}" data-valor="#{@fatura.valor}" data-desconto="#{@fatura.desconto}" 
+.card
+  .card-header
+    h3
+      = link_to '<i class="fa fa-arrow-left" aria-hidden="true"></i>'.html_safe, @fatura, class: "btn btn-sm btn-outline-dark"
+      |  Liquidar Fatura
+  .card-body
+    = simple_form_for(@fatura) do |f|
+      = f.error_notification
+      = f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present?
+      .card-columns[style="column-count: 3"]
+        = link_to @fatura.contrato.pessoa do
+          = render 'shared/field_card', {campo: "Assinante", valor: @fatura.contrato.pessoa.nome}
+        = link_to @fatura.contrato do
+          = render 'shared/field_card', {campo: "Contrato", valor: @fatura.contrato.id}
+        = link_to @fatura.contrato.plano do
+          = render 'shared/field_card', {campo: "Plano", valor: @fatura.contrato.plano.nome}
+        = render 'shared/field_card', {campo: "Parcela", valor: @fatura.parcela}
+        = render 'shared/field_card', {campo: "Vencimento", valor: l(@fatura.vencimento)}
+        = render 'shared/field_card', {campo: "Valor", valor: number_to_currency(@fatura.valor)}
+      .card-columns[style="column-count: 3"]
+        .form-inputs
+          = f.input :liquidacao, as: :string, :label => "Data de Pagamento"
+          = f.input :meio_liquidacao, :label => "Forma de Pagamento", collection: Fatura.meio_liquidacoes.keys
+          = f.input :valor_liquidacao, :label => "Valor a Receber"
+          = f.hidden_field :juros_recebidos
+          = f.hidden_field :desconto_concedido
+      .actions
+        = button_tag( :class => "btn btn-primary") do
+          i.fa.fa-money[aria-hidden="true"]
+          |  Receber 

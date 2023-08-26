@@ -1,0 +1,130 @@
+javascript:
+  var s=document.createElement('script');s.type='text/javascript';var v=parseInt(Math.random()*1000000);s.src='https://sandbox.gerencianet.com.br/v1/cdn/4618705bec3d66f0452bf6f8ad265c0b/'+v;s.async=false;s.id='4618705bec3d66f0452bf6f8ad265c0b';if(!document.getElementById('4618705bec3d66f0452bf6f8ad265c0b')){document.getElementsByTagName('head')[0].appendChild(s);};$gn={validForm:true,processed:false,done:{},ready:function(fn){$gn.done=fn;}};
+  var gn_checkout;
+
+  function creditCardType(cc) {
+    let amex = new RegExp('^3[47][0-9]{13}$');
+    let visa = new RegExp('^4[0-9]{12}(?:[0-9]{3})?$');
+    let cup1 = new RegExp('^62[0-9]{14}[0-9]*$');
+    let cup2 = new RegExp('^81[0-9]{14}[0-9]*$');
+
+    let mastercard = new RegExp('^5[1-5][0-9]{14}$');
+    let mastercard2 = new RegExp('^2[2-7][0-9]{14}$');
+
+    let disco1 = new RegExp('^6011[0-9]{12}[0-9]*$');
+    let disco2 = new RegExp('^62[24568][0-9]{13}[0-9]*$');
+    let disco3 = new RegExp('^6[45][0-9]{14}[0-9]*$');
+    
+    let diners = new RegExp('^3[0689][0-9]{12}[0-9]*$');
+    let jcb =  new RegExp('^35[0-9]{14}[0-9]*$');
+
+
+    if (visa.test(cc)) {
+      return 'visa';
+    }
+    if (amex.test(cc)) {
+      return 'amex';
+    }
+    if (mastercard.test(cc) || mastercard2.test(cc)) {
+      return 'mastercard';
+    }
+    if (disco1.test(cc) || disco2.test(cc) || disco3.test(cc)) {
+      return 'discover';
+    }
+    if (diners.test(cc)) {
+      return 'diners';
+    }
+    if (jcb.test(cc)) {
+      return 'jcb';
+    }
+    if (cup1.test(cc) || cup2.test(cc)) {
+      return 'china_union_pay';
+    }
+    return undefined;
+  }
+
+  $gn.ready(function (checkout) {
+    gn_checkout = checkout
+  
+    $('#gerar_token').on( 'click', function() {
+      gn_checkout.getPaymentToken(
+        {
+            brand: creditCardType($("#cartao_credito").val()),
+            number: $("#cartao_credito").val(),
+            cvv: $("#cartao_cvv").val(),
+            expiration_month: $("#cartao_vencimento_mes").val(),
+            expiration_year: $("#cartao_vencimento_ano").val()
+        },
+        function (error, response) {
+            if (error) {
+                // Trata o erro ocorrido
+                console.error(error);
+            } else {
+                // Trata a resposta
+                $("#token").val(response['data']['payment_token'])
+                $("#contrato_cartao_parcial").val(response['data']['card_mask'])
+                $("#dados_cartao").hide()
+                $("#dados_token").removeClass('d-none')
+                $("#gerar_token").hide()
+                $("#salvar").removeClass('d-none')
+                console.log(response);
+            }
+        }
+      );
+    });
+  });
+
+.card
+  = render 'shared/new_header', {object: @contrato, titulo: "Assinatura #{@contrato.pessoa.nome}"}
+  .card-body
+    = simple_form_for(@contrato, url: assinatura_contrato_path) do |f|
+      = f.error_notification
+      = f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present?
+      .form-inputs
+        .row
+          .col
+            = f.input :billing_nome_completo, label: 'Nome Completo', input_html: {value: @contrato.billing_nome_completo || @contrato.pessoa.nome}
+          .col-3
+            = f.input :billing_cpf, label: 'CPF', input_html: {value: @contrato.billing_cpf || @contrato.pessoa.cpf}
+        .row
+          .col-5
+            = f.input :billing_endereco, label: 'Endereço da Fatura', input_html: {value: @contrato.billing_endereco || @contrato.pessoa.logradouro.nome}
+          .col-3
+            = f.input :billing_endereco_numero, label: 'Número', input_html: {value: @contrato.billing_endereco_numero || @contrato.pessoa.numero}
+          .col-4
+            = f.input :billing_bairro, label: 'Bairro', input_html: {value: @contrato.billing_bairro || @contrato.pessoa.bairro.nome}
+        .row
+          .col-5
+            = f.input :billing_cidade, label: 'Município', input_html: {value: @contrato.billing_cidade || @contrato.pessoa.cidade.nome}
+          .col-2
+            = f.input :billing_estado, label: 'UF', input_html: {value: @contrato.billing_estado || @contrato.pessoa.estado.sigla}
+          .col-3
+            = f.input :billing_cep, label: 'CEP', input_html: {value: @contrato.billing_cep || @contrato.pessoa.logradouro.cep}
+        .row#dados_cartao
+          .col-4
+            .form-group
+              = label :cartao_credito, 'Número do Cartão'
+              = number_field_tag :cartao_credito
+          .col-2
+            = label_tag :cartao_vencimento_mes, 'MM'
+            = select_month nil, {add_month_numbers: true}, {name: 'cartao_vencimento_mes', id: "cartao_vencimento_mes", class: 'form-control'}
+          .col-2
+            = label_tag :cartao_vencimento_ano, 'AAAA'
+            = select_year nil, {start_year: Date.today.year, end_year: Date.today.year+15}, {name: 'cartao_vencimento_ano', id: "cartao_vencimento_ano", class: 'form-control'}
+          .col-2
+            = label_tag :cartao_cvv, 'CVV'
+            = number_field_tag :cartao_cvv
+        .row.d-none#dados_token
+          .col-5
+            = f.input :cartao_parcial, label: 'Cartão'
+          .col-2
+            = label_tag :token, 'Token'
+            = text_field_tag :token
+
+        .form-actions
+          = button_tag(:class => "btn btn-success", id: 'gerar_token', :onclick => "return false;") do
+            i.fas.fa-save[aria-hidden="true"]
+            |  Token 
+          = button_tag(:class => "btn btn-primary d-none", id: 'salvar') do
+            i.fas.fa-save[aria-hidden="true"]
+            |  Salvar 

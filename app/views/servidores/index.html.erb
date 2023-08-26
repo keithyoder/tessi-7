@@ -1,0 +1,27 @@
+<div class="card">
+  <%= render '/shared/table_header', {object: @servidores, titulo: "Concentradores", search_string: :nome_cont} %>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>IP</th>
+            <th>Autenticando?</th>
+         </tr>
+        </thead>
+
+        <tbody>
+          <% @servidores.each do |servidor| %>
+            <tr>
+              <td><%= link_to servidor.nome, servidor %></td>
+              <td><%= servidor.ip.to_s %></td>
+              <td><%= servidor.autenticando?.as_checkbox %></td>
+           </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <%= paginate @servidores %>
+</div>

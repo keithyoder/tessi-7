@@ -1,0 +1,77 @@
+ul.nav.nav-pills
+  li.nav-item
+    a.nav-link.active[data-toggle="tab" href="#conexao"]
+      | Conexão
+  li.nav-item
+    a.nav-link[data-toggle="tab" href="#radius"]
+      | Radius
+  li.nav-item
+    a.nav-link[data-toggle="tab" href="#autenticacao"]
+      | Autenticação
+  li.nav-item
+    a.nav-link[data-toggle="tab" href="#trafego"]
+      | Trâfego
+#conexao-tabs.tab-content
+  #conexao.tab-pane.fade.show.active[role="tabpanel" aria-labelledby="conexao-tab"]
+    .row
+      .card.col-lg
+        - if @conexao.conectado
+          = render 'shared/show_header', {object: @conexao, titulo: "Conexão "+ @conexao.pessoa.nome + ' <span class="badge badge-success">Conectada</span>'}
+        - else
+          = render 'shared/show_header', {object: @conexao, titulo: "Conexão "+ @conexao.pessoa.nome + ' <span class="badge badge-warning">Desconectada</span>'}
+        .card-body
+          .card-columns[style="column-count: 4"]
+            = link_to @conexao.pessoa do
+              = render 'shared/field_card', {campo: "Assinante", valor: @conexao.pessoa.nome}
+            = link_to @conexao.logradouro || @conexao.pessoa.logradouro do
+              = render 'shared/field_card', {campo: "Endereço", valor: @conexao.logradouro&.endereco || @conexao.pessoa.logradouro.endereco}
+            = render 'shared/field_card', {campo: "Tipo de Conexão", valor: @conexao.tipo}
+            - if @conexao.contrato.present?
+              = link_to @conexao.contrato do
+                = render 'shared/field_card', {campo: "Contrato", valor: @conexao.contrato.id.to_s + ' ' + @conexao.contrato.adesao.to_s}
+            - else
+              = render 'shared/field_card', {campo: "Contrato", valor: "Sem contrato"}
+            = link_to 'http://'+@conexao.ip.to_s, target: "_blank" do
+              = render 'shared/field_card', {campo: "IP", valor: @conexao.ip}
+            = render 'shared/field_card', {campo: "IPv6", valor: @conexao.ipv6.to_s}
+            = render 'shared/field_card', {campo: "Usuário", valor: @conexao.usuario}
+            = render 'shared/field_card', {campo: "Senha", valor: @conexao.senha}
+            = render 'shared/field_card', {campo: "Equipamento", valor: @conexao.equipamento&.descricao}
+            = render 'shared/field_card', {campo: "MAC", valor: @conexao.mac}
+            = link_to @conexao.plano do
+              = render 'shared/field_card', {campo: "Plano", valor: @conexao.plano.nome}
+            = link_to @conexao.ponto do
+              = render 'shared/field_card', {campo: "Ponto de Acesso", valor: @conexao.ponto.nome}
+            - if @conexao.caixa.present?
+              = link_to @conexao.caixa do
+                = render 'shared/field_card', {campo: "Caixa de Atendimento", valor: "#{@conexao.caixa.nome}, porta #{@conexao.porta}"}
+            = render 'shared/field_card', {campo: "Suspenso", valor: @conexao.bloqueado.as_simnao.capitalize, cor: @conexao.bloqueado ? 'bg-warning' : 'bg-light'}
+            = render 'shared/field_card', {campo: "Inadimplente", valor: @conexao.inadimplente.as_simnao.capitalize, cor: @conexao.inadimplente ? 'bg-warning' : 'bg-light'}
+            = render 'shared/field_card', {campo: "Observação", valor: @conexao.observacao}
+            = render 'shared/field_card', {campo: "Velociade Personalizada", valor: @conexao.velocidade}
+            = render 'shared/field_card', {campo: "Auto Bloqueio", valor: @conexao.auto_bloqueio.as_simnao.capitalize}
+            = render 'shared/field_card', {campo: "Criada em", valor: @conexao.created_at}
+    .row
+      .card.col-lg
+        = link_to "http://maps.google.com/maps?q=#{@conexao.latitude},#{@conexao.longitude}&ll=#{@conexao.latitude},#{@conexao.longitude}&z=18", target: "_blank" do
+          p[align="center"]
+            = image_tag "https://maps.googleapis.com/maps/api/staticmap?zoom=17&size=1000x400&center=#{@conexao.latitude},#{@conexao.longitude}&markers=|#{@conexao.latitude},#{@conexao.longitude}&key=#{Rails.application.credentials.google_maps_api_key}", alt: "Map"
+  #radius.tab-pane.fade[role="tabpanel" aria-labelledby="radius-tab"]
+    h3
+      = @conexao.pessoa.nome
+      |  - 
+      = @conexao.ip.to_s
+    = render 'conexao_verificar_atributos/table'
+    = render 'conexao_enviar_atributos/table'
+  #autenticacao.tab-pane.fade[role="tabpanel" aria-labelledby="autenticacao-tab"]
+    h3
+      = @conexao.pessoa.nome
+      |  - 
+      = @conexao.ip.to_s
+    = render 'autenticacoes/table'
+  #trafego.tab-pane.fade[role="tabpanel" aria-labelledby="trafego-tab"]
+    h3
+      = @conexao.pessoa.nome
+      |  - 
+      = @conexao.ip.to_s
+    = render 'rad_acct/table'

@@ -1,0 +1,22 @@
+.card
+  = render '/shared/table_header', {object: @estados, search_string: :sigla_or_nome_cont}
+  .card-body
+    table.table.table-responsive.table-striped
+      thead
+        tr
+          th
+            | Sigla
+          th
+            | Nome
+          th
+            | IBGE
+      tbody
+        - @estados.each do |estado|
+          tr
+            td
+              = estado.sigla
+            td
+              = link_to estado.nome, estado
+            td
+              = estado.ibge
+    = paginate @estados

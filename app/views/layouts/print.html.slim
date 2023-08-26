@@ -1,0 +1,5 @@
+html
+  head title="Print" 
+    = stylesheet_link_tag "contratos", media: :all
+  body onload="window.print()"
+    = yield

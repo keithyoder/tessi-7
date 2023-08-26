@@ -1,0 +1,28 @@
+<div class="card">
+  <%= render '/shared/table_header', {object: @plano_verificar_atributos, titulo: "Radius Verificar", search_string: :atributo_cont} %>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Plano</th>
+            <th>Atributo</th>
+            <th>Op</th>
+            <th>Valor</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <% @plano_verificar_atributos.each do |plano_verificar_atributo| %>
+            <tr>
+              <td><%= plano_verificar_atributo.plano.nome %></td>
+              <td><%= link_to plano_verificar_atributo.atributo, plano_verificar_atributo %></td>
+              <td><%= plano_verificar_atributo.op %></td>
+              <td><%= plano_verificar_atributo.valor %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

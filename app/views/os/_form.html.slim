@@ -1,0 +1,37 @@
+= javascript_include_tag params[:controller]
+= simple_form_for(@os) do |f|
+  = f.error_notification
+  = f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present?
+  = f.hidden_field :aberto_por_id
+  = f.hidden_field :fechamento
+  .form-inputs
+    .row
+      .col
+        = f.input :tipo, collection: Os.tipos.keys
+      .col
+        = f.association :classificacao, collection: Classificacao.os, label_method: :nome
+    .row
+      .col
+        = f.association :pessoa, collection: Pessoa.all, label_method: :nome
+      .col-3
+        = f.association :conexao, label_method: :id
+    .row
+      .col-4
+        = f.association :responsavel, label_method: :primeiro_nome
+      .col-4
+        = f.association :tecnico_1, label_method: :primeiro_nome
+      .col-4
+        = f.association :tecnico_2, label_method: :primeiro_nome
+    .row
+      .col
+        = f.input :descricao
+    .row
+      .col
+        = f.input :encerramento
+  .form-actions
+    = button_tag(:class => "btn btn-primary") do
+      i.fas.fa-save aria-hidden="true" 
+      | Salvar
+    = submit_tag("Encerrar", {:class => "btn btn-warning"}) do
+      i.fas.fa-door-closed aria-hidden="true" 
+      | Encerrar

@@ -1,0 +1,80 @@
+<ul class="nav nav-pills">
+  <li class="nav-item">
+    <a class="nav-link active" data-toggle="tab" href="#concentrador">Concentrador</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" data-toggle="tab" href="#pontos">Pontos de Acesso</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" data-toggle="tab" href="#autenticacao">Autenticação</a>
+  </li>
+</ul>
+
+<div class="tab-content" id="concentrador-tabs">
+  <div class="tab-pane fade show active" id="concentrador" role="tabpanel" aria-labelledby="conecentrador-tab">
+    <div class="card">
+      <%= render 'shared/show_header', {object: @servidor, titulo: "Concentrador "+ @servidor.nome} %>
+      <div class="card-body">
+        <button class="btn btn-sm <%= online_button(@servidor.ping?) %>">
+        <o><i class="fa fa-globe fa-lg" aria-hidden="true"></i></button></p>
+        <div class="card-columns" style="column-count: 4">
+          <%= render 'shared/field_card', {campo: "Ativo", valor: @servidor.ativo} %>
+          <%= render 'shared/field_card', {campo: "IP", valor: @servidor.ip} %>
+          <%= render 'shared/field_card', {campo: "Usuário", valor: @servidor.usuario} %>
+          <%= render 'shared/field_card', {campo: "Porta API", valor: @servidor.api_porta} %>
+          <%= render 'shared/field_card', {campo: "Porta SSH", valor: @servidor.ssh_porta} %>
+          <%= render 'shared/field_card', {campo: "Porta SNMP", valor: @servidor.snmp_porta} %>
+          <%= render 'shared/field_card', {campo: "Comunidade SNMP", valor: @servidor.snmp_comunidade} %>
+          <%= render 'shared/field_card', {campo: "Secret Radius", valor: @servidor.radius_secret} %>
+          <%= render 'shared/field_card', {campo: "Porta Radius", valor: @servidor.radius_porta} %>
+        </div>
+      </div>
+    </div>
+
+    <% if (@servidor.ping?) %>
+    <div class="card">
+      <div class="card-header">
+        <h3>Status</h3>
+      </div>
+      <div class="card-body">
+        <div class="card-columns" style="column-count: 4">
+          <% @servidor.system_info.each do |info, value| %>
+            <%= render 'shared/field_card', {campo: info.titleize, valor: value} %>
+          <% end %>
+          <%= render 'shared/field_card', {campo: "Usuários PPPoE", valor: @servidor.ppp_users} %>
+          <%= render 'shared/field_card', {campo: "Usuários Hotspot", valor: @servidor.hotspot_users} %>
+        </div>
+      </div>
+    </div>
+    <% end %>
+    <%= link_to backup_servidor_path do %>
+      <button class="btn btn-sm btn-primary">
+        <o><i class="fas fa-save fa-lg" aria-hidden="true"></i> Criar Backup
+      </button>
+    <% end %>
+    <%= link_to mapa_servidor_path do %>
+      <button class="btn btn-sm btn-primary">
+        <o><i class="fas fa-map fa-lg" aria-hidden="true"></i> Mapa
+      </button>
+    <% end %>
+    <% if @servidor.backup.attached? %>
+      <%= link_to rails_blob_path(@servidor.backup, disposition: 'attachment') do %>
+        <button class="btn btn-sm btn-primary">
+          <o><i class="fa fa-download fa-lg" aria-hidden="true"></i> Há <%= time_ago_in_words(@servidor.backup.created_at) %>
+        </button>
+      <% end %>
+    <% end %>
+  </div>
+  <div class="tab-pane fade" id="pontos" role="tabpanel" aria-labelledby="pontos-tab">
+    <div class="card-columns" style="column-count: 4">
+      <%= render 'shared/field_card', {campo: "Conexões", valor: @servidor.conexoes.count} %>
+      <%= render 'shared/field_card', {campo: "Bloqueados", valor: @servidor.conexoes.bloqueado.count} %>
+      <%= render 'shared/field_card', {campo: "Inadimplentes", valor: @servidor.conexoes.inadimplente.count} %>
+    </div>
+    <%= render 'pontos/table', {exclude: "servidor"} %>
+  </div>
+  <div class="tab-pane fade" id="autenticacao" role="tabpanel" aria-labelledby="autenticacao-tab">
+    <h3><%= @servidor.nome %></h3>
+    <%= render 'autenticacoes/table' %>
+  </div>
+</div>

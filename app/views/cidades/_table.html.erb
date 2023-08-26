@@ -1,0 +1,26 @@
+<div class="card">
+  <%= render '/shared/table_header', {object: @cidades, search_string: :nome_cont} %>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Estado</th>
+            <th>IBGE</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @cidades.each do |cidade| %>
+            <tr>
+              <td><%= link_to cidade.nome, cidade %></td>
+              <td><%= cidade.estado.nome %></td>
+              <td><%= cidade.ibge %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <%= paginate @cidades %>
+  </div>
+</div>

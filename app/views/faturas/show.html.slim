@@ -1,0 +1,81 @@
+.card
+  .card-header
+    .row
+      .col-sm
+        h3
+          = link_to(@fatura.contrato, class: "btn btn-sm btn-outline-dark") do
+            i.fa.fa-arrow-left aria-hidden="true" 
+          - if can? :update, @fatura
+            = link_to(edit_fatura_path, class: "btn btn-sm btn-outline-dark") do
+              i.fa.fa-pencil.fa-lg aria-hidden="true" 
+          | Fatura
+      .d-print-none.col-sm-2 align="right" 
+        - if @fatura.liquidacao.blank?
+          = link_to(liquidacao_fatura_path, class: "btn btn-sm btn-outline-dark") do
+            i.fa.fa-credit-card.fa-lg aria-hidden="true" 
+            | Liquidação
+        - if @fatura.liquidacao.blank?
+          = link_to(@fatura.link || boleto_fatura_path, class: "btn btn-sm btn-outline-dark", target: "_blank") do
+            i.fa.fa-print.fa-lg aria-hidden="true" 
+        - else
+          = link_to(current_page_params.merge(format: :pdf), class: "btn btn-sm btn-outline-dark", target: "_blank") do
+            i.fa.fa-print.fa-lg aria-hidden="true" 
+  .card-body
+    .card-columns style=("column-count: 3") 
+      = link_to @fatura.contrato.pessoa do
+        = render 'shared/field_card', {campo: "Assinante", valor: @fatura.contrato.pessoa.nome}
+      = link_to @fatura.contrato do
+        = render 'shared/field_card', {campo: "Contrato", valor: @fatura.contrato.id}
+      = link_to @fatura.contrato.plano do
+        = render 'shared/field_card', {campo: "Plano", valor: @fatura.contrato.plano.nome}
+      = render 'shared/field_card', {campo: "Perfil de Cobrança", valor: @fatura.pagamento_perfil.nome}
+      = render 'shared/field_card', {campo: "Parcela", valor: @fatura.parcela}
+      = render 'shared/field_card', {campo: "Vencimento", valor: l(@fatura.vencimento)}
+      = render 'shared/field_card', {campo: "Valor", valor: number_to_currency(@fatura.valor)}
+      = render 'shared/field_card', {campo: "Nosso Número", valor: @fatura.nossonumero}
+      = render 'shared/field_card', {campo: "Período", valor: l(@fatura.periodo_inicio, default: "") +" - "+ l(@fatura.periodo_fim, default: "")}
+      - if @fatura.liquidacao.present?
+        = render 'shared/field_card', {campo: "Liquidação", valor: l(@fatura.liquidacao, default: "")}
+        = render 'shared/field_card', {campo: "Valor Liquidação", valor: number_to_currency(@fatura.valor_liquidacao)}
+        = render 'shared/field_card', {campo: "Meio de Liquidação", valor: @fatura.meio_liquidacao}
+        = render 'shared/field_card', {campo: "Juros Recebidos", valor: number_to_currency(@fatura.juros_recebidos)}
+        = render 'shared/field_card', {campo: "Desconto Concedido", valor: number_to_currency(@fatura.desconto_concedido)}
+        = render 'shared/field_card', {campo: "Banco / Agência", valor: @fatura.banco.to_s + ' / ' + @fatura.agencia.to_s}
+      - elsif @fatura.pix.present?
+        .card.border-dark
+          .card-header= 'Pix QR Code'
+          .card-text align='right'
+            img src=@fatura.pix_base64 width='50%'
+            br
+            = @fatura.pix
+      = render 'shared/field_card', {campo: "Vencimento Original", valor: l(@fatura.vencimento_original, default: "")}
+      = render 'shared/field_card', {campo: "Valor Original", valor: number_to_currency(@fatura.valor_original)}
+      - if @fatura.nf21.present?
+        = link_to nf21_path(@fatura.nf21, format: :pdf), target: :blank do
+          = render 'shared/field_card', {campo: "Nota Fiscal", valor: @fatura.nf21.numero}
+      - if @fatura.retorno.present?
+        = link_to @fatura.retorno do
+          = render 'shared/field_card', {campo: "Retorno", valor: @fatura.retorno.sequencia}
+      - if @fatura.registro.present?
+        = link_to @fatura.registro do
+          = render 'shared/field_card', {campo: "Registro", valor: @fatura.registro.sequencia}
+      - if @fatura.baixa.present?
+        = link_to @fatura.baixa do
+          = render 'shared/field_card', {campo: "Baixa", valor: @fatura.baixa.sequencia}
+    - if can?(:estornar, @fatura) && @fatura.estornar?
+      = link_to estornar_fatura_path do
+        = button_tag(:class => "btn btn-warning") do
+          i.fas.fa-redo aria-hidden="true" 
+          | &nbsp Estornar
+    '
+    - if can?(:cancelar, @fatura) && @fatura.cancelar?
+      = link_to cancelar_fatura_path do
+        = button_tag(:class => "btn btn-danger") do
+          i.fas.fa-window-close aria-hidden="true" 
+          | &nbsp Cancelar
+    '
+    - if can?(:gerar_nf, @fatura) && @fatura.gerar_nota?
+      = link_to gerar_nf_fatura_path do
+        = button_tag(:class => "btn btn-success") do
+          i.fas.fa-file-invoice aria-hidden="true" 
+          | &nbsp Gerar NF

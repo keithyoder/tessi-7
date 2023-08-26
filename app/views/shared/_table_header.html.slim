@@ -1,0 +1,16 @@
+.card-header
+  .row
+    .col-sm
+      h3
+        -if defined?(object)
+          -params = {} if params.nil?
+          => novo_botao(object, params)
+        = defined?(titulo) ? titulo : object.model_name.plural.capitalize
+    .d-print-none.col-sm align="right" 
+      - if defined?(@q) && defined?(search_string)
+        = search_form_for(custom_q ||= @q, url: request.original_url) do |f|
+          => f.search_field search_string
+          => button_tag( :class => "btn btn-sm btn-outline-dark") do
+            i.bi.bi-search aria-hidden="true" 
+          = link_to '<i class="bi bi-file-earmark-excel" aria-hidden="true"></i>'.html_safe,    \
+            current_page_params.merge(format: :csv), class: "btn btn-sm btn-outline-dark"

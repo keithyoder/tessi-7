@@ -1,0 +1,20 @@
+.card
+  = render '/shared/table_header', {object: @atendimentos, search_string: :pessoa_nome_cont, params: @params}
+  .card-body
+    .table-responsive
+      table.table.table-striped
+        thead
+          tr
+            th Aberto Em
+            th Pessoa
+            th Classificação
+            th Responsável
+        tbody
+          - @atendimentos.each do |atendimento|
+            tr
+              td
+                = link_to l(atendimento.created_at, format: :short), atendimento_path(id: atendimento.id, params: @params), class: 'text-decoration-none'
+              td= link_to atendimento.pessoa.nome, atendimento.pessoa, class: 'text-decoration-none'
+              td= atendimento.classificacao.nome
+              td= atendimento.responsavel.primeiro_nome
+  = paginate @atendimentos

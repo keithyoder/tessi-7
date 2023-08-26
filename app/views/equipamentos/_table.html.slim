@@ -1,0 +1,18 @@
+.card
+  - params = defined?(params) ? params : {}
+  = render '/shared/table_header', {object: @equipamentos, params: params}
+  .card-body
+    .table-responsive
+      table.table.table-striped.table-sm
+        thead
+          tr
+            th Fabricante
+            th Modelo
+            th Tipo
+        tbody
+          - @equipamentos.each do |equipamento|
+            tr
+              td= link_to equipamento.fabricante, equipamento
+              td= link_to equipamento.modelo, equipamento
+              td= equipamento.tipo
+    = paginate @equipamentos

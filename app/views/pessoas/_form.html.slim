@@ -1,0 +1,39 @@
+= simple_form_for(@pessoa) do |f|
+  = flash_message
+  .form-inputs
+    .row
+      .col-8
+        = f.input :nome
+      .col
+        = f.input :tipo, collection: Pessoa.tipos.keys
+    .row
+      .col
+        = f.input :cpf
+      .col
+        = f.input :cnpj
+      .col
+        = f.input :rg
+      .col
+        = f.input :ie
+    .row
+      .col
+        = f.input :nascimento, include_blank: true, start_year: Date.today.year - 100, end_year: Date.today.year - 15
+      .col
+        = f.input :nomemae
+    .row
+      .col.col-6
+        = f.association :logradouro, collection: Logradouro.includes([:bairro, :cidade, :estado]).order(:nome), label_method: :endereco
+      .col
+        = f.input :numero
+      .col
+        = f.input :complemento
+    .row
+      .col
+        = f.input :email
+      .col
+        = f.input :telefone1
+      .col
+        = f.input :telefone2
+    = f.file_field :rg_imagem
+  .form-actions
+    = botao_salvar

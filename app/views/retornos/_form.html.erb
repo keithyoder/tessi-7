@@ -1,0 +1,15 @@
+<%= simple_form_for(@retorno) do |f| %>
+  <%= f.error_notification %>
+  <%= f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present? %>
+
+<div class="form-inputs">
+    <%= f.association :pagamento_perfil, label_method: :nome %>
+    <%= f.input :arquivo, as: :file %>
+  </div>
+
+  <div class="actions">
+    <%= button_tag(:class => "btn btn-primary") do %>
+      <i class="fas fa-save" aria-hidden="true"></i> Salvar
+    <% end %>
+  </div>
+<% end %>

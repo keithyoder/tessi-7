@@ -1,0 +1,12 @@
+= simple_form_for(@bairro) do |f|
+  = f.error_notification
+  = f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present?
+  .form-inputs
+    = f.input :nome
+    = f.association :cidade, label_method: :nome_uf
+    = f.input :latitude
+    = f.input :longitude
+  .form-actions
+    = button_tag(:class => "btn btn-primary") do
+      i.fas.fa-save aria-hidden="true" 
+      | &nbsp; Salvar

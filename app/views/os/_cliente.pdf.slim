@@ -1,0 +1,40 @@
+table.full-width
+  thead
+    tr
+      th.termo.variable colspan="8" DADOS DO ASSINANTE
+  tbody
+    tr
+      td colspan="6" 
+        p.termo.campo Nome / Raz&atilde;o Social:
+        span.termo.variable =@os.pessoa.nome
+      td colspan="2" 
+        p.termo.campo Data Nascimento:
+        span.termo.variable =l(@os.pessoa.nascimento, default: '')
+    tr
+      td colspan="4" 
+        p.termo.campo RG / IE:
+        span.termo.variable
+          =@os.pessoa.rg
+          =@os.pessoa.ie
+      td colspan="4" 
+        p.termo.campo CPF / CNPJ:
+        span.termo.variable
+          =@os.pessoa.cpf
+          =@os.pessoa.cnpj
+    tr
+      td colspan="2" 
+        p.termo.campo Telefone WhatsApp:
+        span.termo.variable = @os.pessoa.telefone1
+      td colspan="2" 
+        p.termo.campo Telefone:
+        span.termo.variable =@os.pessoa.telefone2
+      td colspan="4" 
+        p.termo.campo Email:
+        span.termo.variable =@os.pessoa.email
+    tr
+      td colspan="8" 
+        p.termo.campo Endere&ccedil;o Cobran&ccedil;a:
+        span.termo.variable
+          =@os.pessoa.endereco
+          | - 
+          =@os.pessoa.logradouro.bairro.nome_cidade_uf

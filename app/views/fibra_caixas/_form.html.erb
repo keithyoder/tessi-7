@@ -1,0 +1,42 @@
+
+<%= simple_form_for(@fibra_caixa) do |f| %>
+  <%= f.error_notification %>
+  <%= f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present? %>
+
+  <div class="form-inputs">
+    <div class="row">
+      <div class="col">
+        <%= f.input :nome %>
+      </div>
+      <div class="col">
+        <%= f.association :fibra_rede, collection: FibraRede.order(:nome), label_method: :nome %>
+      </div>
+      <div class="col">
+        <%= f.input :capacidade %>
+      </div>
+      <div class="col">
+        <%= f.input :poste %>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <%= f.input :fibra_cor, collection: FibraCaixa.fibra_cores.keys %>
+      </div>
+      <div class="col col-6">
+        <%= f.association :logradouro, collection: Logradouro.includes([:bairro, :cidade, :estado]).order(:nome), label_method: :endereco %>
+      </div>
+      <div class="col">
+        <%= f.input :latitude %>
+      </div>
+      <div class="col">
+        <%= f.input :longitude %>
+      </div>
+    </div>
+  <div class="actions">
+    <%= button_tag( type: 'button', onclick: "getLocation()", class: 'btn btn-primary') do %>
+      <i class="fa fa-location_arrow" aria-hidden="true"></i> GPS
+    <% end %>
+    <%= button_tag( :class => "btn btn-primary") do %>
+      <i class="fas fa-save" aria-hidden="true"></i> Salvar
+    <% end %>
+<% end %>

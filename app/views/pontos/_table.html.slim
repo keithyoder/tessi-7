@@ -1,0 +1,39 @@
+.card
+  = render '/shared/table_header',
+    { object: @pontos,
+      titulo: 'Pontos de Acesso',
+      search_string: :nome_cont,
+      query: @q }
+  .card-body
+    .table-responsive
+      table.table.table-striped.table-sm
+        thead
+          tr
+            th Nome
+            th SSID
+            th Frequência
+            th Conexões
+            th Bloqueados
+            - if !defined?(exclude) || exclude != 'equipamento'
+              th Equipamento
+            - if !defined?(exclude) || exclude != 'servidor'
+              th Servidor
+            th IP
+        tbody
+          - @pontos.each do |ponto|
+            tr
+              td = link_to ponto.nome, ponto
+              td = ponto.ssid
+              td = ponto.frequencia_text
+              td.text-center = ponto.conexoes.count
+              td.text-center = ponto.conexoes.bloqueado.count
+              - if !defined?(exclude) || exclude != 'equipamento'
+                td = ponto.equipamento
+              - if !defined?(exclude) || exclude != 'servidor'
+                td = link_to ponto.servidor.nome, ponto.servidor
+              td
+                - if ponto.ip.present?
+                  =link_to(ponto.ip.to_s, "http://#{ponto.ip}", target: '_blank')
+                - else
+                  | Sem IP
+    = paginate @pontos

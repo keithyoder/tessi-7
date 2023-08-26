@@ -1,0 +1,48 @@
+<div class="card">
+  <%= render '/shared/table_header', {object: @servidores, titulo: "Backups dos Concentradores", search_string: :nome_cont} %>
+  <div class="card-body">
+                    <%= link_to backups_servidores_url(:format => 'job') do %>
+                    <button class="btn btn-sm btn-primary">
+                      <o><i class="fa fa-download fa-lg" aria-hidden="true"></i> 
+                      Criar Backups
+                    </button>
+                  <% end %>
+<p>
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>IP</th>
+            <th>Backup</th>
+         </tr>
+        </thead>
+
+        <tbody>
+          <% @servidores.each do |servidor| %>
+            <tr>
+              <td><%= link_to servidor.nome, servidor %></td>
+              <td><%= servidor.ip.to_s %></td>
+              <td>
+                <% if servidor.backup.attached? %>
+                  <%= link_to rails_blob_path(servidor.backup, disposition: 'attachment') do %>
+                    <button class="btn btn-sm btn-<%= servidor.backup_status %>">
+                      <o><i class="fa fa-download fa-lg" aria-hidden="true"></i> 
+                      (<%= number_to_human_size(servidor.backup.blob.byte_size) %>) 
+                      Há <%= time_ago_in_words(servidor.backup.created_at) %>
+                    </button>
+                  <% end %>
+                <% else %>
+                  <button class="btn btn-sm btn-secondary">
+                    <o><i class="fa fa-download fa-lg" aria-hidden="true"></i> Nenhum backup
+                  </button>
+                <% end %>
+              </td>
+           </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <%= paginate @servidores if @servidores.respond_to? :total_pages %>
+</div>

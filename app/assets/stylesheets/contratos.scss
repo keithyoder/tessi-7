@@ -1,0 +1,91 @@
+// Place all the styles related to the Contratos controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+@media print {
+  thead {display: table-header-group;}
+  header {
+    position: fixed;
+    top: 0;
+  }
+}
+
+.header, .page-header,
+.footer, .page-footer {
+  height: 65px;
+}
+
+header {
+  text-align: center;
+  font-family: 'Roboto', sans-serif;
+  font-weight: bold;
+}
+
+.termo, li {
+  font-family: 'Roboto', sans-serif;
+}
+
+.variable {
+  font-weight: bold;
+}
+  
+.campo {
+  font-size: 11pt;
+}
+  
+thead, th {
+  background: #ecf0f1;
+  vertical-align: middle;
+}
+
+table.full-width {
+  border: 1px solid;
+  padding: 1px;
+  border-spacing: 0px;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.no-border {
+  border: 0px;
+  padding: 0px;
+  border-spacing: 0px;
+  border-collapse: collapse;
+  background: none;
+}
+
+
+td, th {
+  border: 1px solid;
+  padding: 1px;
+  border-spacing: 0px;
+  border-collapse: collapse;  
+}
+
+td {
+  vertical-align: top;
+}
+
+ol {
+  counter-reset: item;
+  counter-increment: clausula;
+  margin-left: 0;
+  padding-left: 0;
+}
+
+li {
+    display: block;
+    margin-bottom: 1em;
+    margin-left: 2em;
+}
+
+ol li::before {
+    display: inline-block;
+    content: counter(clausula)"."counter(item);
+    counter-increment: item;
+    width: 2em;
+    margin-left: -2em;
+}

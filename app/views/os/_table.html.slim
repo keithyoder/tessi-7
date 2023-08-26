@@ -1,0 +1,39 @@
+.card
+  .card-header
+    .row
+      .col-sm
+        h3
+          -params = {} if params.nil?
+          =>novo_botao(@os, params)
+          | OS
+      .d-print-none.col-sm align="right" 
+        -if defined?(@os_q)
+          => search_form_for(@os_q, url: request.original_url, as: :os_q) do |f|
+            => f.label :abertas, 'Em aberto'
+            => f.check_box :abertas, {class: 'mr-sm-2 '}, "true", true
+            => f.select :cidade, options_for_select(Cidade.atendidas.collect {|a| [a.nome, a.id]}), include_blank: 'Todos as cidades'
+            => f.select :tipo_eq, options_for_select(Os.tipos), include_blank: 'Todos os tipos'
+            => f.search_field :pessoa_nome_cont
+            => button_tag( :class => "btn btn-sm btn-outline-dark") do
+              i.fa.fa-search aria-hidden="true"
+  .card-body
+    .table-responsive
+      table.table.table-striped
+        thead
+          tr
+            th= sort_link(@os_q, :pessoa_nome, 'Assinante')
+            th= sort_link(@os_q, :tipo)
+            th Classificação
+            th= sort_link(@os_q, :responsavel, 'Responsável')
+            th= sort_link(@os_q, :created_at, 'Aberta', default_order: :desc)
+            th Fechada
+        tbody
+          - @os.each do |os|
+            tr
+              td= link_to os.pessoa.nome, os.pessoa
+              td= link_to os.tipo, os_path(id: os.id, params: @params)
+              td= link_to os.classificacao&.nome, os_path(id: os.id, params: @params)
+              td= os.responsavel.primeiro_nome
+              td= l(os.created_at, format: :short)
+              td= l(os.fechamento, format: :short, default: '')
+    = paginate @os

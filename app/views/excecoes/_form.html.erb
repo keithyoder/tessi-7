@@ -1,0 +1,17 @@
+<%= simple_form_for(@excecao) do |f| %>
+  <%= f.error_notification %>
+  <%= f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present? %>
+
+  <div class="form-inputs">
+    <%= f.association :contrato, collection: @contratos, label_method: :contrato_e_nome %>
+    <%= f.input :valido_ate %>
+    <%= f.input :tipo, collection: Excecao.tipos.keys %>
+    <%= f.hidden_field :usuario, value: current_user.primeiro_nome %>
+  </div>
+
+  <div class="form-actions">
+    <%= button_tag(:class => "btn btn-primary") do %>
+      <i class="fas fa-save" aria-hidden="true"></i> Salvar
+    <% end %>
+  </div>
+<% end %>

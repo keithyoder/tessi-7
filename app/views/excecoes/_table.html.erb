@@ -1,0 +1,33 @@
+<div class="card">
+  <% params = defined?(params) ? params : {} %>
+  <%= render '/shared/table_header', {object: @excecoes, titulo: 'Exceções', search_string: :contrato_pessoa_nome_cont, params: params} %>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <% if !defined?(exclude) or exclude != 'pessoa' %>
+              <th>Nome</th>
+            <% end %>
+            <th>Contrato</th>
+            <th>Tipo</th>
+            <th>Período</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @excecoes.each do |excecao| %>
+            <tr>
+              <% if !defined?(exclude) or exclude != 'pessoa' %>
+                <td><%= link_to excecao.contrato.pessoa.nome, excecao.contrato.pessoa %></td>
+              <% end %>
+              <td><%= link_to excecao.contrato.id, excecao.contrato %></td>
+              <td><%= excecao.tipo %></td>
+              <td><%= link_to "#{l(excecao.created_at.to_date, default: '')} - #{l(excecao.valido_ate, default: '')}", excecao %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <%= paginate @excecoes %>
+  </div>
+</div>

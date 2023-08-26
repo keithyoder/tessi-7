@@ -1,0 +1,46 @@
+table.full-width
+  thead
+    tr
+      th.termo.variable colspan="8" DADOS DA CONEXAO
+  tbody
+    tr
+      td colspan="6" 
+        p.termo.campo Endereço:
+        span.termo.variable =@os.conexao.endereco
+      td colspan="2" 
+        p.termo.campo Plano:
+        span.termo.variable =@os.conexao.plano.nome
+    tr
+      td colspan="3" 
+        p.termo.campo Ponto de Acesso:
+        span.termo.variable
+          =@os.conexao.ponto.nome
+      td colspan="3" 
+        p.termo.campo IP:
+        span.termo.variable
+          =@os.conexao.ip.to_s
+      td colspan="3" 
+        p.termo.campo MAC:
+        span.termo.variable
+          =@os.conexao.mac
+    -if @os.conexao.ponto.tecnologia == 'Fibra'
+      tr 
+        td colspan="3" 
+            p.termo.campo Usuário:
+            span.termo.variable
+              =@os.conexao.usuario
+        td colspan="3" 
+            p.termo.campo Caixa:
+            span.termo.variable
+              =@os.conexao.caixa&.nome
+        td colspan="3" 
+            p.termo.campo Porta:
+            span.termo.variable
+              =@os.conexao.porta
+    tr
+      td colspan="4" 
+        p.termo.campo Equipmamento:
+        span.termo.variable = @os.conexao.equipamento&.descricao
+      td colspan="4" 
+        p.termo.campo Observação:
+        span.termo.variable =@os.conexao.observacao

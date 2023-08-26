@@ -1,0 +1,24 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Nf 21:</strong>
+  <%= @nf21_item.nf_21 %>
+</p>
+
+<p>
+  <strong>References:</strong>
+  <%= @nf21_item.references %>
+</p>
+
+<p>
+  <strong>Item:</strong>
+  <%= @nf21_item.item %>
+</p>
+
+<p>
+  <strong>Text:</strong>
+  <%= @nf21_item.text %>
+</p>
+
+<%= link_to 'Edit', edit_nf21_item_path(@nf21_item) %> |
+<%= link_to 'Back', nf21_itens_path %>

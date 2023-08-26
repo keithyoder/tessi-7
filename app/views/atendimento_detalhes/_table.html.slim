@@ -1,0 +1,18 @@
+.card
+  = render '/shared/table_header', {object: @atendimento.detalhes, titulo: 'Detalhe', params: {atendimento_id: @atendimento.id}}
+  .card-body
+    .table-responsive
+      table.table.table-striped
+        thead
+          tr
+            th Data
+            th Atendente
+            th Tipo
+            th Descrição
+        tbody
+          - @atendimento.detalhes.each do |detalhe|
+            tr
+              td= l(detalhe.created_at, format: :short)
+              td= detalhe.atendente.primeiro_nome
+              td= detalhe.tipo
+              td= detalhe.descricao

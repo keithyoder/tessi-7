@@ -1,0 +1,24 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Conexao:</strong>
+  <%= @conexao_enviar_atributo.conexao %>
+</p>
+
+<p>
+  <strong>Atributo:</strong>
+  <%= @conexao_enviar_atributo.atributo %>
+</p>
+
+<p>
+  <strong>Op:</strong>
+  <%= @conexao_enviar_atributo.op %>
+</p>
+
+<p>
+  <strong>Valor:</strong>
+  <%= @conexao_enviar_atributo.valor %>
+</p>
+
+<%= link_to 'Edit', edit_conexao_enviar_atributo_path(@conexao_enviar_atributo) %> |
+<%= link_to 'Back', conexao_enviar_atributos_path %>

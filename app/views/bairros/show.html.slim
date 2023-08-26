@@ -1,0 +1,26 @@
+ul.nav.nav-pills
+  li.nav-item
+    a.nav-link class="#{params.key?(:conexao_q) ? '' : 'active'}" data-toggle='tab' href='#bairro' Bairro
+  li.nav-item
+    a.nav-link class="#{params.key?(:conexao_q) ? 'active' : ''}" data-toggle='tab' href='#conexoes' Conexões
+.tab-content
+  #bairro.tab-pane.fade aria-labelledby='bairro-tab' class="#{params.key?(:conexao_q) ? '' : 'show active'}" role='tabpanel'
+    .row
+      .card.col-sm
+        = render 'shared/show_header', { object: @bairro }
+        .card-body
+          .card-columns style='column-count: 3'
+            = link_to @bairro.cidade do
+              = render 'shared/field_card', { campo: 'Cidade', valor: @bairro.cidade.nome_uf }
+            = render 'shared/field_card', { campo: 'Latitude', valor: @bairro.latitude }
+            = render 'shared/field_card', { campo: 'Longitude', valor: @bairro.longitude }
+      .card.col-sm
+        p align='center'
+          = image_tag "https://maps.googleapis.com/maps/api/staticmap?zoom=16&size=400x300&center=#{@bairro.latitude},#{@bairro.longitude}&key=#{Rails.application.credentials.google_maps_api_key}", alt: 'Map'
+    .row
+      .card.col-sm
+        = render 'logradouros/table', params: { bairro_id: @bairro }
+  #conexoes.tab-pane.fade aria-labelledby='conexoes-tab' class="#{params.key?(:conexao_q) ? 'show active' : ''}" role='tabpanel'
+    .row
+      h3 = @bairro.nome
+      = render 'conexoes/table', { exclude: ['equipamento'], custom_q: @conexoes_q }

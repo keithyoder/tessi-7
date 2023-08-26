@@ -1,0 +1,18 @@
+.card
+  = render '/shared/table_header', { titulo: "Trâfego" }
+  .card-body
+    .table-responsive
+      table.table.table-striped
+        thead
+          tr
+            th Dia
+            th Download
+            th Upload
+            th Ratio
+        tbody
+          - @conexao.rad_accts.trafego.each do |trafego|
+            tr
+              td= l(trafego.dia)
+              td= number_to_human_size(trafego.download)
+              td= number_to_human_size(trafego.upload)
+              td= number_to_percentage(trafego.upload * 100 / trafego.download)

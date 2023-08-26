@@ -1,0 +1,22 @@
+.card
+  .card-header
+    .row
+      .col-sm
+        h3
+          | Radius Enviar
+  .card-body
+    .table-responsive
+      table.table.table-striped
+        thead
+          tr
+            th Usuário
+            th Atributo
+            th Op
+            th Valor
+        tbody
+          - @conexao_enviar_atributos.each do |atributo|
+            tr
+              td= atributo.conexao.usuario
+              td= atributo.atributo
+              td= atributo.op
+              td= atributo.valor

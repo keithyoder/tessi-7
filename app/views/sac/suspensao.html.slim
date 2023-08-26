@@ -1,0 +1,7 @@
+= stylesheet_link_tag params[:controller]
+.sac-center
+  p Olá #{@conexao&.pessoa&.nome}, tudo bem?
+
+  p Não identificamos o pagamento do dia #{l(@vencimento, default: '')}.
+  p Sua conexão está supsensa.  Por favor entrar em contato pelo telefone ou WhatsApp 87 99921-1228.
+ 

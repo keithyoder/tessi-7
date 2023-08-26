@@ -1,0 +1,8 @@
+.card
+  = render 'shared/show_header', {object: @estado}
+  .card-body
+    .row.row-cols-1.row-cols-sm-2.row-cols-md-3.row-cols-lg-4.g-4
+      = render 'shared/field_card', {campo: "Sigla", valor: @estado.sigla}
+      = render 'shared/field_card', {campo: "IBGE", valor: @estado.ibge}
+.card
+  = render 'cidades/table', cidades: @cidades

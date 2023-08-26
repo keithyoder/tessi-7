@@ -1,0 +1,21 @@
+.row
+  .card.col-lg
+    = render 'shared/show_header', {object: @os, titulo: "OS #{@os.id}", params: @params}
+    .card-body
+      .card-columns style=("column-count: 2") 
+        = link_to @os.pessoa do
+          = render 'shared/field_card', {campo: "Assinante", valor: @os.pessoa.nome}
+        = link_to @os.conexao do
+          = render 'shared/field_card', {campo: "Conexão", valor: @os.conexao&.id}
+        = render 'shared/field_card', {campo: "Tipo", valor: @os.tipo}
+        = render 'shared/field_card', {campo: "Classificação", valor: @os.classificacao&.nome}
+        = render 'shared/field_card', {campo: "Aberto Por", valor: @os.aberto_por.primeiro_nome}
+        = render 'shared/field_card', {campo: "Responsável", valor: @os.responsavel.primeiro_nome}
+        = render 'shared/field_card', {campo: "Técnico 1", valor: @os.tecnico_1&.primeiro_nome}
+        = render 'shared/field_card', {campo: "Técnico 2", valor: @os.tecnico_2&.primeiro_nome}
+        = render 'shared/field_card', {campo: "Aberta em", valor: @os.created_at}
+        = render 'shared/field_card', {campo: "Fechada em", valor: @os.fechamento}
+        = render 'shared/field_card', {campo: "Descrição", valor: @os.descricao}
+        = render 'shared/field_card', {campo: "Encerramento", valor: @os.encerramento}
+        - if @os.conexao&.link_google_maps
+          = render 'shared/field_card', {campo: @os.pessoa.nome, valor: link_to(@os.conexao.link_google_maps)}

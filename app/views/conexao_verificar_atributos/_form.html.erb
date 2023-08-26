@@ -1,0 +1,16 @@
+
+<%= simple_form_for(@conexao_verificar_atributo) do |f| %>
+  <%= f.error_notification %>
+  <%= f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present? %>
+
+  <div class="form-inputs">
+    <%= f.association :conexao %>
+    <%= f.input :atributo %>
+    <%= f.input :op %>
+    <%= f.input :valor %>
+  </div>
+
+  <div class="form-actions">
+    <%= f.button :submit %>
+  </div>
+<% end %>

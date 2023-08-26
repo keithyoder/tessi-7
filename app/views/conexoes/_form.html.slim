@@ -1,0 +1,67 @@
+= javascript_include_tag params[:controller]
+= stylesheet_link_tag params[:controller]
+= simple_form_for(@conexao) do |f|
+  = f.error_notification
+  = f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present?
+  .form-inputs
+    .row
+      .col
+        = f.association :pessoa, label_method: :nome
+      .col
+        = f.association :plano, collection: Plano.ativos(@contrato&.plano).order(:nome), label_method: :nome
+      .col-4
+        = f.input :tipo, collection: Conexao.tipos.keys
+    .row
+      .col-6
+        = f.association :logradouro, collection: Logradouro.includes([:bairro, :cidade, :estado]).order(:nome), hint: @conexao&.pessoa.logradouro.endereco, label_method: :endereco
+      .col
+        = f.input :numero, hint: @conexao&.pessoa.numero
+      .col
+        = f.input :complemento, hint: @conexao&.pessoa.complemento
+    .row
+      .col-2
+        = f.association :contrato, collection: @contratos, label_method: :id
+      .col
+        = f.association :ponto, collection: Ponto.ativo.order(:nome), label_method: :nome, input_html: {onchange: 'carregarIPs()'}
+      .col-2
+        = f.input :ip.to_s, collection: [@conexao.ip.to_s] + (@conexao.ponto&.ipv4_disponiveis).to_a
+      .col
+        = f.input :usuario
+      .col-2
+        = f.input :senha
+    .row
+      .col-3
+        = f.input :mac, input_html: {onkeyup: 'formatMAC()'}
+      .col-3
+        = f.input :ipv6, collection: [@conexao.ipv6.to_s] + (@conexao.ponto&.ipv6_disponiveis).to_a
+      .col
+        = f.input :velocidade
+    .row
+      .col-8
+        = f.input :observacao
+      .col
+        = f.association :caixa, collection: @caixas, label_method: :nome
+      .col
+        = f.input :porta
+    .row
+      .col-3
+        = f.input :latitude
+      .col-3
+        = f.input :longitude
+      .col-3 
+        = f.association :equipamento, colletion: Equipamento.all, label_method: :descricao
+      .col
+        = f.input :bloqueado
+        = f.input :inadimplente
+        = f.input :auto_bloqueio
+    .row
+      #map_canvas
+  .form-actions
+    = button_tag( type: 'button', onclick: "getConexaoLocation()", class: 'btn btn-primary') do
+      i.fa.fa-location_arrow aria-hidden="true" 
+      | GPS
+    '
+    = button_tag(:class => "btn btn-primary") do
+      i.fas.fa-save aria-hidden="true" 
+      | &nbsp; Salvar
+= javascript_include_tag "https://maps.googleapis.com/maps/api/js?key=#{Rails.application.credentials.google_maps_api_key}&callback=criar_mapa&libraries=&v=weekly", async: true

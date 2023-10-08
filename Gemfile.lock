@@ -499,6 +499,7 @@ DEPENDENCIES
   jquery-ui-rails
   jsbundling-rails
   kaminari
+  matrix
   mtik
   multipart-post
   net-ping

@@ -6,7 +6,7 @@ ruby "3.1.4"
 gem "rails", "~> 7.0", ">= 7.0.4.3"
 
 gem "sprockets-rails"
-gem "puma", "~> 5.0"
+gem "puma", "~> 6.0"
 gem "jsbundling-rails"
 gem "turbo-rails"
 gem "stimulus-rails"
@@ -19,10 +19,10 @@ gem 'barby'
 gem 'bootstrap', '~> 5'
 gem 'brcobranca', git: 'https://github.com/kivanio/brcobranca.git', :ref => '246c1ea'
 gem 'cancancan'
-gem 'capistrano', '~> 3.11'
+gem 'capistrano', '~> 3.17'
 gem 'capistrano-passenger', '~> 0.2.1'
-gem 'capistrano-rails', '~> 1.4'
-gem 'capistrano-rbenv', '~> 2.1', '>= 2.1.4'
+gem 'capistrano-rails', '~> 1.6'
+gem 'capistrano-rbenv', '~> 2.2', '>= 2.1.4'
 gem 'chartkick'
 gem 'coffee-rails'
 gem 'cpf_cnpj'
@@ -95,5 +95,3 @@ group :test do
   gem "selenium-webdriver"
   gem "webdrivers"
 end
-
-gem "dockerfile-rails", ">= 1.5", :group => :development

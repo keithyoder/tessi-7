@@ -169,8 +169,6 @@ GEM
       railties (>= 4.1.0)
       responders
       warden (~> 1.2.3)
-    dockerfile-rails (1.5.2)
-      rails
     domain_name (0.5.20190701)
       unf (>= 0.0.5, < 1.0.0)
     drb (2.1.1)
@@ -315,7 +313,7 @@ GEM
     psych (5.1.0)
       stringio
     public_suffix (5.0.3)
-    puma (5.6.5)
+    puma (6.4.0)
       nio4r (~> 2.0)
     qbo_api (3.0.1)
       faraday (>= 1.10.0)
@@ -501,10 +499,10 @@ DEPENDENCIES
   bootstrap (~> 5)
   brcobranca!
   cancancan
-  capistrano (~> 3.11)
+  capistrano (~> 3.17)
   capistrano-passenger (~> 0.2.1)
-  capistrano-rails (~> 1.4)
-  capistrano-rbenv (~> 2.1, >= 2.1.4)
+  capistrano-rails (~> 1.6)
+  capistrano-rbenv (~> 2.2, >= 2.1.4)
   capybara
   chartkick
   coffee-rails
@@ -512,7 +510,6 @@ DEPENDENCIES
   cssbundling-rails
   debug
   devise
-  dockerfile-rails (>= 1.5)
   extensobr
   fixy
   geocoder
@@ -536,7 +533,7 @@ DEPENDENCIES
   popper_js
   prawn-rails
   prawn-svg
-  puma (~> 5.0)
+  puma (~> 6.0)
   qbo_api
   qrcode_pix_ruby
   rails (~> 7.0, >= 7.0.4.3)

@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'fixy/numeric'
-require 'fixy/amount'
-require 'fixy/date'
+require 'fixy/formatter/numeric'
+require 'fixy/formatter/amount'
+require 'fixy/formatter/date'
 require 'digest'
 
 class Nf21Cadastro < Fixy::Record

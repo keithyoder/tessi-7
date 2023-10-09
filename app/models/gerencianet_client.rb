@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class GerencianetClient
-  require 'gerencianet'
+  #require 'gerencianet'
 
   def self.criar_boleto(fatura)
     # não criar um novo boleto se já foi criado anteriormente.

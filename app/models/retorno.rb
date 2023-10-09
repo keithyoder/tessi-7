@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'cobranca/retorno_240'
-require 'cobranca/retorno_400'
-require 'cobranca/bb_400'
+require 'brcobranca/retorno/cnab_240_header'
+require 'brcobranca/retorno/cnab_400_header'
+require 'brcobranca/retorno/cnab_400/bb'
 
 class Retorno < ApplicationRecord
   belongs_to :pagamento_perfil
@@ -29,7 +29,7 @@ class Retorno < ApplicationRecord
       )
       case pagamento_perfil.banco
       when 33
-        header = Retorno240Header.load_line data_file.first
+        header = Brcobranca::Retorno::Cnab240Header.load_line data_file.first
         raise StandardError.new, ARQUIVO_COMPATIVEL unless header.convenio.to_i == pagamento_perfil.cedente
 
         self.attributes = {
@@ -38,7 +38,7 @@ class Retorno < ApplicationRecord
         }
         save
       when 1
-        header = Retorno400Header.load_line data_file.first
+        header = Brcobranca::Retorno::Cnab400Header.load_line data_file.first
         unless header.retorno.to_i == 2 && header.tipo.to_i == 1 && header.convenio.to_i == pagamento_perfil.cedente
           raise StandardError.new, ARQUIVO_COMPATIVEL
         end

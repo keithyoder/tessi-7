@@ -1,21 +1,20 @@
 ul.nav.nav-pills
   li.nav-item
-    a.nav-link class="#{params.key?(:conexao_q) ? '' : 'active'}" data-toggle='tab' href='#ponto' Ponto de Acesso
+    a.nav-link class="#{params.key?(:conexao_q) ? '' : 'active'}" data-bs-toggle='tab' href='#ponto' Ponto de Acesso
   li.nav-item
-    a.nav-link class="#{params.key?(:conexao_q) ? 'active' : ''}" data-toggle='tab' href='#conexoes' Conexões
+    a.nav-link class="#{params.key?(:conexao_q) ? 'active' : ''}" data-bs-toggle='tab' href='#conexoes' Conexões
 .tab-content
   #ponto.tab-pane.fade aria-labelledby='ponto-tab' class="#{params.key?(:conexao_q) ? '' : 'show active'}" role='tabpanel'
     .row
       .card
         = render 'shared/show_header', { object: @ponto, titulo: "Ponto de Acesso #{@ponto.nome}" }
         .card-body
-          .card-columns style='column-count: 4'
+          .row.row-cols-1.row-cols-sm-2.row-cols-md-3.row-cols-lg-4.g-4.pt-3
             = render 'shared/field_card', { campo: 'Sistema', valor: @ponto.sistema }
             = render 'shared/field_card', { campo: 'Tecnologia', valor: @ponto.tecnologia }
             - if @ponto.ssid.present?
               = render 'shared/field_card', { campo: 'SSID', valor: @ponto.ssid }
-            = link_to @ponto.servidor do
-              = render 'shared/field_card', { campo: 'Servidor', valor: @ponto.servidor.nome }
+            = render 'shared/field_card', { campo: 'Servidor', valor: @ponto.servidor.nome, link: @ponto.servidor }
             = link_to "http://#{@ponto.ip}", target: '_blank' do
               = render 'shared/field_card', { campo: 'IP', valor: @ponto.ip }
             -if @ponto.ipv6.present?
@@ -32,6 +31,6 @@ ul.nav.nav-pills
             = link_to "http://maps.google.com/maps?#{@ponto.google_maps_pins}&z=18", target: '_blank' do
               p align='center'
                 = image_tag "https://maps.googleapis.com/maps/api/staticmap?maptype=hybrid&size=1200x400&#{@ponto.google_maps_pins}&key=#{Rails.application.credentials.google_maps_api_key}", alt: 'Map'
-  #conexoes.tab-pane-fade aria-labelledby='conexoes-tab' class="#{params.key?(:conexao_q) ? 'show active' : ''}" role='tabpanel'
+  #conexoes.tab-pane.fade[role="tabpanel" aria-labelledby="conexoes-tab" class="#{params.key?(:conexao_q) ? 'show active' : ''}"]
     h3 = @ponto.nome
     = render 'conexoes/table', { exclude: %w[ponto equipamento] }

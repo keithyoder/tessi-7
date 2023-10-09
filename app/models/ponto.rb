@@ -3,6 +3,8 @@
 require 'snmp'
 
 class Ponto < ApplicationRecord
+  include Ransackable
+
   belongs_to :servidor
   has_many :conexoes, dependent: :restrict_with_exception
   has_many :ip_redes, dependent: :restrict_with_exception
@@ -11,6 +13,9 @@ class Ponto < ApplicationRecord
   has_many :autenticacoes, through: :conexoes, source: :autenticacoes
   scope :ativo, -> { joins(:servidor).where('servidores.ativo') }
   scope :fibra, -> { where(tecnologia: :Fibra) }
+
+  RANSACK_ATTRIBUTES = %w[nome ssid ip].freeze
+  RANSACK_ASSOCIATIONS = %w[].freeze
 
   enum tecnologia: {
     Radio: 1,

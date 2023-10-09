@@ -16,6 +16,7 @@
       ul#assinantes-menu.collapse.nav.flex-column.ms-1[data-bs-parent="#menu"]
         li.w-100
           a.nav-link.px-0[href="#{pessoas_path}"]
+            i.fs-4.bi-person-circle>
             span.d-none.d-sm-inline
               | Pessoas
         li
@@ -67,11 +68,13 @@
             span.d-none.d-sm-inline
               | Conexões
         li
-          a.nav-link.px-0[href="#{conexoes_path}"]
+          a.nav-link.px-0[href="#{servidores_path}"]
+            i.fs-4.bi-server>
             span.d-none.d-sm-inline
               | Concentradores
         li
           a.nav-link.px-0[href="#{pontos_path}"]
+            i.fs-4.bi-wifi>
             span.d-none.d-sm-inline
               | Pontos de Acesso
         li
@@ -80,6 +83,7 @@
               | Fibra
         li
           a.nav-link.px-0[href="#{ip_redes_path}"]
+            i.fs-4.bi-sort-numeric-down>
             span.d-none.d-sm-inline
               | IPs
     li

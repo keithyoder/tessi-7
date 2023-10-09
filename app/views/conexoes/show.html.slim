@@ -1,15 +1,15 @@
 ul.nav.nav-pills
   li.nav-item
-    a.nav-link.active[data-toggle="tab" href="#conexao"]
+    a.nav-link.active[data-bs-toggle="tab" href="#conexao"]
       | Conexão
   li.nav-item
-    a.nav-link[data-toggle="tab" href="#radius"]
+    a.nav-link[data-bs-toggle="tab" href="#radius"]
       | Radius
   li.nav-item
-    a.nav-link[data-toggle="tab" href="#autenticacao"]
+    a.nav-link[data-bs-toggle="tab" href="#autenticacao"]
       | Autenticação
   li.nav-item
-    a.nav-link[data-toggle="tab" href="#trafego"]
+    a.nav-link[data-bs-toggle="tab" href="#trafego"]
       | Trâfego
 #conexao-tabs.tab-content
   #conexao.tab-pane.fade.show.active[role="tabpanel" aria-labelledby="conexao-tab"]
@@ -30,7 +30,8 @@ ul.nav.nav-pills
               = render 'shared/field_card', {campo: "Contrato", valor: "Sem contrato"}
             = link_to 'http://'+@conexao.ip.to_s, target: "_blank" do
               = render 'shared/field_card', {campo: "IP", valor: @conexao.ip}
-            = render 'shared/field_card', {campo: "IPv6", valor: @conexao.ipv6.to_s}
+            - if @conexao.ipv6.present?
+              = render 'shared/field_card', {campo: "IPv6", valor: @conexao.ipv6.to_s}
             = render 'shared/field_card', {campo: "Usuário", valor: @conexao.usuario}
             = render 'shared/field_card', {campo: "Senha", valor: @conexao.senha}
             = render 'shared/field_card', {campo: "Equipamento", valor: @conexao.equipamento&.descricao}
@@ -38,12 +39,12 @@ ul.nav.nav-pills
             = render 'shared/field_card', {campo: "Plano", valor: @conexao.plano.nome, link: @conexao.plano}
             = render 'shared/field_card', {campo: "Ponto de Acesso", valor: @conexao.ponto.nome, link: @conexao.ponto}
             - if @conexao.caixa.present?
-              = link_to @conexao.caixa do
-                = render 'shared/field_card', {campo: "Caixa de Atendimento", valor: "#{@conexao.caixa.nome}, porta #{@conexao.porta}"}
+              = render 'shared/field_card', {campo: "Caixa de Atendimento", valor: "#{@conexao.caixa.nome}, porta #{@conexao.porta}", link: @conexao.caixa}
             = render 'shared/field_card', {campo: "Suspenso", valor: @conexao.bloqueado.as_simnao.capitalize, cor: @conexao.bloqueado ? 'bg-warning' : 'bg-light'}
             = render 'shared/field_card', {campo: "Inadimplente", valor: @conexao.inadimplente.as_simnao.capitalize, cor: @conexao.inadimplente ? 'bg-warning' : 'bg-light'}
             = render 'shared/field_card', {campo: "Observação", valor: @conexao.observacao}
-            = render 'shared/field_card', {campo: "Velociade Personalizada", valor: @conexao.velocidade}
+            - if @conexao.velocidade.present?
+              = render 'shared/field_card', {campo: "Velociade Personalizada", valor: @conexao.velocidade}
             = render 'shared/field_card', {campo: "Auto Bloqueio", valor: @conexao.auto_bloqueio.as_simnao.capitalize}
             = render 'shared/field_card', {campo: "Criada em", valor: @conexao.created_at}
     .row

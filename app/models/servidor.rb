@@ -3,12 +3,17 @@
 class Servidor < ApplicationRecord
   require 'csv'
   require 'cgi'
+  include Ransackable
+
   has_many :pontos, dependent: :restrict_with_exception
   has_many :conexoes, through: :pontos
   has_many :autenticacoes, through: :pontos
   has_one_attached :backup
 
   scope :ativo, -> { where('ativo') }
+
+  RANSACK_ATTRIBUTES = %w[nome].freeze
+  RANSACK_ASSOCIATIONS = %w[].freeze
 
   def self.to_csv
     attributes = %w[id nome ip ativo api_porta ssh_porta snmp_porta snmp_comunidade]
@@ -30,7 +35,7 @@ class Servidor < ApplicationRecord
       pass: senha,
       use_ssl: true,
       unencrypted_plaintext: true,
-      command: command
+      command:
     )
   end
 
@@ -76,7 +81,7 @@ class Servidor < ApplicationRecord
   def system_info
     result = mk_command('/system/resource/print')[0][0]
     result.slice('uptime', 'version', 'cpu-load', 'board-name')
-  rescue StandardError => e
+  rescue StandardError
     nil
   end
 

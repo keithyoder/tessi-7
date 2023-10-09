@@ -11,7 +11,7 @@
           => search_form_for(@conexao_q, url: request.original_url, as: :conexao_q) do |f|
             => f.label :sem_contrato, 'Sem Contrato'
             => f.check_box :sem_contrato, {class: 'mr-sm-2 '}, "true", nil
-            => f.search_field :usuario_or_mac_or_pessoa_nome_cont
+            => f.search_field :usuario_or_mac_or_pessoa_nome_or_ip_s_cont
             => button_tag( :class => "btn btn-sm btn-outline-dark") do
               i.bi.bi-search aria-hidden="true"
             = link_to '<i class="bi bi-file-excel" aria-hidden="true"></i>'.html_safe,    \

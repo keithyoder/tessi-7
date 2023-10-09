@@ -21,8 +21,11 @@ class Conexao < ApplicationRecord
   has_many :os, dependent: :nullify
   belongs_to :equipamento, optional: true
 
-  RANSACK_ATTRIBUTES = %w[usuario mac ip nome].freeze
+  RANSACK_ATTRIBUTES = %w[usuario mac ip_s nome].freeze
   RANSACK_ASSOCIATIONS = %w[pessoa].freeze
+  ransacker :ip_s do
+    Arel.sql('ip::text')
+  end
 
   scope :bloqueado, -> { where('bloqueado') }
   scope :ativo, -> { where('not bloqueado') }

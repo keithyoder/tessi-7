@@ -14,8 +14,11 @@ class Ponto < ApplicationRecord
   scope :ativo, -> { joins(:servidor).where('servidores.ativo') }
   scope :fibra, -> { where(tecnologia: :Fibra) }
 
-  RANSACK_ATTRIBUTES = %w[nome ssid ip].freeze
+  RANSACK_ATTRIBUTES = %w[nome ssid ip_s].freeze
   RANSACK_ASSOCIATIONS = %w[].freeze
+  ransacker :ip_s do
+    Arel.sql('ip::text')
+  end
 
   enum tecnologia: {
     Radio: 1,

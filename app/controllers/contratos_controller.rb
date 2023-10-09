@@ -9,7 +9,7 @@ class ContratosController < ApplicationController
   # GET /contratos
   # GET /contratos.json
   def index
-    contrato = Contrato.includes(:pessoa, :plano)
+    contrato = Contrato.includes(:pessoa, :plano).order('pessoas.nome')
     contrato = contrato.ativos if params.key?(:ativos)
     contrato = contrato.renovaveis if params.key?(:renovaveis)
     contrato = contrato.suspendiveis if params.key?(:suspendiveis)
@@ -24,7 +24,6 @@ class ContratosController < ApplicationController
       :adesao, :sem_conexao
     )
     @q = contrato.ransack(params[:q])
-    @q.sorts = 'pessoas.nome'
     @contratos = @q.result.page params[:page]
     respond_to do |format|
       format.html
@@ -182,9 +181,9 @@ class ContratosController < ApplicationController
                              assigns: { contrato: @contrato }
                            ), { symbolize_names: true })
 
-    result = Autentique::Client.query(
+    Autentique::Client.query(
       Autentique::CriarDocumento,
-      variables: variables,
+      variables:,
       file: UploadIO.new(StringIO.new(pdf), 'application/pdf', 'termo.pdf')
     )
 

@@ -31,10 +31,8 @@ ul.nav.nav-pills
               i.bi.bi-printer-fill[aria-hidden="true"]
       .card-body
         .row.row-cols-1.row-cols-sm-2.row-cols-md-3.row-cols-lg-4.g-4.pt-2
-          = link_to @contrato.pessoa do
-            = render 'shared/field_card', {campo: "Pessoa", valor: @contrato.pessoa.nome}
-          = link_to @contrato.plano do
-            = render 'shared/field_card', {campo: "Plano", valor: @contrato.plano.nome}
+          = render 'shared/field_card', {campo: "Pessoa", valor: @contrato.pessoa.nome, link: @contrato.pessoa}
+          = render 'shared/field_card', {campo: "Plano", valor: @contrato.plano.nome, link: @contrato.plano}
           = render 'shared/field_card', {campo: "Perfil de Cobrança", valor: @contrato.pagamento_perfil.nome}
           = render 'shared/field_card', {campo: "Dia Vencimento", valor: @contrato.dia_vencimento}
           = render 'shared/field_card', {campo: "Data Adesão", valor: l(@contrato.adesao)}

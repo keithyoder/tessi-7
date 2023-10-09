@@ -27,14 +27,14 @@
               td
                 small
                   - if fatura.registro_id.present?
-                    span.badge.badge-success Registrada
+                    span.badge.bg-success Registrada
                     '
                   - if fatura.retorno_id.present?
-                    span.badge.badge-dark Liquidada
+                    span.badge.bg-dark Liquidada
                     '
                   - if fatura.baixa_id.present?
-                    span.badge.badge-warning Baixada
+                    span.badge.bg-warning Baixada
                     '
                   - if fatura.cancelamento.present?
-                    span.badge.badge-danger Cancelada
+                    span.badge.bg-danger Cancelada
     = paginate @faturas

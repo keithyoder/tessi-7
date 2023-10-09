@@ -21,7 +21,6 @@ class ConexoesController < ApplicationController
     @params = conexoes_params(params)
 
     @conexao_q = conexao.ransack(params[:conexao_q])
-    puts @conexao_q
     @conexoes = @conexao_q.result.includes(:pessoa).page(params[:conexoes_page])
     respond_to do |format|
       format.html
@@ -125,6 +124,8 @@ class ConexoesController < ApplicationController
   end
 
   def set_contratos
+    puts @conexao.pessoa.contratos.ativos.disponiveis
+    puts @conexao.contrato_id
     @contratos = @conexao.pessoa.contratos.ativos.disponiveis.or Contrato.where(id: @conexao.contrato_id)
   end
 

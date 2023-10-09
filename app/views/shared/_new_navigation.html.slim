@@ -121,7 +121,7 @@
         i.fs-4.bi-telephone
         span.ms-1.d-none.d-sm-inline
           | Meus Atendimentos
-        span.badge.badge-pill.badge-danger = Atendimento.por_responsavel(current_user).abertos.count
+        span.badge.badge-pill.bg-danger = Atendimento.por_responsavel(current_user).abertos.count
 
     li
       a.nav-link.px-0.align-middle[href="#{os_index_path(minhas: 1, abertas: 1)}"]
@@ -136,16 +136,4 @@
         | loser
     ul.dropdown-menu.dropdown-menu-dark.text-small.shadow[aria-labelledby="dropdownUser1"]
       li
-        a.dropdown-item[href="#"]
-          | New project...
-      li
-        a.dropdown-item[href="#"]
-          | Settings
-      li
-        a.dropdown-item[href="#"]
-          | Profile
-      li
-        hr.dropdown-divider
-      li
-        a.dropdown-item[href="#"]
-          | Sign out
+        = link_to "Desconectar", destroy_user_session_path, data: { turbo_method: :delete }, class: "dropdown-item"

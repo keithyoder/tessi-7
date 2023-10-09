@@ -20,15 +20,12 @@ ul.nav.nav-pills
         - else
           = render 'shared/show_header', {object: @conexao, titulo: "Conexão "+ @conexao.pessoa.nome + ' <span class="badge badge-warning">Desconectada</span>'}
         .card-body
-          .card-columns[style="column-count: 4"]
-            = link_to @conexao.pessoa do
-              = render 'shared/field_card', {campo: "Assinante", valor: @conexao.pessoa.nome}
-            = link_to @conexao.logradouro || @conexao.pessoa.logradouro do
-              = render 'shared/field_card', {campo: "Endereço", valor: @conexao.logradouro&.endereco || @conexao.pessoa.logradouro.endereco}
+          .row.row-cols-1.row-cols-sm-2.row-cols-md-3.row-cols-lg-4.g-4.pt-3
+            = render 'shared/field_card', {campo: "Assinante", valor: @conexao.pessoa.nome, link: @conexao.pessoa}
+            = render 'shared/field_card', {campo: "Endereço", valor: @conexao.logradouro&.endereco || @conexao.pessoa.logradouro.endereco, link: @conexao.logradouro || @conexao.pessoa.logradouro}
             = render 'shared/field_card', {campo: "Tipo de Conexão", valor: @conexao.tipo}
             - if @conexao.contrato.present?
-              = link_to @conexao.contrato do
-                = render 'shared/field_card', {campo: "Contrato", valor: @conexao.contrato.id.to_s + ' ' + @conexao.contrato.adesao.to_s}
+              = render 'shared/field_card', {campo: "Contrato", valor: @conexao.contrato.id.to_s + ' ' + @conexao.contrato.adesao.to_s, link: @conexao.contrato}
             - else
               = render 'shared/field_card', {campo: "Contrato", valor: "Sem contrato"}
             = link_to 'http://'+@conexao.ip.to_s, target: "_blank" do
@@ -38,10 +35,8 @@ ul.nav.nav-pills
             = render 'shared/field_card', {campo: "Senha", valor: @conexao.senha}
             = render 'shared/field_card', {campo: "Equipamento", valor: @conexao.equipamento&.descricao}
             = render 'shared/field_card', {campo: "MAC", valor: @conexao.mac}
-            = link_to @conexao.plano do
-              = render 'shared/field_card', {campo: "Plano", valor: @conexao.plano.nome}
-            = link_to @conexao.ponto do
-              = render 'shared/field_card', {campo: "Ponto de Acesso", valor: @conexao.ponto.nome}
+            = render 'shared/field_card', {campo: "Plano", valor: @conexao.plano.nome, link: @conexao.plano}
+            = render 'shared/field_card', {campo: "Ponto de Acesso", valor: @conexao.ponto.nome, link: @conexao.ponto}
             - if @conexao.caixa.present?
               = link_to @conexao.caixa do
                 = render 'shared/field_card', {campo: "Caixa de Atendimento", valor: "#{@conexao.caixa.nome}, porta #{@conexao.porta}"}

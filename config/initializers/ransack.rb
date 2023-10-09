@@ -8,3 +8,10 @@ Ransack.configure do |config|
                        compounds: true,
                        type: :string
 end
+
+# needed because ransack 4.0 doesn't support Rails 7.1 yet.
+module Arel
+  class Table
+    alias table_name name
+  end
+end

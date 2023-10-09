@@ -4,7 +4,7 @@ module ConexoesHelper
   def conexoes_params(params)
     params.permit(
       :tab, :sem_autenticar, :suspensas, :ativas, :conectadas, :desconectadas,
-      :sem_contrato
+      :sem_contrato, conexao_q: [:usuario_or_mac_or_pessoa_nome_cont]
     )
   end
 

@@ -1,16 +1,19 @@
 ul.nav.nav-pills
   li.nav-item
-    a.nav-link.active data-toggle="tab" href="#perfil"  Perfil
+    a.nav-link.active[data-bs-toggle="tab" href="#perfil"]
+      | Perfil
   li.nav-item
-    a.nav-link data-toggle="tab" href="#retornos"  Retornos
+    a.nav-link[data-bs-toggle="tab" href="#retornos"]
+      | Retornos
   li.nav-item
-    a.nav-link data-toggle="tab" href="#resumo"  Resumo
+    a.nav-link[data-bs-toggle="tab" href="#resumo"]
+      | Resumo
 .tab-content
-  #perfil.tab-pane.fade.show.active aria-labelledby="perfil-tab" role="tabpanel" 
+  #perfil.tab-pane.fade.show.active[role="tabpanel" aria-labelledby="perfil-tab"]
     .card
       = render 'shared/show_header', {object: @pagamento_perfil, titulo: "Perfil de Pagamento "}
       .card-body
-        .card-columns
+        .row.row-cols-1.row-cols-sm-2.row-cols-md-3.row-cols-lg-4.g-4.pt-3
           = render 'shared/field_card', {campo: "Nome", valor: @pagamento_perfil.nome}
           = render 'shared/field_card', {campo: "Tipo", valor: @pagamento_perfil.tipo}
           = render 'shared/field_card', {campo: "Banco", valor: @pagamento_perfil.banco}
@@ -24,11 +27,11 @@ ul.nav.nav-pills
         -if can? :remessa, @pagamento_perfil
           = link_to remessa_pagamento_perfil_path(sequencia: @pagamento_perfil.sequencia+1), target: "_blank" do
             = button_tag("Remessa", {:class => "btn btn-warning"}) do
-              i.fas.fa-file-import aria-hidden="true" 
+              i.bi.bi-send aria-hidden="true" 
               | &nbsp; Remessa
-  #retornos.tab-pane.fade aria-labelledby="retornos-tab" role="tabpanel" 
+  #retornos.tab-pane.fade[role="tabpanel" aria-labelledby="retornos-tab"]
     h3 = @pagamento_perfil.nome
     = render 'retornos/table'
-  #resumo.tab-pane.fade aria-labelledby="resumo-tab" role="tabpanel" 
+  #resumo.tab-pane.fade[role="tabpanel" aria-labelledby="resumo-tab"]
     h3 = @pagamento_perfil.nome
     = render 'meses'

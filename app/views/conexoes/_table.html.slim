@@ -13,8 +13,8 @@
             => f.check_box :sem_contrato, {class: 'mr-sm-2 '}, "true", nil
             => f.search_field :usuario_or_mac_or_pessoa_nome_cont
             => button_tag( :class => "btn btn-sm btn-outline-dark") do
-              i.fa.fa-search aria-hidden="true"
-            = link_to '<i class="fa fa-file-excel" aria-hidden="true"></i>'.html_safe,    \
+              i.bi.bi-search aria-hidden="true"
+            = link_to '<i class="bi bi-file-excel" aria-hidden="true"></i>'.html_safe,    \
               current_page_params.merge(format: :csv), class: "btn btn-sm btn-outline-dark"
   .card-body
     .table-responsive

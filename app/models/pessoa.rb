@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Pessoa < ApplicationRecord
+  include Ransackable
+
   belongs_to :logradouro
   has_one :bairro, through: :logradouro
   has_one :cidade, through: :logradouro
@@ -28,6 +30,9 @@ class Pessoa < ApplicationRecord
   validate :telefone2_valido?
   validates :cpf, uniqueness: true, allow_blank: true
   validates :cnpj, uniqueness: true, allow_blank: true
+
+  RANSACK_ATTRIBUTES = %w[cnpj cpf email nome telefone1 telefone2].freeze
+  RANSACK_ASSOCIATIONS = %w[].freeze
 
   def endereco
     "#{logradouro.nome}, #{numero} #{complemento}"
@@ -104,9 +109,5 @@ class Pessoa < ApplicationRecord
 
   def nome_sem_acentos
     nome.parameterize(separator: ' ').upcase
-  end
-
-  def self.ransackable_attributes(auth_object = nil)
-    ["cnpj", "cpf", "email", "nome", "telefone1", "telefone2"]
   end
 end

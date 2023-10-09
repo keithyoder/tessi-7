@@ -3,6 +3,7 @@
 class ConexoesController < ApplicationController
   include ConexoesHelper
 
+  before_action :set_scope, only: %i[index show new]
   before_action :set_conexao, only: %i[show edit update destroy]
   load_and_authorize_resource
 
@@ -20,7 +21,8 @@ class ConexoesController < ApplicationController
     @params = conexoes_params(params)
 
     @conexao_q = conexao.ransack(params[:conexao_q])
-    @conexoes = @conexao_q.result.page params[:conexoes_page]
+    puts @conexao_q
+    @conexoes = @conexao_q.result.includes(:pessoa).page(params[:conexoes_page])
     respond_to do |format|
       format.html
       format.csv { send_data @conexoes.except(:limit, :offset).to_csv, filename: "conexoes-#{Time.zone.today}.csv" }
@@ -130,6 +132,10 @@ class ConexoesController < ApplicationController
     @caixas = @conexao.ponto.caixas
                       .joins(:fibra_rede, :ponto)
                       .order('pontos.nome, fibra_caixas.nome').all
+  end
+
+  def set_scope
+    @params = params.permit(:page, conexao_q: [:usuario_or_mac_or_pessoa_nome_cont])
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.

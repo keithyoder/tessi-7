@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Conexao < ApplicationRecord
+  include Ransackable
+
   belongs_to :pessoa
   belongs_to :plano
   belongs_to :ponto
@@ -18,6 +20,10 @@ class Conexao < ApplicationRecord
   has_many :rad_accts, primary_key: :usuario, foreign_key: :username
   has_many :os, dependent: :nullify
   belongs_to :equipamento, optional: true
+
+  RANSACK_ATTRIBUTES = %w[usuario mac ip nome].freeze
+  RANSACK_ASSOCIATIONS = %w[pessoa].freeze
+
   scope :bloqueado, -> { where('bloqueado') }
   scope :ativo, -> { where('not bloqueado') }
   scope :conectada, lambda {
@@ -51,7 +57,7 @@ class Conexao < ApplicationRecord
   enum tipo: { Cobranca: 1, Cortesia: 2, Outro_3: 3, Outro_4: 4, Outros: 5 }
   scope :rede_ip, ->(rede) { where('ip::inet << ?::inet', rede) }
   scope :sem_contrato, lambda {
-    left_joins(:contrato).where('tipo = 1 and contrato_id is null or cancelamento is not null')
+    left_joins(:contrato).where('conexoes.tipo = 1 and contrato_id is null or cancelamento is not null')
   }
 
   attr_accessor :current_user

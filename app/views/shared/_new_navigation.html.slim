@@ -53,21 +53,35 @@
             span.d-none.d-sm-inline
               | Termos não Assinados
     li
-      a.nav-link.px-0.align-middle[href="#submenu2" data-bs-toggle="collapse"]
+      a.nav-link.px-0.align-middle[href="#tecnico-menu" data-bs-toggle="collapse"]
         i.fs-4.bi-ethernet
         span.ms-1.d-none.d-sm-inline
           | Técnico
-      ul#submenu2.collapse.nav.flex-column.ms-1[data-bs-parent="#menu"]
+      ul#tecnico-menu.collapse.nav.flex-column.ms-1[data-bs-parent="#menu"]
         li.w-100
-          a.nav-link.px-0[href="#"]
+          a.nav-link.px-0[href="#{os_index_path(abertas: 1)}"]
             span.d-none.d-sm-inline
-              | Item
-            |  1
+              | OS
         li
-          a.nav-link.px-0[href="#"]
+          a.nav-link.px-0[href="#{conexoes_path}"]
             span.d-none.d-sm-inline
-              | Item
-            |  2
+              | Conexões
+        li
+          a.nav-link.px-0[href="#{conexoes_path}"]
+            span.d-none.d-sm-inline
+              | Concentradores
+        li
+          a.nav-link.px-0[href="#{pontos_path}"]
+            span.d-none.d-sm-inline
+              | Pontos de Acesso
+        li
+          a.nav-link.px-0[href="#{fibra_redes_path}"]
+            span.d-none.d-sm-inline
+              | Fibra
+        li
+          a.nav-link.px-0[href="#{ip_redes_path}"]
+            span.d-none.d-sm-inline
+              | IPs
     li
       a.nav-link.px-0.align-middle[href="#configuracoes-menu" data-bs-toggle="collapse"]
         i.fs-4.bi-gear

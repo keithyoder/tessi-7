@@ -1,0 +1,10 @@
+.card
+  = render 'shared/show_header', {object: @fibra_rede, titulo: "Rede #{@fibra_rede.nome}"}
+  .card-body
+    .row.row-cols-1.row-cols-sm-2.row-cols-md-3.row-cols-lg-4.g-4.pt-3
+      = render 'shared/field_card', {campo: "Rede", valor: @fibra_rede.nome}
+      = render 'shared/field_card', {campo: "Ponto de Acesso", valor: @fibra_rede.ponto.nome, link: @fibra_rede.ponto}
+      = render 'shared/field_card', {campo: "Cor da Fibra", valor: @fibra_rede.fibra_cor}
+      = render 'shared/field_card', {campo: "Conexões", valor: @fibra_rede.conexoes.count}
+.card
+  = render 'fibra_caixas/table'

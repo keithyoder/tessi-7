@@ -31,8 +31,7 @@ class PontosController < ApplicationController
   # GET /pontos/1
   # GET /pontos/1.json
   def show
-    @conexao_q = @ponto.conexoes.ransack(params[:conexao_q])
-    @conexao_q.sorts = 'ip'
+    @conexao_q = @ponto.conexoes.order(:ip).ransack(params[:conexao_q])
     @conexoes = @conexao_q.result.page params[:conexoes_page]
     @autenticacoes = @ponto.autenticacoes
     @ips = @ponto.ipv4_disponiveis if params.key?(:ipv4)

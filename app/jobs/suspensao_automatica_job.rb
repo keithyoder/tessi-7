@@ -4,6 +4,7 @@ class SuspensaoAutomaticaJob < ApplicationJob
   queue_as :default
 
   def perform
+    super
     Contrato.eager_load(:conexoes).ativos.each(&:atualizar_conexoes)
   end
 end

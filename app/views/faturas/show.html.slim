@@ -4,30 +4,27 @@
       .col-sm
         h3
           = link_to(@fatura.contrato, class: "btn btn-sm btn-outline-dark") do
-            i.fa.fa-arrow-left aria-hidden="true" 
+            i.bi.bi-backspace aria-hidden="true" 
           - if can? :update, @fatura
             = link_to(edit_fatura_path, class: "btn btn-sm btn-outline-dark") do
-              i.fa.fa-pencil.fa-lg aria-hidden="true" 
+              i.bi.bi-pencil-fill aria-hidden="true" 
           | Fatura
       .d-print-none.col-sm-2 align="right" 
         - if @fatura.liquidacao.blank?
           = link_to(liquidacao_fatura_path, class: "btn btn-sm btn-outline-dark") do
-            i.fa.fa-credit-card.fa-lg aria-hidden="true" 
-            | Liquidação
+            i.bi.bi-credit-card aria-hidden="true" 
+            | &nbsp; Liquidação
         - if @fatura.liquidacao.blank?
           = link_to(@fatura.link || boleto_fatura_path, class: "btn btn-sm btn-outline-dark", target: "_blank") do
-            i.fa.fa-print.fa-lg aria-hidden="true" 
+            i.bi.bi-printer-fill aria-hidden="true" 
         - else
           = link_to(current_page_params.merge(format: :pdf), class: "btn btn-sm btn-outline-dark", target: "_blank") do
-            i.fa.fa-print.fa-lg aria-hidden="true" 
+            i.bi.bi-printer-fill aria-hidden="true" 
   .card-body
-    .card-columns style=("column-count: 3") 
-      = link_to @fatura.contrato.pessoa do
-        = render 'shared/field_card', {campo: "Assinante", valor: @fatura.contrato.pessoa.nome}
-      = link_to @fatura.contrato do
-        = render 'shared/field_card', {campo: "Contrato", valor: @fatura.contrato.id}
-      = link_to @fatura.contrato.plano do
-        = render 'shared/field_card', {campo: "Plano", valor: @fatura.contrato.plano.nome}
+    .row.row-cols-1.row-cols-sm-2.row-cols-md-3.row-cols-lg-4.g-4.pt-3
+      = render 'shared/field_card', {campo: "Assinante", valor: @fatura.contrato.pessoa.nome, link: @fatura.contrato.pessoa}
+      = render 'shared/field_card', {campo: "Contrato", valor: @fatura.contrato.id, link: @fatura.contrato}
+      = render 'shared/field_card', {campo: "Plano", valor: @fatura.contrato.plano.nome, link: @fatura.contrato.plano}
       = render 'shared/field_card', {campo: "Perfil de Cobrança", valor: @fatura.pagamento_perfil.nome}
       = render 'shared/field_card', {campo: "Parcela", valor: @fatura.parcela}
       = render 'shared/field_card', {campo: "Vencimento", valor: l(@fatura.vencimento)}
@@ -42,9 +39,9 @@
         = render 'shared/field_card', {campo: "Desconto Concedido", valor: number_to_currency(@fatura.desconto_concedido)}
         = render 'shared/field_card', {campo: "Banco / Agência", valor: @fatura.banco.to_s + ' / ' + @fatura.agencia.to_s}
       - elsif @fatura.pix.present?
-        .card.border-dark
+        .card.border-secondary.m-1.p-0
           .card-header= 'Pix QR Code'
-          .card-text align='right'
+          .card-text.m-2.text-end
             img src=@fatura.pix_base64 width='50%'
             br
             = @fatura.pix
@@ -54,14 +51,11 @@
         = link_to nf21_path(@fatura.nf21, format: :pdf), target: :blank do
           = render 'shared/field_card', {campo: "Nota Fiscal", valor: @fatura.nf21.numero}
       - if @fatura.retorno.present?
-        = link_to @fatura.retorno do
-          = render 'shared/field_card', {campo: "Retorno", valor: @fatura.retorno.sequencia}
+        = render 'shared/field_card', {campo: "Retorno", valor: @fatura.retorno.sequencia, link: @fatura.retorno}
       - if @fatura.registro.present?
-        = link_to @fatura.registro do
-          = render 'shared/field_card', {campo: "Registro", valor: @fatura.registro.sequencia}
+        = render 'shared/field_card', {campo: "Registro", valor: @fatura.registro.sequencia, link: @fatura.registro}
       - if @fatura.baixa.present?
-        = link_to @fatura.baixa do
-          = render 'shared/field_card', {campo: "Baixa", valor: @fatura.baixa.sequencia}
+        = render 'shared/field_card', {campo: "Baixa", valor: @fatura.baixa.sequencia, link: @fatura.baixa}
     - if can?(:estornar, @fatura) && @fatura.estornar?
       = link_to estornar_fatura_path do
         = button_tag(:class => "btn btn-warning") do

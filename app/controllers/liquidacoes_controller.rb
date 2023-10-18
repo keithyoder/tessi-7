@@ -3,20 +3,20 @@
 class LiquidacoesController < ApplicationController
   load_and_authorize_resource :fatura, through: :liquidacoes
 
-  def index
+  def index # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
     @liquidacoes = Fatura.select('count(*) as liquidacoes, sum(valor_liquidacao) as valor')
-                         .where('not liquidacao is null')
+                         .where.not(liquidacao: nil)
     if params.key?(:mes)
-      @liquidacoes = @liquidacoes.select('extract(month from liquidacao)::int as mes')
+      @liquidacoes = @liquidacoes.select(Arel.sql('extract(month from liquidacao)::int as mes'))
                                  .where('extract(year from liquidacao) = ?', params[:ano])
-                                 .group('extract(month from liquidacao)')
+                                 .group(Arel.sql('extract(month from liquidacao)'))
                                  .order(:mes)
       @chart = Fatura.where('extract(year from liquidacao) = ?', params[:ano])
                      .group('extract(month from liquidacao)')
                      .sum(:valor_liquidacao)
     elsif params.key?(:ano)
-      @liquidacoes = @liquidacoes.select('extract(year from liquidacao)::int as ano')
-                                 .group('extract(year from liquidacao)')
+      @liquidacoes = @liquidacoes.select(Arel.sql('extract(year from liquidacao)::int as ano'))
+                                 .group(Arel.sql('extract(year from liquidacao)'))
                                  .order(:ano)
       @chart = Fatura.where.not(liquidacao: nil)
                      .group('extract(year from liquidacao)')
@@ -29,7 +29,7 @@ class LiquidacoesController < ApplicationController
   end
 
   def show
-    @liquidacoes = Fatura.includes([:contrato, :pessoa]).where('liquidacao = ?', params[:id])
+    @liquidacoes = Fatura.includes(%i[contrato pessoa]).where('liquidacao = ?', params[:id])
     @liquidacoes = @liquidacoes.where('meio_liquidacao = ?', params[:meio]) if params.key?(:meio)
     @liquidacoes = @liquidacoes.page params[:page]
   end

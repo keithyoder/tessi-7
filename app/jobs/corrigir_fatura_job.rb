@@ -4,16 +4,12 @@ class CorrigirFaturaJob < ApplicationJob
   queue_as :default
 
   def perform(contrato_id:)
-    @contrato_id = contrato_id
+    @contrato = Contrato.find(contrato_id)
+    return unless fatura_paga.vencimento > fatura_em_aberto.vencimento
+
     criar_nova_fatura
     fatura_em_aberto.update(cancelamento: Date.today)
-    fatura_paga.update(
-      contrato_id: fatura_em_aberto.contrato_id,
-      parcela: fatura_em_aberto.parcela,
-      vencimento: fatura_em_aberto.vencimento,
-      periodo_inicio: fatura_em_aberto.periodo_inicio,
-      periodo_fim: fatura_em_aberto.periodo_fim
-    )
+    atualizar_fatura_paga
   end
 
   private
@@ -26,10 +22,6 @@ class CorrigirFaturaJob < ApplicationJob
     f2.update(contrato_id: f1.contrato_id, parcela: f1.parcela, vencimento: f1.vencimento, periodo_inicio: f1.periodo_inicio, periodo_fim: f1.periodo_fim)
   end
 
-  def contrato
-    @contrato ||= Contrato.find(@contrato_id)
-  end
-
   def fatura_paga
     @fatura_paga ||= @contrato.faturas.pagas.last
   end
@@ -39,14 +31,24 @@ class CorrigirFaturaJob < ApplicationJob
   end
 
   def criar_nova_fatura
-    contrato.create(
+    @contrato.create(
       pagamento_perfil_id: fatura_paga.pagamento_perfil_id,
-      parcela: fatura_paga..parcela,
-      vencimento: fatura_paga..vencimento,
-      periodo_inicio: fatura_paga..periodo_inicio,
-      periodo_fim: fatura_paga..periodo_fim,
+      parcela: fatura_paga.parcela,
+      vencimento: fatura_paga.vencimento,
+      periodo_inicio: fatura_paga.periodo_inicio,
+      periodo_fim: fatura_paga.periodo_fim,
       valor: fatura_paga.valor,
       nossonumero: '300002'
+    )
+  end
+
+  def atualizar_fatura_paga
+    fatura_paga.update(
+      contrato_id: fatura_em_aberto.contrato_id,
+      parcela: fatura_em_aberto.parcela,
+      vencimento: fatura_em_aberto.vencimento,
+      periodo_inicio: fatura_em_aberto.periodo_inicio,
+      periodo_fim: fatura_em_aberto.periodo_fim
     )
   end
 end

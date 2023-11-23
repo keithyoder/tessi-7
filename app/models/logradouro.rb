@@ -14,4 +14,8 @@ class Logradouro < ApplicationRecord
   def endereco
     "#{nome} - #{bairro.nome_cidade_uf}"
   end
+
+  def self.ransackable_attributes(auth_object = nil)
+    ["nome"]
+  end
 end

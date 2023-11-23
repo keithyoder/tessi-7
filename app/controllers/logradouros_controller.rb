@@ -8,10 +8,10 @@ class LogradourosController < ApplicationController
   # GET /logradouros.json
   def index
     if params[:search]
-      @logradouros = Logradouro.name_like("%#{params[:search]}%").order('nome')
+      @logradouros = Logradouro.name_like("%#{params[:search]}%").order(:nome)
     else
-      @q = Logradouro.ransack(params[:q])
-      @logradouros = @q.result(order: :nome).page params[:logradouros_page]
+      @q = Logradouro.eager_load(:bairro, :cidade, :estado).ransack(params[:q])
+      @logradouros = @q.result.order(:nome).page params[:logradouros_page]
     end
     @params = {}
   end

@@ -34,6 +34,7 @@ gem 'puma', '~> 6.0'
 gem 'redis', '~> 4.0'
 gem 'sprockets-rails'
 gem 'stimulus-rails'
+gem 'stringio', '3.0.8'
 gem 'turbo-rails'
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 # gem 'gerencianet', path: '../gn-api-sdk-ruby/'

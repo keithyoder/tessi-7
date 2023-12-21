@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class ContratosController < ApplicationController
+class ContratosController < ApplicationController # rubocop:disable Metrics/ClassLength
   include ActionView::Helpers::NumberHelper
   load_and_authorize_resource
   before_action :set_contrato, only: %i[show edit update destroy renovar termo update_assinatura autentique]
@@ -77,8 +77,8 @@ class ContratosController < ApplicationController
       format.html { render :termo }
       format.json { render :termo }
       format.pdf do
-        render pdf: 'termo', encoding: 'UTF-8', zoom: 1.2, margin: { top: 15, bottom: 15, left: 15, right: 15 },
-               page_size: 'A4'
+        render pdf: 'termo', formats: [:html], encoding: 'UTF-8', zoom: 1.2,
+               margin: { top: 15, bottom: 15, left: 15, right: 15 }, page_size: 'A4'
       end
     end
   end

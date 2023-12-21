@@ -8,7 +8,7 @@ class ContratosController < ApplicationController # rubocop:disable Metrics/Clas
 
   # GET /contratos
   # GET /contratos.json
-  def index
+  def index # rubocop:disable Metrics/AbcSize,Metrics/MethodLength,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
     contrato = Contrato.includes(:pessoa, :plano).order('pessoas.nome')
     contrato = contrato.ativos if params.key?(:ativos)
     contrato = contrato.renovaveis if params.key?(:renovaveis)
@@ -164,11 +164,13 @@ class ContratosController < ApplicationController # rubocop:disable Metrics/Clas
     end
   end
 
-  def autentique
+  def autentique # rubocop:disable Metrics/MethodLength
+    require 'autentique'
     pdf = WickedPdf.new.pdf_from_string(
       ContratosController.render(
-        template: 'contratos/termo.pdf',
-        assigns: { contrato: @contrato }
+        template: 'contratos/termo',
+        assigns: { contrato: @contrato },
+        layout: false
       ),
       encoding: 'UTF-8',
       zoom: 1.2,
@@ -177,7 +179,9 @@ class ContratosController < ApplicationController # rubocop:disable Metrics/Clas
     )
 
     variables = JSON.parse(ContratosController.render(
-                             template: 'contratos/termo.json',
+                             template: 'contratos/termo',
+                             formats: [:json],
+                             layout: false,
                              assigns: { contrato: @contrato }
                            ), { symbolize_names: true })
 

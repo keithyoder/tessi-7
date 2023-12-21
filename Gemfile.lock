@@ -117,7 +117,7 @@ GEM
       popper_js (>= 2.11.8, < 3)
     builder (3.2.4)
     cancancan (3.5.0)
-    capistrano (3.17.3)
+    capistrano (3.18.0)
       airbrussh (>= 1.0.0)
       i18n
       rake (>= 10.0.0)
@@ -201,8 +201,7 @@ GEM
       http (~> 0.9, >= 0.9.8)
     globalid (1.2.1)
       activesupport (>= 6.1)
-    graphql (2.2.1)
-      racc (~> 1.4)
+    graphql (2.0.27)
     hashie (5.0.0)
     hitimes (2.0.0)
     http (0.9.9)
@@ -525,7 +524,7 @@ DEPENDENCIES
   bootstrap (~> 5)
   brcobranca!
   cancancan
-  capistrano (~> 3.17)
+  capistrano (~> 3.18)
   capistrano-passenger (~> 0.2.1)
   capistrano-rails (~> 1.6)
   capistrano-rbenv (~> 2.2, >= 2.1.4)
@@ -540,6 +539,7 @@ DEPENDENCIES
   fixy
   geocoder
   gerencianet
+  graphql (< 2.1)
   graphql-client!
   httparty
   image_processing

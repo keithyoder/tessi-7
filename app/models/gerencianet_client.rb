@@ -1,13 +1,11 @@
 # frozen_string_literal: true
 
-class GerencianetClient
-  #require 'gerencianet'
-
+class GerencianetClient # rubocop:disable Metrics/ClassLength,Style/Documentation
   def self.criar_boleto(fatura)
     # não criar um novo boleto se já foi criado anteriormente.
     return unless fatura.pagamento_perfil.banco == 364 && fatura.pix.blank?
 
-    cliente = Gerencianet.new(
+    cliente = SdkRubyApisEfi.new(
       {
         client_id: fatura.pagamento_perfil.client_id,
         client_secret: fatura.pagamento_perfil.client_secret,
@@ -188,7 +186,7 @@ class GerencianetClient
 
   def self.cliente
     perfil = PagamentoPerfil.find_by(banco: 364)
-    cliente = Gerencianet.new(
+    SdkRubyApisEfi.new(
       {
         client_id: perfil.client_id,
         client_secret: perfil.client_secret,

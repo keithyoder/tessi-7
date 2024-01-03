@@ -30,7 +30,7 @@ class GerencianetClient # rubocop:disable Metrics/ClassLength,Style/Documentatio
           expire_at: fatura.vencimento.strftime,
           customer: {
             # email: fatura.pessoa.email,
-            phone_number: fatura.pessoa.telefone1.gsub(/\s+/, ''),
+            phone_number: fatura.pessoa.telefone1.gsub(/\D/, ''),
             address: {
               street: fatura.pessoa.logradouro.nome,
               number: fatura.pessoa.numero,

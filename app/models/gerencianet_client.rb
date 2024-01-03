@@ -95,7 +95,7 @@ class GerencianetClient # rubocop:disable Metrics/ClassLength,Style/Documentatio
       end
     )
 
-    response = cliente.create_charge_onestep(body: body)
+    response = cliente.createOneStepCharge(body: body)
     unless response['code'] == 200
       Rails.logger.error "Erro ao criar boleto #{response.to_s}"
       return

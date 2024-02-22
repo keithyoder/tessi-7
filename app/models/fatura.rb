@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Fatura < ApplicationRecord
+class Fatura < ApplicationRecord # rubocop:disable Metrics/ClassLength
   require 'digest'
   require 'barby'
   require 'barby/barcode/code_25_interleaved'
@@ -48,21 +48,19 @@ class Fatura < ApplicationRecord
   after_update do
     if saved_change_to_liquidacao?
       contrato.atualizar_conexoes
-      if pagamento_perfil.banco = 364 && baixar?
-        GerencianetBaixarBoletoJob.perform_later(id_externo)
-      end
+      GerencianetBaixarBoletoJob.perform_later(id_externo) if pagamento_perfil.banco == 364 && baixar?
     end
-    if saved_change_to_cancelamento? && pagamento_perfil.banco = 364
+    if saved_change_to_cancelamento? && pagamento_perfil.banco == 364
       GerencianetCancelarBoletoJob.perform_later(id_externo)
     end
   end
 
   after_create do
-    criar_cobranca if pagamento_perfil.tipo == "API"
+    criar_cobranca if pagamento_perfil.tipo == 'API'
   end
 
   before_destroy do
-    GerencianetCancelarBoletoJob.perform_later(id_externo) if pagamento_perfil.tipo == "API" && id_externo.present?
+    GerencianetCancelarBoletoJob.perform_later(id_externo) if pagamento_perfil.tipo == 'API' && id_externo.present?
   end
 
   def remessa
@@ -155,7 +153,7 @@ class Fatura < ApplicationRecord
     nossonumero + (dv_santander.to_s if pagamento_perfil.banco == 33).to_s
   end
 
-  def boleto_attrs
+  def boleto_attrs # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
     {
       convenio: pagamento_perfil.cedente,
       cedente: Setting.razao_social,
@@ -175,30 +173,30 @@ class Fatura < ApplicationRecord
       instrucao3: "Período de referência: #{I18n.l(periodo_inicio)} - #{I18n.l(periodo_fim)}",
       instrucao4: "S.A.C #{Setting.telefone} - sac.tessi.com.br",
       instrucao5: 'Central de Atendimento da Anatel 1331 ou 1332 para Deficientes Auditivos.',
-      instrucao6: "Após o vencimento cobrar multa de #{Setting.multa.to_f * 100}% e juros de #{Setting.juros.to_f * 100}% ao mês (pro rata die)",
+      instrucao6: "Após o vencimento cobrar multa de #{Setting.multa.to_f * 100}% e juros de #{Setting.juros.to_f * 100}% ao mês (pro rata die)", # rubocop:disable Layout/LineLength
       sacado_endereco: "#{pessoa.endereco} - #{pessoa.bairro.nome_cidade_uf}",
       cedente_endereco: 'Rua Treze de Maio, 5B - Centro - Pesqueira - PE 55200-000',
       conexao_enderecos: "Instalação: #{contrato.enderecos.join(', ')}"
     }
   end
 
-  def codigo_de_barras
+  def codigo_de_barras # rubocop:disable Metrics/AbcSize
     @codigo_de_barras ||= begin
-      fator_vencimento = if pagamento_perfil.banco == 364
-                           '0000'
-                         else
-                           (vencimento.to_date - '1997-10-07'.to_date).to_i.to_s
-                         end           
-      codigo = pagamento_perfil.banco.to_s.rjust(3, '0') + '9' +
-               fator_vencimento +
-               (valor * 100).to_i.to_s.rjust(10, '0') +
-               campo_livre
+      codigo = "#{pagamento_perfil.banco.to_s.rjust(3, '0')}9#{fator_vencimento}#{(valor * 100).to_i.to_s.rjust(10, '0')}#{campo_livre}" # rubocop:disable Layout/LineLength
       dv = codigo.modulo11
-      dv = 1 if [0,1,10].any?(dv)
+      dv = 1 if [0, 1, 10].any?(dv)
       codigo[0, 4] + dv.to_s + codigo[4...]
     end
   end
-  
+
+  def fator_vencimento
+    return '0000' if pagamento_perfil.banco == 364
+
+    fator = (vencimento.to_date - '1997-10-07'.to_date).to_i
+    fator -= 9000 if fator > 10_000
+    fator.to_s
+  end
+
   def codigo_de_barras_imagem
     barcode = Barby::Code25Interleaved.new(codigo_de_barras)
     StringIO.new(

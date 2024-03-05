@@ -145,7 +145,7 @@ class Contrato < ApplicationRecord # rubocop:disable Metrics/ClassLength
   end
 
   def ultima_fatura_paga
-    @ultima_fatura_paga ||= faturas.pagas.order(:liquidacao).last
+    @ultima_fatura_paga ||= faturas.pagas.order(:vencimento).last
   end
 
   def primeira_fatura_em_aberto
@@ -213,12 +213,12 @@ class Contrato < ApplicationRecord # rubocop:disable Metrics/ClassLength
     enderecos
   end
 
-  def self.ransackable_attributes(auth_object = nil)
-    ["dia_vencimento", "pessoas_nome", "plano_nome"]
+  def self.ransackable_attributes(_auth_object = nil)
+    %w[dia_vencimento pessoas_nome plano_nome]
   end
 
-  def self.ransackable_associations(auth_object = nil)
-    ["pessoas"]
+  def self.ransackable_associations(_auth_object = nil)
+    ['pessoas']
   end
 
   private

@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
-Rails.application.routes.draw do
+# == Route Map
+#
+
+Rails.application.routes.draw do # rubocop:disable Metrics/BlockLength
   resources :equipamentos
   get 'sac/inadimplencia'
   get 'sac/suspensao'
@@ -42,6 +45,7 @@ Rails.application.routes.draw do
     get :assinatura, on: :member
     get :autentique, on: :member
     get :pendencias, on: :collection
+    get :trocado, on: :member
   end
   resources :conexoes do
     get :suspenso, on: :collection

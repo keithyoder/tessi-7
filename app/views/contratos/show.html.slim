@@ -55,3 +55,8 @@ ul.nav.nav-pills
     h3
       = @contrato.pessoa.nome
     = render 'faturas/table', {exclude: 'pessoa'}
+    - if @contrato.pagou_trocado?
+      = link_to trocado_contrato_path do
+        = button_tag("trocado", {:class => "btn btn-warning mt-1"}) do
+          i.fas.fa-refresh[aria-hidden="true"]
+          |  Resolver Pagamento Trocado 

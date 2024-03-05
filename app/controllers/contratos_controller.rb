@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-class ContratosController < ApplicationController # rubocop:disable Metrics/ClassLength
+class ContratosController < ApplicationController # rubocop:disable Metrics/ClassLength,Style/Documentation
   include ActionView::Helpers::NumberHelper
   load_and_authorize_resource
-  before_action :set_contrato, only: %i[show edit update destroy renovar termo update_assinatura autentique]
+  before_action :set_contrato, only: %i[show edit update destroy renovar termo update_assinatura autentique trocado]
   layout 'print', only: [:termo]
 
   # GET /contratos
@@ -132,7 +132,7 @@ class ContratosController < ApplicationController # rubocop:disable Metrics/Clas
 
   # PATCH/PUT /contratos/1
   # PATCH/PUT /contratos/1.json
-  def update
+  def update # rubocop:disable Metrics/MethodLength
     respond_to do |format|
       if @contrato.update(contrato_params)
         if verificar_conexoes_planos?
@@ -164,31 +164,13 @@ class ContratosController < ApplicationController # rubocop:disable Metrics/Clas
     end
   end
 
-  def autentique # rubocop:disable Metrics/MethodLength
+  def autentique
     require 'autentique'
-    pdf = WickedPdf.new.pdf_from_string(
-      ContratosController.render(
-        template: 'contratos/termo',
-        assigns: { contrato: @contrato },
-        layout: false
-      ),
-      encoding: 'UTF-8',
-      zoom: 1.2,
-      margin: { top: 15, bottom: 18, left: 15, right: 15 },
-      page_size: 'A4'
-    )
-
-    variables = JSON.parse(ContratosController.render(
-                             template: 'contratos/termo',
-                             formats: [:json],
-                             layout: false,
-                             assigns: { contrato: @contrato }
-                           ), { symbolize_names: true })
 
     Autentique::Client.query(
       Autentique::CriarDocumento,
-      variables:,
-      file: UploadIO.new(StringIO.new(pdf), 'application/pdf', 'termo.pdf')
+      variables: JSON.parse(render_termo(formats: [:json]), { symbolize_names: true }),
+      file: UploadIO.new(StringIO.new(termo_pdf), 'application/pdf', 'termo.pdf')
     )
 
     respond_to do |format|
@@ -196,9 +178,33 @@ class ContratosController < ApplicationController # rubocop:disable Metrics/Clas
     end
   end
 
+  def trocado # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
+    f1 = @contrato.primeira_fatura_em_aberto
+    f2 = @contrato.ultima_fatura_paga
+    f2.contrato.faturas.create(
+      pagamento_perfil_id: f2.pagamento_perfil_id,
+      parcela: f2.parcela,
+      vencimento: f2.vencimento,
+      periodo_inicio: f2.periodo_inicio,
+      periodo_fim: f2.periodo_fim,
+      valor: f2.valor,
+      nossonumero: '300002'
+    )
+    f1.update(cancelamento: Date.today)
+    f2.update(
+      contrato_id: f1.contrato_id,
+      parcela: f1.parcela,
+      vencimento: f1.vencimento,
+      periodo_inicio: f1.periodo_inicio,
+      periodo_fim: f1.periodo_fim
+    )
+    respond_to do |format|
+      format.html { redirect_to @contrato, notice: 'Resolvido pagamento trocado' }
+    end
+  end
+
   private
 
-  # Use callbacks to share common setup or constraints between actions.
   def set_contrato
     @contrato = Contrato.find(params[:id])
   end
@@ -222,5 +228,24 @@ class ContratosController < ApplicationController # rubocop:disable Metrics/Clas
 
   def verificar_conexoes_planos?
     @contrato.conexoes.all? { |c| c.plano == @contrato.plano }
+  end
+
+  def render_termo(formats: nil)
+    ContratosController.render(
+      template: 'contratos/termo',
+      assigns: { contrato: @contrato },
+      layout: false,
+      formats:
+    )
+  end
+
+  def termo_pdf
+    WickedPdf.new.pdf_from_string(
+      render_termo,
+      encoding: 'UTF-8',
+      zoom: 1.2,
+      margin: { top: 15, bottom: 18, left: 15, right: 15 },
+      page_size: 'A4'
+    )
   end
 end

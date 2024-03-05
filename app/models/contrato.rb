@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Contrato < ApplicationRecord
+class Contrato < ApplicationRecord # rubocop:disable Metrics/ClassLength
   belongs_to :pessoa
   belongs_to :plano
   belongs_to :pagamento_perfil
@@ -144,7 +144,21 @@ class Contrato < ApplicationRecord
     descricao_personalizada.presence || plano.nome
   end
 
-  def self.to_csv
+  def ultima_fatura_paga
+    @ultima_fatura_paga ||= faturas.pagas.order(:liquidacao).last
+  end
+
+  def primeira_fatura_em_aberto
+    @primeira_fatura_em_aberto ||= faturas.em_aberto.order(:vencimento).first
+  end
+
+  def pagou_trocado?
+    return false unless ultima_fatura_paga && primeira_fatura_em_aberto
+
+    ultima_fatura_paga.vencimento > primeira_fatura_em_aberto.vencimento
+  end
+
+  def self.to_csv # rubocop:disable Metrics/MethodLength
     headers = %i[ID Assinante Plano Adesão Cancelamento]
     CSV.generate(headers: true) do |csv|
       csv << headers
@@ -161,22 +175,23 @@ class Contrato < ApplicationRecord
     end
   end
 
-  def vincular_documento(id)
+  def vincular_documento(id) # rubocop:disable Metrics/MethodLength
     require 'autentique'
 
     documento = Autentique::Client.query(
       Autentique::ResgatarDocumento,
-      variables: {"id": id}
+      variables: { "id": id }
     ).original_hash['data']['document']
     documentos = [] if documentos.blank?
-    update(documentos: 
-      documentos += [
-        {
-          'data': documento['created_at'],
-          'nome': documento['name'],
-          'link': documento['files']['signed']
-        }
-      ]
+    update(
+      documentos:
+        documentos + [
+          {
+            'data': documento['created_at'],
+            'nome': documento['name'],
+            'link': documento['files']['signed']
+          }
+        ]
     )
   end
 

@@ -21,7 +21,7 @@ class ContratosController < ApplicationController # rubocop:disable Metrics/Clas
 
     @params = params.permit(
       :ativos, :renovaveis, :suspendiveis, :cancelaveis, :fisica, :juridica,
-      :adesao, :sem_conexao
+      :adesao, :sem_conexao, :page
     )
     @q = contrato.ransack(params[:q])
     @contratos = @q.result.page params[:page]

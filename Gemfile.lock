@@ -8,6 +8,23 @@ GIT
       multipart-post
 
 GIT
+  remote: https://github.com/keithyoder/kaminari
+  revision: fdd53e7c3afd0200849db75735e03a914eb9fe48
+  specs:
+    kaminari (1.2.2)
+      activesupport (>= 4.1.0)
+      kaminari-actionview (= 1.2.2)
+      kaminari-activerecord (= 1.2.2)
+      kaminari-core (= 1.2.2)
+    kaminari-actionview (1.2.2)
+      actionview
+      kaminari-core (= 1.2.2)
+    kaminari-activerecord (1.2.2)
+      activerecord
+      kaminari-core (= 1.2.2)
+    kaminari-core (1.2.2)
+
+GIT
   remote: https://github.com/kivanio/brcobranca.git
   revision: 246c1ead754a9e978c490fe1aebc9fa295a020e1
   ref: 246c1ea
@@ -238,18 +255,6 @@ GEM
     json (2.7.2)
     jwt (2.8.2)
       base64
-    kaminari (1.2.2)
-      activesupport (>= 4.1.0)
-      kaminari-actionview (= 1.2.2)
-      kaminari-activerecord (= 1.2.2)
-      kaminari-core (= 1.2.2)
-    kaminari-actionview (1.2.2)
-      actionview
-      kaminari-core (= 1.2.2)
-    kaminari-activerecord (1.2.2)
-      activerecord
-      kaminari-core (= 1.2.2)
-    kaminari-core (1.2.2)
     language_server-protocol (3.17.0.3)
     logger (1.6.0)
     loofah (2.22.0)
@@ -574,7 +579,7 @@ DEPENDENCIES
   image_processing
   jbuilder
   jsbundling-rails
-  kaminari
+  kaminari!
   matrix
   mtik
   multipart-post

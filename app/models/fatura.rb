@@ -37,7 +37,7 @@ class Fatura < ApplicationRecord # rubocop:disable Metrics/ClassLength
 
   validate :validar_liquidacao?, if: :liquidacao_changed?
 
-  enum meio_liquidacao: {
+  enum :meio_liquidacao, {
     RetornoBancario: 1,
     Dinheiro: 2,
     Cheque: 3,

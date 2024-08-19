@@ -37,6 +37,14 @@ class IpRede < ApplicationRecord
     to_a - ocupados
   end
 
+  def self.ransackable_attributes(_auth_object = nil)
+    %w[rede_string]
+  end
+
+  def self.ransackable_associations(_auth_object = nil)
+    ['ponto']
+  end
+
   private
 
   def ipv6_array

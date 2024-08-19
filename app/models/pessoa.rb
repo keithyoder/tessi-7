@@ -16,7 +16,7 @@ class Pessoa < ApplicationRecord
 
   delegate :endereco, to: :logradouro, prefix: :logradouro
 
-  enum tipo: { 'Pessoa Física' => 1, 'Pessoa Jurídica' => 2 }
+  enum :tipo, { 'Pessoa Física' => 1, 'Pessoa Jurídica' => 2 }
 
   validates :tipo, presence: true
   validates :telefone1, presence: true

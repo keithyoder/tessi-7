@@ -36,7 +36,7 @@ gem 'sassc-rails'
 gem 'sdk_ruby_apis_efi'
 gem 'sprockets-rails'
 gem 'stimulus-rails'
-gem 'stringio', '3.0.8'
+#gem 'stringio', '3.0.8'
 gem 'turbo-rails'
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 # gem 'gerencianet', path: '../gn-api-sdk-ruby/'

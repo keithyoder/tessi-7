@@ -588,7 +588,7 @@ DEPENDENCIES
   puma (~> 6.0)
   qbo_api
   qrcode_pix_ruby
-  rails (~> 7.0, >= 7.0.4.3)
+  rails (~> 7.2)
   rails-settings-cached (~> 2.0)
   rails4-autocomplete
   ransack
@@ -618,7 +618,7 @@ DEPENDENCIES
   wkhtmltopdf-binary
 
 RUBY VERSION
-   ruby 3.1.4p223
+   ruby 3.3.4p94
 
 BUNDLED WITH
-   2.2.22
+   2.5.11

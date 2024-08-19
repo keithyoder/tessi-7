@@ -3,9 +3,9 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '3.1.4'
+ruby '3.3.4'
 
-gem 'rails', '~> 7.0', '>= 7.0.4.3'
+gem 'rails', '~> 7.2'
 
 gem 'barby'
 gem 'base64', '0.1.1'
@@ -42,8 +42,8 @@ gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 # gem 'gerencianet', path: '../gn-api-sdk-ruby/'
 gem 'httparty'
 gem 'image_processing'
-#gem 'jquery-rails'
-#gem 'jquery-ui-rails'
+# gem 'jquery-rails'
+# gem 'jquery-ui-rails'
 gem 'kaminari'
 gem 'matrix'
 # gem 'mtik', git: 'https://github.com/astounding/mtik.git'

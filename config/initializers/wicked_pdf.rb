@@ -10,7 +10,7 @@
 #
 # https://github.com/mileszs/wicked_pdf/blob/master/README.md
 
-WickedPdf.configure = {
+WickedPdf.configure do |c|
   # Path to the wkhtmltopdf executable: This usually isn't needed if using
   # one of the wkhtmltopdf-binary family of gems.
   # exe_path: '/usr/local/bin/wkhtmltopdf',
@@ -29,4 +29,4 @@ WickedPdf.configure = {
   # 'xvfb-run' command, in order to simulate an X server.
   #
   # use_xvfb: true,
-}
+end

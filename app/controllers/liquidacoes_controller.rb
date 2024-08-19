@@ -19,8 +19,8 @@ class LiquidacoesController < ApplicationController
                                  .group(Arel.sql('extract(year from liquidacao)'))
                                  .order(:ano)
       @chart = Fatura.where.not(liquidacao: nil)
-                     .group('extract(year from liquidacao)')
-                     .order('extract(year from liquidacao)')
+                     .group(Arel.sql('extract(year from liquidacao)'))
+                     .order(Arel.sql('extract(year from liquidacao)'))
                      .sum(:valor_liquidacao)
     else
       @liquidacoes = @liquidacoes.select('liquidacao as data').group(:liquidacao).order(liquidacao: :desc)

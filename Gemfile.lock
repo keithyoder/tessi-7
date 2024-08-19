@@ -102,7 +102,7 @@ GEM
     autoprefixer-rails (10.4.19.0)
       execjs (~> 2)
     barby (0.6.9)
-    base64 (0.1.1)
+    base64 (0.2.0)
     bcrypt (3.1.20)
     bigdecimal (3.1.8)
     bindex (0.8.1)
@@ -548,7 +548,6 @@ PLATFORMS
 DEPENDENCIES
   annotate
   barby
-  base64 (= 0.1.1)
   bootsnap
   bootstrap (~> 5)
   brcobranca!

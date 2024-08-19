@@ -8,7 +8,7 @@ ruby '3.3.4'
 gem 'rails', '~> 7.2'
 
 gem 'barby'
-gem 'base64', '0.1.1'
+#gem 'base64', '0.1.1'
 gem 'bootsnap', require: false
 gem 'bootstrap', '~> 5'
 gem 'brcobranca', git: 'https://github.com/kivanio/brcobranca.git', ref: '246c1ea'

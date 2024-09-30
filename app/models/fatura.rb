@@ -123,7 +123,7 @@ class Fatura < ApplicationRecord # rubocop:disable Metrics/ClassLength
 
     next_nf = (Nf21.maximum(:numero).presence || 0) + 1
     emissao = liquidacao.presence || vencimento
-    nf = Nf21.create(fatura_id: id, emissao: emissao, numero: next_nf)
+    nf = Nf21.create(fatura_id: id, emissao:, numero: next_nf)
     nf.gerar_registros
   end
 
@@ -160,7 +160,7 @@ class Fatura < ApplicationRecord # rubocop:disable Metrics/ClassLength
       documento_cedente: Setting.cnpj,
       sacado: pessoa.nome.strip,
       sacado_documento: pessoa.cpf_cnpj,
-      valor: valor,
+      valor:,
       agencia: pagamento_perfil.agencia.to_s.rjust(4, '0'),
       conta_corrente: pagamento_perfil.conta.to_s.rjust(8, '0'),
       carteira: pagamento_perfil.carteira,
@@ -210,40 +210,64 @@ class Fatura < ApplicationRecord # rubocop:disable Metrics/ClassLength
     bloco3 = codigo_de_barras[34, 10]
     bloco4 = codigo_de_barras[4, 1]
     bloco5 = codigo_de_barras[5, 14]
-    "#{bloco1[0, 5]}.#{bloco1[5,4]}#{bloco1.modulo10} #{bloco2[0, 5]}.#{bloco2[5,5]}#{bloco2.modulo10} #{bloco3[0, 5]}.#{bloco3[5,5]}#{bloco3.modulo10} #{bloco4} #{bloco5}"
+    "#{bloco1[0,
+              5]}.#{bloco1[5,
+                           4]}#{bloco1.modulo10} #{bloco2[0,
+                                                          5]}.#{bloco2[5,
+                                                                       5]}#{bloco2.modulo10} #{bloco3[0,
+                                                                                                      5]}.#{bloco3[5,
+                                                                                                                   5]}#{bloco3.modulo10} #{bloco4} #{bloco5}"
   end
 
   def campo_livre
     @campo_livre ||=
       case pagamento_perfil.banco
       when 364
-        conta_nosso_numero = (pagamento_perfil.conta/10).to_s.rjust(9, '0') + nossonumero.rjust(11, '0')
+        conta_nosso_numero = (pagamento_perfil.conta / 10).to_s.rjust(9, '0') + nossonumero.rjust(11, '0')
         dv = conta_nosso_numero.modulo11
-        dv = 1 if dv == 10 || dv == 0
+        dv = 1 if [10, 0].include?(dv)
         dv.to_s.rjust(5, '0') + conta_nosso_numero
       when 1
-        (pagamento_perfil.cedente).to_s.rjust(13, '0') + nossonumero.rjust(10, '0') + pagamento_perfil.carteira.to_s.rjust(2, '0')
+        pagamento_perfil.cedente.to_s.rjust(13,
+                                            '0') + nossonumero.rjust(10,
+                                                                     '0') + pagamento_perfil.carteira.to_s.rjust(2, '0')
       when 33
-        '9'+(pagamento_perfil.cedente).to_s.rjust(7, '0') + nossonumero.rjust(12, '0') + dv_santander.to_s + pagamento_perfil.carteira.to_s.rjust(4, '0')
+        '9' + pagamento_perfil.cedente.to_s.rjust(7,
+                                                  '0') + nossonumero.rjust(12,
+                                                                           '0') + dv_santander.to_s + pagamento_perfil.carteira.to_s.rjust(
+                                                                             4, '0'
+                                                                           )
       end
   end
 
   def desconto
     (plano.desconto * fracao_de_mes).round(2)
-    #plano.desconto
+    # plano.desconto
+  end
+
+  def self.taxa_inadimplencia(mes) # rubocop:disable Metrics/AbcSize
+    inicio = mes.beginning_of_month
+    fim = inicio + 1.month - 1.day
+    valor_inadimplente = Fatura.where(vencimento: [inicio..fim])
+                               .merge(
+                                 Fatura.where(liquidacao: nil)
+                                       .or(Fatura.where(liquidacao: [(fim + 1.month)..DateTime::Infinity.new]))
+                               ).sum(:valor)
+    valor_faturamento = Fatura.where(vencimento: [inicio..fim]).sum(:valor)
+    valor_inadimplente / valor_faturamento
   end
 
   private
 
   def criar_cobranca
-    if pagamento_perfil.banco == 364
-      GerencianetCriarBoletoJob.set(wait: 10.seconds).perform_later(self)
-    end
+    return unless pagamento_perfil.banco == 364
+
+    GerencianetCriarBoletoJob.set(wait: 10.seconds).perform_later(self)
   end
 
   def remessa_attr # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
     {
-      valor: valor,
+      valor:,
       data_vencimento: vencimento,
       numero: nossonumero,
       nosso_numero: nosso_numero_remessa,
@@ -308,5 +332,4 @@ class Fatura < ApplicationRecord # rubocop:disable Metrics/ClassLength
                       end
     dias_no_periodo / dias_no_mes
   end
-
 end

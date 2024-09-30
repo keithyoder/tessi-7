@@ -25,6 +25,12 @@
         = number_with_delimiter(Conexao.inadimplente.count)
   .card
     .card-header
+      |  Valor inadimplente (>15 dias)
+    .card-body.text-center
+      h1
+        = number_with_delimiter(Fatura.valor_inadimplente(Date.today, 15))
+  .card
+    .card-header
       |  Tecnologia 
     .card-body.text-center
       = pie_chart Conexao.joins(:ponto).group(:tecnologia).count.map {|k,v| [Ponto.tecnologias.key(k), v] }.to_h

@@ -245,16 +245,21 @@ class Fatura < ApplicationRecord # rubocop:disable Metrics/ClassLength
     # plano.desconto
   end
 
-  def self.taxa_inadimplencia(mes) # rubocop:disable Metrics/AbcSize
-    inicio = mes.beginning_of_month
-    fim = inicio + 1.month - 1.day
-    valor_inadimplente = Fatura.where(vencimento: [inicio..fim])
-                               .merge(
-                                 Fatura.where(liquidacao: nil)
-                                       .or(Fatura.where(liquidacao: [(fim + 1.month)..DateTime::Infinity.new]))
-                               ).sum(:valor)
+  def self.valor_inadimplente(data, dias)
+    inicio = data - dias.days - 1.month
+    fim = data - (dias + 1).days
+    Fatura.where(vencimento: [inicio..fim])
+          .merge(
+            Fatura.where(liquidacao: nil)
+                  .or(Fatura.where(liquidacao: [data..DateTime::Infinity.new]))
+          ).sum(:valor)
+  end
+
+  def self.taxa_inadimplencia(data, dias)
+    inicio = data - dias.days - 1.month
+    fim = data - (dias + 1).days
     valor_faturamento = Fatura.where(vencimento: [inicio..fim]).sum(:valor)
-    valor_inadimplente / valor_faturamento
+    Fatura.valor_inadimplente(data, dias) / valor_faturamento
   end
 
   private

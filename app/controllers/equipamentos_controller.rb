@@ -6,11 +6,9 @@ class EquipamentosController < ApplicationController
 
   # GET /equipamentos or /equipamentos.json
   def index
-    @q = Equipamento.all.ransack(params[:q])
+    @q = Equipamento.order(:fabricante, :modelo).ransack(params[:q])
     @equipamentos = @q.result.page params[:page]
-    respond_to do |format|
-      format.html
-    end
+    respond_to(&:html)
   end
 
   # GET /equipamentos/1 or /equipamentos/1.json

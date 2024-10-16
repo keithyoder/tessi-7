@@ -262,6 +262,12 @@ class Fatura < ApplicationRecord # rubocop:disable Metrics/ClassLength
     Fatura.valor_inadimplente(data, dias) / valor_faturamento
   end
 
+  def self.recebido_por_meio(mes, meio)
+    inicio = mes.beginning_of_month
+    fim = mes.end_of_month
+    Fatura.where(liquidacao: [inicio..fim], meio_liquidacao: meio).sum(:valor_liquidacao)
+  end
+
   private
 
   def criar_cobranca

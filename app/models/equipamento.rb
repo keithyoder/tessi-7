@@ -13,6 +13,8 @@ class Equipamento < ApplicationRecord
 
   has_one_attached :imagem
 
+  scope :cpe, -> { where(tipo: %i[ONU Radio]) }
+
   def descricao
     "#{fabricante} #{modelo}"
   end

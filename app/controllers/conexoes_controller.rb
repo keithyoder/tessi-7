@@ -24,6 +24,7 @@ class ConexoesController < ApplicationController
     @conexoes = @conexao_q.result.includes(:pessoa).page(params[:conexoes_page])
     respond_to do |format|
       format.html
+      format.geojson
       format.csv { send_data @conexoes.except(:limit, :offset).to_csv, filename: "conexoes-#{Time.zone.today}.csv" }
     end
   end

@@ -59,6 +59,7 @@ class Conexao < ApplicationRecord
   scope :acima_34M, -> { joins(:plano).where('planos.download > 34') }
   enum :tipo, { Cobranca: 1, Cortesia: 2, Outro_3: 3, Outro_4: 4, Outros: 5 }
   scope :rede_ip, ->(rede) { where('ip::inet << ?::inet', rede) }
+  scope :georeferencidas, -> { where.not(latitude: nil, longitude: nil) }
   scope :sem_contrato, lambda {
     left_joins(:contrato).where('conexoes.tipo = 1 and contrato_id is null or cancelamento is not null')
   }
@@ -145,6 +146,20 @@ class Conexao < ApplicationRecord
     return "#{pessoa.endereco} - #{pessoa.logradouro.bairro.nome_cidade_uf}" if logradouro.blank?
 
     "#{logradouro.nome} - #{logradouro.bairro.nome_cidade_uf}"
+  end
+
+  def as_geojson # rubocop:disable Metrics/MethodLength
+    {
+      type: 'Feature',
+      properties: {
+        nome: pessoa.nome,
+        tecnologia: ponto.tecnologia
+      },
+      geometry: {
+        type: 'Point',
+        coordinates: [longitude, latitude, 0.0]
+      }
+    }.to_json
   end
 
   private

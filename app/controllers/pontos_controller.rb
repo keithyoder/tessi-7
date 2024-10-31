@@ -30,7 +30,7 @@ class PontosController < ApplicationController
 
   # GET /pontos/1
   # GET /pontos/1.json
-  def show
+  def show # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
     @conexao_q = @ponto.conexoes.order(:ip).ransack(params[:conexao_q])
     @conexoes = @conexao_q.result.page params[:conexoes_page]
     @autenticacoes = @ponto.autenticacoes
@@ -39,6 +39,7 @@ class PontosController < ApplicationController
     respond_to do |format|
       format.html # show.html.erb
       format.kml
+      format.geojson
       if params.key?(:ipv4)
         format.json { render json: @ips }
       else

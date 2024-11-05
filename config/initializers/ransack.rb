@@ -4,7 +4,7 @@ Ransack.configure do |config|
   config.add_predicate 'no_accent', # Name your predicate
                        arel_predicate: 'matches',
                        formatter: proc { |s| transliterate(s) },
-                       validator: proc { |s| s.present? },
+                       validator: proc(&:present?),
                        compounds: true,
                        type: :string
 end

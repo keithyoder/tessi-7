@@ -9,14 +9,14 @@ require 'rails/all'
 Bundler.require(*Rails.groups)
 
 module Tessi7
-  class Application < Rails::Application
+  class Application < Rails::Application # rubocop:disable Style/Documentation
     # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 7.0
+    config.load_defaults 7.2
 
     config.i18n.default_locale = :"pt-BR"
     config.time_zone = 'Brasilia'
     config.active_job.queue_adapter = :sidekiq
-  
+
     # Configuration for the application, engines, and railties goes here.
     #
     # These settings can be overridden in specific environments using the files

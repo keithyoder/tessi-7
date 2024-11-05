@@ -1,5 +1,23 @@
 # frozen_string_literal: true
 
+# == Schema Information
+#
+# Table name: nf21s
+#
+#  id         :bigint           not null, primary key
+#  cadastro   :text
+#  emissao    :date
+#  mestre     :text
+#  numero     :integer
+#  valor      :decimal(8, 2)
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#  fatura_id  :bigint
+#
+# Indexes
+#
+#  index_nf21s_on_fatura_id  (fatura_id)
+#
 class Nf21 < ApplicationRecord
   has_many :nf21_itens
   belongs_to :fatura

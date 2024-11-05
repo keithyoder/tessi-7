@@ -1,5 +1,25 @@
 # frozen_string_literal: true
 
+# == Schema Information
+#
+# Table name: pagamento_perfis
+#
+#  id            :bigint           not null, primary key
+#  agencia       :integer
+#  ativo         :boolean          default(TRUE)
+#  banco         :integer
+#  carteira      :string
+#  cedente       :integer
+#  client_secret :string
+#  conta         :integer
+#  nome          :string
+#  sequencia     :integer
+#  tipo          :integer
+#  variacao      :string
+#  created_at    :datetime         not null
+#  updated_at    :datetime         not null
+#  client_id     :string
+#
 class PagamentoPerfil < ApplicationRecord
   has_many :faturas, dependent: :restrict_with_exception
   has_many :contratos, dependent: :restrict_with_exception

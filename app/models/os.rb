@@ -1,5 +1,44 @@
 # frozen_string_literal: true
 
+# == Schema Information
+#
+# Table name: os
+#
+#  id               :bigint           not null, primary key
+#  descricao        :text
+#  encerramento     :text
+#  fechamento       :datetime
+#  tipo             :integer
+#  created_at       :datetime         not null
+#  updated_at       :datetime         not null
+#  aberto_por_id    :bigint
+#  classificacao_id :bigint
+#  conexao_id       :bigint
+#  pessoa_id        :bigint
+#  responsavel_id   :bigint
+#  tecnico_1_id     :bigint
+#  tecnico_2_id     :bigint
+#
+# Indexes
+#
+#  index_os_on_aberto_por_id     (aberto_por_id)
+#  index_os_on_classificacao_id  (classificacao_id)
+#  index_os_on_conexao_id        (conexao_id)
+#  index_os_on_pessoa_id         (pessoa_id)
+#  index_os_on_responsavel_id    (responsavel_id)
+#  index_os_on_tecnico_1_id      (tecnico_1_id)
+#  index_os_on_tecnico_2_id      (tecnico_2_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (aberto_por_id => users.id)
+#  fk_rails_...  (classificacao_id => classificacoes.id)
+#  fk_rails_...  (conexao_id => conexoes.id)
+#  fk_rails_...  (pessoa_id => pessoas.id)
+#  fk_rails_...  (responsavel_id => users.id)
+#  fk_rails_...  (tecnico_1_id => users.id)
+#  fk_rails_...  (tecnico_2_id => users.id)
+#
 class Os < ApplicationRecord
   belongs_to :classificacao, optional: true
   belongs_to :pessoa

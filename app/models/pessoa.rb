@@ -1,5 +1,38 @@
 # frozen_string_literal: true
 
+# == Schema Information
+#
+# Table name: pessoas
+#
+#  id            :bigint           not null, primary key
+#  cnpj          :string
+#  complemento   :string
+#  cpf           :string
+#  email         :string
+#  ie            :string
+#  latitude      :decimal(10, 6)
+#  longitude     :decimal(10, 6)
+#  nascimento    :date
+#  nome          :string
+#  nomemae       :string
+#  numero        :string
+#  rg            :string
+#  telefone1     :string
+#  telefone2     :string
+#  tipo          :integer
+#  created_at    :datetime         not null
+#  updated_at    :datetime         not null
+#  logradouro_id :bigint
+#
+# Indexes
+#
+#  index_pessoas_on_logradouro_id  (logradouro_id)
+#  index_pessoas_on_nome           (nome)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (logradouro_id => logradouros.id)
+#
 class Pessoa < ApplicationRecord
   include Ransackable
 

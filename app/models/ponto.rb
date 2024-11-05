@@ -1,5 +1,33 @@
 # frozen_string_literal: true
 
+# == Schema Information
+#
+# Table name: pontos
+#
+#  id            :bigint           not null, primary key
+#  canal_tamanho :integer
+#  equipamento   :string
+#  frequencia    :string
+#  ip            :inet
+#  ipv6          :inet
+#  nome          :string
+#  senha         :string
+#  sistema       :integer
+#  ssid          :string
+#  tecnologia    :integer
+#  usuario       :string
+#  created_at    :datetime         not null
+#  updated_at    :datetime         not null
+#  servidor_id   :bigint
+#
+# Indexes
+#
+#  index_pontos_on_servidor_id  (servidor_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (servidor_id => servidores.id)
+#
 require 'snmp'
 
 class Ponto < ApplicationRecord

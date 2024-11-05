@@ -1,5 +1,28 @@
 # frozen_string_literal: true
 
+# == Schema Information
+#
+# Table name: servidores
+#
+#  id              :bigint           not null, primary key
+#  api_porta       :integer
+#  ativo           :boolean
+#  equipamento     :string
+#  ip              :inet
+#  ipv6            :inet
+#  nome            :string
+#  radius_porta    :integer
+#  radius_secret   :string
+#  senha           :string
+#  snmp_comunidade :string
+#  snmp_porta      :integer
+#  ssh_porta       :integer
+#  up              :boolean
+#  usuario         :string
+#  versao          :string
+#  created_at      :datetime         not null
+#  updated_at      :datetime         not null
+#
 class Servidor < ApplicationRecord
   require 'csv'
   require 'cgi'

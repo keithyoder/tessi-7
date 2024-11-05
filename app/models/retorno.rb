@@ -1,5 +1,20 @@
 # frozen_string_literal: true
 
+# == Schema Information
+#
+# Table name: retornos
+#
+#  id                  :bigint           not null, primary key
+#  data                :date
+#  sequencia           :integer
+#  created_at          :datetime         not null
+#  updated_at          :datetime         not null
+#  pagamento_perfil_id :bigint
+#
+# Indexes
+#
+#  index_retornos_on_pagamento_perfil_id  (pagamento_perfil_id)
+#
 require 'brcobranca/retorno/cnab_240_header'
 require 'brcobranca/retorno/cnab_400_header'
 require 'brcobranca/retorno/cnab_400/bb'

@@ -1,5 +1,25 @@
 # frozen_string_literal: true
 
+# == Schema Information
+#
+# Table name: planos
+#
+#  id             :bigint           not null, primary key
+#  ativo          :boolean          default(TRUE)
+#  burst          :boolean
+#  desconto       :decimal(8, 2)
+#  download       :integer
+#  mensalidade    :decimal(8, 2)
+#  nome           :string
+#  upload         :integer
+#  created_at     :datetime         not null
+#  updated_at     :datetime         not null
+#  gerencianet_id :integer
+#
+# Indexes
+#
+#  index_planos_on_nome  (nome) UNIQUE
+#
 require 'csv'
 
 class Plano < ApplicationRecord

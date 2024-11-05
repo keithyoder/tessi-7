@@ -1,5 +1,19 @@
 # frozen_string_literal: true
 
+# == Schema Information
+#
+# Table name: nf21_itens
+#
+#  id         :bigint           not null, primary key
+#  item       :text
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#  nf21_id    :bigint
+#
+# Indexes
+#
+#  index_nf21_itens_on_nf21_id  (nf21_id)
+#
 class Nf21Item < ApplicationRecord
   belongs_to :nf21
 

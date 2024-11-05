@@ -334,7 +334,21 @@ class GerencianetClient # rubocop:disable Metrics/ClassLength,Style/Documentatio
     end
   end
 
-  def pessoa_fisica_attributes
+  def self.atualizar_fatura(id_efi) # rubocop:disable Metrics/AbcSize
+    cobranca = GerencianetClient.cliente.detail_charge(params: { id: id_efi })
+    data = cobranca['data']['payment']['banking_billet']
+    nossonumero = data['barcode'][25, 11].gsub(/\D/, '')
+
+    Fatura.find(cobranca['data']['custom_id'].to_i).update(
+      pix: data['pix']['qrcode'],
+      id_externo: cobranca['data']['charge_id'],
+      link: data['link'],
+      codigo_de_barras: data['barcode'],
+      nossonumero: nossonumero
+    )
+  end
+
+  def pessoa_fisica_attributes # rubocop:disable Metrics/MethodLength
     {
       payment: {
         banking_billet: {
@@ -348,7 +362,7 @@ class GerencianetClient # rubocop:disable Metrics/ClassLength,Style/Documentatio
     }
   end
 
-  def pessoa_juridica_attributes
+  def pessoa_juridica_attributes # rubocop:disable Metrics/MethodLength
     {
       payment: {
         banking_billet: {

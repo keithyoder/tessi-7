@@ -1,5 +1,20 @@
 # frozen_string_literal: true
 
+# == Schema Information
+#
+# Table name: estados
+#
+#  id         :bigint           not null, primary key
+#  ibge       :integer
+#  nome       :string
+#  sigla      :string
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#
+# Indexes
+#
+#  index_estados_on_nome  (nome) UNIQUE
+#
 class Estado < ApplicationRecord
   require 'csv'
   has_many :cidades

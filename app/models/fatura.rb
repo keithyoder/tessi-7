@@ -1,5 +1,60 @@
 # frozen_string_literal: true
 
+# == Schema Information
+#
+# Table name: faturas
+#
+#  id                  :bigint           not null, primary key
+#  agencia             :integer
+#  arquivo_remessa     :string
+#  banco               :integer
+#  cancelamento        :datetime
+#  codigo_de_barras    :string
+#  data_cancelamento   :date
+#  data_remessa        :date
+#  desconto_concedido  :decimal(, )
+#  id_externo          :integer
+#  juros_recebidos     :decimal(, )
+#  link                :string
+#  liquidacao          :date
+#  meio_liquidacao     :integer
+#  nossonumero         :string           not null
+#  parcela             :integer          not null
+#  periodo_fim         :date
+#  periodo_inicio      :date
+#  pix                 :string
+#  valor               :decimal(, )      not null
+#  valor_liquidacao    :decimal(8, 2)
+#  valor_original      :decimal(8, 2)
+#  vencimento          :date             not null
+#  vencimento_original :date
+#  created_at          :datetime         not null
+#  updated_at          :datetime         not null
+#  baixa_id            :bigint
+#  contrato_id         :bigint
+#  pagamento_perfil_id :bigint
+#  registro_id         :bigint
+#  retorno_id          :bigint
+#
+# Indexes
+#
+#  index_faturas_on_baixa_id                             (baixa_id)
+#  index_faturas_on_contrato_id                          (contrato_id)
+#  index_faturas_on_liquidacao                           (liquidacao)
+#  index_faturas_on_meio_liquidacao_and_liquidacao       (meio_liquidacao,liquidacao)
+#  index_faturas_on_pagamento_perfil_id                  (pagamento_perfil_id)
+#  index_faturas_on_pagamento_perfil_id_and_nossonumero  (pagamento_perfil_id,nossonumero)
+#  index_faturas_on_registro_id                          (registro_id)
+#  index_faturas_on_retorno_id                           (retorno_id)
+#  index_faturas_on_vencimento                           (vencimento)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (baixa_id => retornos.id)
+#  fk_rails_...  (contrato_id => contratos.id)
+#  fk_rails_...  (pagamento_perfil_id => pagamento_perfis.id)
+#  fk_rails_...  (registro_id => retornos.id)
+#
 class Fatura < ApplicationRecord # rubocop:disable Metrics/ClassLength
   require 'digest'
   require 'barby'

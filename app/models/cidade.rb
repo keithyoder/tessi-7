@@ -1,5 +1,25 @@
 # frozen_string_literal: true
 
+# == Schema Information
+#
+# Table name: cidades
+#
+#  id         :bigint           not null, primary key
+#  ibge       :string
+#  nome       :string
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#  estado_id  :bigint
+#
+# Indexes
+#
+#  index_cidades_on_estado_id           (estado_id)
+#  index_cidades_on_estado_id_and_nome  (estado_id,nome) UNIQUE
+#
+# Foreign Keys
+#
+#  fk_rails_...  (estado_id => estados.id)
+#
 class Cidade < ApplicationRecord
   belongs_to :estado
   has_many :bairros

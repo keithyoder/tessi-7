@@ -1,5 +1,38 @@
 # frozen_string_literal: true
 
+# == Schema Information
+#
+# Table name: atendimentos
+#
+#  id               :bigint           not null, primary key
+#  fechamento       :datetime
+#  created_at       :datetime         not null
+#  updated_at       :datetime         not null
+#  classificacao_id :bigint
+#  conexao_id       :bigint
+#  contrato_id      :bigint
+#  fatura_id        :bigint
+#  pessoa_id        :bigint
+#  responsavel_id   :bigint
+#
+# Indexes
+#
+#  index_atendimentos_on_classificacao_id  (classificacao_id)
+#  index_atendimentos_on_conexao_id        (conexao_id)
+#  index_atendimentos_on_contrato_id       (contrato_id)
+#  index_atendimentos_on_fatura_id         (fatura_id)
+#  index_atendimentos_on_pessoa_id         (pessoa_id)
+#  index_atendimentos_on_responsavel_id    (responsavel_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (classificacao_id => classificacoes.id)
+#  fk_rails_...  (conexao_id => conexoes.id) ON DELETE => nullify
+#  fk_rails_...  (contrato_id => contratos.id)
+#  fk_rails_...  (fatura_id => faturas.id)
+#  fk_rails_...  (pessoa_id => pessoas.id)
+#  fk_rails_...  (responsavel_id => users.id)
+#
 class Atendimento < ApplicationRecord
   belongs_to :pessoa
   belongs_to :classificacao

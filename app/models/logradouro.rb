@@ -1,5 +1,24 @@
 # frozen_string_literal: true
 
+# == Schema Information
+#
+# Table name: logradouros
+#
+#  id         :bigint           not null, primary key
+#  cep        :string
+#  nome       :string
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#  bairro_id  :bigint
+#
+# Indexes
+#
+#  index_logradouros_on_bairro_id  (bairro_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (bairro_id => bairros.id)
+#
 require 'csv'
 
 class Logradouro < ApplicationRecord

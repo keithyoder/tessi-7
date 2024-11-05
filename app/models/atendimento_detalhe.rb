@@ -1,5 +1,27 @@
 # frozen_string_literal: true
 
+# == Schema Information
+#
+# Table name: atendimento_detalhes
+#
+#  id             :bigint           not null, primary key
+#  descricao      :text
+#  tipo           :integer
+#  created_at     :datetime         not null
+#  updated_at     :datetime         not null
+#  atendente_id   :bigint
+#  atendimento_id :bigint
+#
+# Indexes
+#
+#  index_atendimento_detalhes_on_atendente_id    (atendente_id)
+#  index_atendimento_detalhes_on_atendimento_id  (atendimento_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (atendente_id => users.id)
+#  fk_rails_...  (atendimento_id => atendimentos.id)
+#
 class AtendimentoDetalhe < ApplicationRecord
   belongs_to :atendimento
   belongs_to :atendente, class_name: 'User'

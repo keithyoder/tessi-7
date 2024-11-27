@@ -134,7 +134,7 @@ GEM
       popper_js (>= 2.11.8, < 3)
     builder (3.3.0)
     cancancan (3.6.1)
-    capistrano (3.19.1)
+    capistrano (3.19.2)
       airbrussh (>= 1.0.0)
       i18n
       rake (>= 10.0.0)

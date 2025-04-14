@@ -588,7 +588,7 @@ DEPENDENCIES
   bootstrap (~> 5)
   brcobranca!
   cancancan
-  capistrano (~> 3.18)
+  capistrano
   capistrano-passenger (~> 0.2.1)
   capistrano-rails (~> 1.6)
   capistrano-rbenv (~> 2.2, >= 2.1.4)
@@ -615,6 +615,7 @@ DEPENDENCIES
   multipart-post
   net-ping
   net-ssh
+  nokogiri (~> 1.17)
   oauth2
   pg
   phonelib

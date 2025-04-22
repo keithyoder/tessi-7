@@ -112,6 +112,12 @@ class Conexao < ApplicationRecord
   scope :sem_contrato, lambda {
     left_joins(:contrato).where('conexoes.tipo = 1 and contrato_id is null or cancelamento is not null')
   }
+  scope :proximas, lambda { |lat, lng|
+    select("*, 6371 * acos( cos( radians(#{lat}) ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(#{lng}) ) + sin( radians(#{lat}) ) * sin(radians(latitude)) ) as distancia") # rubocop:disable Layout/LineLength
+      .includes(:ponto)
+      .order(:distancia)
+      .limit(20)
+  }
 
   attr_accessor :current_user
 

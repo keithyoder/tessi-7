@@ -286,6 +286,9 @@ GEM
     multi_xml (0.7.1)
       bigdecimal (~> 3.1)
     multipart-post (2.4.1)
+    net-ftp (0.3.8)
+      net-protocol
+      time
     net-http (0.6.0)
       uri
     net-imap (0.5.7)
@@ -526,6 +529,8 @@ GEM
     temple (0.10.3)
     thor (1.3.2)
     tilt (2.6.0)
+    time (0.4.1)
+      date
     timeout (0.4.3)
     timers (4.0.4)
       hitimes
@@ -609,6 +614,7 @@ DEPENDENCIES
   matrix
   mtik
   multipart-post
+  net-ftp
   net-ping
   net-ssh
   nokogiri

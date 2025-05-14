@@ -50,6 +50,7 @@ gem 'kaminari', git: 'https://github.com/keithyoder/kaminari'
 gem 'matrix'
 # gem 'mtik', git: 'https://github.com/astounding/mtik.git'
 gem 'mtik'
+gem 'net-ftp'
 gem 'net-ping'
 gem 'net-ssh'
 gem 'nokogiri', force_ruby_platform: true

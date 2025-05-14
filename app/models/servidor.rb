@@ -120,7 +120,7 @@ class Servidor < ApplicationRecord
   def copiar_backup
     login = "#{CGI.escape(usuario)}:#{CGI.escape(senha)}"
     filename = ERB::Util.url_encode(nome)
-    fi = open("ftp://#{login}@#{ip}/#{filename}-backup.rsc")
+    fi = URI.open("ftp://#{login}@#{ip}/#{filename}-backup.rsc")
     backup.attach(io: fi, filename: "#{nome}-backup.rsc")
   end
 

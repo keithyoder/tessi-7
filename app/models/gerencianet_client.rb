@@ -97,7 +97,7 @@ class GerencianetClient # rubocop:disable Metrics/ClassLength,Style/Documentatio
 
     response = cliente.createOneStepCharge(body: body)
     unless response['code'] == 200
-      Rails.logger.error "Erro ao criar boleto #{response.to_s}"
+      Rails.logger.error "Erro ao criar boleto #{response}"
       return
     end
 
@@ -112,7 +112,7 @@ class GerencianetClient # rubocop:disable Metrics/ClassLength,Style/Documentatio
     )
   end
 
-  def self.criar_assinatura(contrato, token=nil)
+  def self.criar_assinatura(contrato, token = nil)
     # não criar um novo boleto se já foi criado anteriormente.
     return unless contrato.pagamento_perfil.banco == 364 && contrato.plano.gerencianet_id.presence
 
@@ -157,17 +157,17 @@ class GerencianetClient # rubocop:disable Metrics/ClassLength,Style/Documentatio
     }
 
     body.deep_merge!(
-        {
-          payment: {
-            credit_card: {
-              customer: {
-                name: contrato.billing_nome_completo.strip,
-                cpf: CPF.new(contrato.billing_cpf).stripped.to_s,
-                birth: contrato.pessoa.nascimento&.strftime
-              }
+      {
+        payment: {
+          credit_card: {
+            customer: {
+              name: contrato.billing_nome_completo.strip,
+              cpf: CPF.new(contrato.billing_cpf).stripped.to_s,
+              birth: contrato.pessoa.nascimento&.strftime
             }
           }
         }
+      }
     )
     params = {
       id: contrato.plano.gerencianet_id
@@ -175,7 +175,7 @@ class GerencianetClient # rubocop:disable Metrics/ClassLength,Style/Documentatio
     puts body.as_json
     response = cliente.create_subscription_onestep(body: body, params: params)
     unless response['code'] == 200
-      Rails.logger.error "Erro ao criar assinatura #{response.to_s}"
+      Rails.logger.error "Erro ao criar assinatura #{response}"
       return
     end
 
@@ -195,19 +195,11 @@ class GerencianetClient # rubocop:disable Metrics/ClassLength,Style/Documentatio
     )
   end
 
-  def self.receber_notificacao(notificacao)
-    params = {
-      token: notificacao
-    }
-
-    cliente.get_notification(params: params)
-  end
-
   def self.processar_webhook(evento)
     Rails.logger.info 'Inciando processamento'
     return if evento.processed_at.present?
 
-    payload = receber_notificacao(evento.notificacao)
+    payload = Efi::Notification.new(evento.notificacao).get
     Rails.logger.info 'Notificacao recebida'
     return unless payload['code'] == 200
 
@@ -217,7 +209,7 @@ class GerencianetClient # rubocop:disable Metrics/ClassLength,Style/Documentatio
     registro = payload['data'].find { |e| e['type'] == 'charge' && e['status']['current'] == 'waiting' }
     cancelado = payload['data'].find { |e| e['type'] == 'charge' && e['status']['current'] == 'canceled' }
     baixado = payload['data'].find { |e| e['type'] == 'charge' && e['status']['current'] == 'settled' }
-    Rails.logger.info 'Processando pagamento' if pago 
+    Rails.logger.info 'Processando pagamento' if pago
     Rails.logger.info 'Processando registro' if registro
     Rails.logger.info 'Processando cancelamento' if cancelado
     Rails.logger.info 'Processando baixa manual' if baixado
@@ -322,16 +314,16 @@ class GerencianetClient # rubocop:disable Metrics/ClassLength,Style/Documentatio
   def self.criar_plano_assinatura(plano)
     return unless plano.gerencianet_id.blank?
 
-    resposta = self.cliente.create_plan(
+    resposta = cliente.create_plan(
       body: {
         name: plano.nome,
         repeats: nil,
         interval: 1
       }
     )
-    if resposta['code'] == 200
-      plano.update!(gerencianet_id: resposta['data']['plan_id'])
-    end
+    return unless resposta['code'] == 200
+
+    plano.update!(gerencianet_id: resposta['data']['plan_id'])
   end
 
   def self.atualizar_fatura(id_efi) # rubocop:disable Metrics/AbcSize
@@ -375,5 +367,59 @@ class GerencianetClient # rubocop:disable Metrics/ClassLength,Style/Documentatio
         }
       }
     }
+  end
+
+  def self.pix_recorrencia(contrato)
+    # return unless contrato.pagamento_perfil.banco == 364
+
+    cliente = SdkRubyApisEfi.new(
+      {
+        client_id: contrato.pagamento_perfil.client_id,
+        client_secret: contrato.pagamento_perfil.client_secret,
+        sandbox: ENV['RAILS_ENV'] != 'production',
+        certificate: 'vendor/sandbox.pem'
+      }
+    )
+
+    loc = cliente.createLocationRecurring
+
+    body = {
+      vinculo: {
+        contrato: contrato.id.to_s,
+        # contrato: '1234',
+        devedor: {
+          # cpf: CPF.new(contrato.pessoa.cpf).stripped.to_s,
+          # nome: contrato.pessoa.nome.strip
+          cpf: '00910644497',
+          nome: 'Keith Ryan Yoder'
+        },
+        objeto: contrato.descricao_personalizada.presence || contrato.plano.nome
+      },
+      loc: loc['id'],
+      calendario: {
+        dataInicial: '2025-06-10',
+        periodicidade: 'MENSAL'
+      },
+      valor: {
+        valorRec: format('%.2f', contrato.mensalidade)
+      },
+      politicaRetentativa: 'PERMITE_3R_7D'
+    }
+
+    response = cliente.createPixRecurring(body: body)
+    unless response['code'] == 201
+      Rails.logger.error "Erro ao criar PIX recorrente #{response}"
+      return
+    end
+
+    contrato.update(recorrencia_id: response['data']['id'])
+    data = response['data']
+    puts data
+    # fatura.update(
+    #   pix: data['pix']['qrcode'],
+    #   id_externo: data['charge_id'],
+    #   link: data['link'],
+    #   codigo_de_barras: data['barcode']
+    # )
   end
 end

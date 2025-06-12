@@ -89,7 +89,15 @@ class Plano < ApplicationRecord
     end
   end
 
-  def self.ransackable_attributes(auth_object = nil)
-    ["mensalidade", "nome"]
+  def valor_com_desconto
+    if desconto.present?
+      mensalidade - desconto
+    else
+      mensalidade
+    end
+  end
+
+  def self.ransackable_attributes(_auth_object = nil)
+    %w[mensalidade nome]
   end
 end

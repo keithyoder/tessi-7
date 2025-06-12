@@ -4,35 +4,35 @@
 #
 # Table name: contratos
 #
-#  id                        :bigint           not null, primary key
-#  adesao                    :date
-#  billing_bairro            :string
-#  billing_cep               :string
-#  billing_cidade            :string
-#  billing_cpf               :string
-#  billing_endereco          :string
-#  billing_endereco_numero   :string
-#  billing_estado            :string
-#  billing_nome_completo     :string
-#  cancelamento              :date
-#  cartao_parcial            :string
-#  descricao_personalizada   :string
-#  dia_vencimento            :integer
-#  documentos                :jsonb
-#  emite_nf                  :boolean          default(TRUE)
-#  numero_conexoes           :integer          default(1)
-#  parcelas_instalacao       :integer
-#  prazo_meses               :integer          default(12)
-#  primeiro_vencimento       :date
-#  status                    :integer
-#  valor_instalacao          :decimal(8, 2)
-#  valor_personalizado       :decimal(8, 2)
-#  created_at                :datetime         not null
-#  updated_at                :datetime         not null
-#  gerencianet_assinatura_id :integer
-#  pagamento_perfil_id       :bigint
-#  pessoa_id                 :bigint           not null
-#  plano_id                  :bigint           not null
+#  id                      :bigint           not null, primary key
+#  adesao                  :date
+#  billing_bairro          :string
+#  billing_cep             :string
+#  billing_cidade          :string
+#  billing_cpf             :string
+#  billing_endereco        :string
+#  billing_endereco_numero :string
+#  billing_estado          :string
+#  billing_nome_completo   :string
+#  cancelamento            :date
+#  cartao_parcial          :string
+#  descricao_personalizada :string
+#  dia_vencimento          :integer
+#  documentos              :jsonb
+#  emite_nf                :boolean          default(TRUE)
+#  numero_conexoes         :integer          default(1)
+#  parcelas_instalacao     :integer
+#  prazo_meses             :integer          default(12)
+#  primeiro_vencimento     :date
+#  status                  :integer
+#  valor_instalacao        :decimal(8, 2)
+#  valor_personalizado     :decimal(8, 2)
+#  created_at              :datetime         not null
+#  updated_at              :datetime         not null
+#  pagamento_perfil_id     :bigint
+#  pessoa_id               :bigint           not null
+#  plano_id                :bigint           not null
+#  recorrencia_id          :string
 #
 # Indexes
 #

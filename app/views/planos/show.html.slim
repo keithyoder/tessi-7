@@ -1,12 +1,12 @@
 ul.nav.nav-pills
   li.nav-item
-    a.nav-link.active[data-toggle="tab" href="#home"]
+    a.nav-link.active[data-toggle="tab" href="#plano"]
       | Plano
   li.nav-item
     a.nav-link[data-toggle="tab" href="#radius"]
       | Radius
-#planos-pills.tab-content.h-100
-  #home.tab-pane.h-100.fade.show.active[role="tabpanel" aria-labelledby="home-tab"]
+#plano-tabs.tab-content
+  #plano.tab-pane.fade.show.active[role="tabpanel" aria-labelledby="plano-tab"]
     .card.h-100
       = render 'shared/show_header', {object: @plano, titulo: "Plano de Acesso "+ @plano.nome}
       .card-body.h-100

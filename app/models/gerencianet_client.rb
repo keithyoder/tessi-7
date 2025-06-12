@@ -225,7 +225,7 @@ class GerencianetClient # rubocop:disable Metrics/ClassLength,Style/Documentatio
         sequencia: evento.id
       )
       notificacao.fatura.update(
-        liquidacao: notificacao.pago['received_by_bank_at'],
+        liquidacao: notificacao.pago['received_by_bank_at'] || notificacao.pago['created_at'],
         valor_liquidacao: valor_pago,
         desconto_concedido: desconto,
         juros_recebidos: juros,

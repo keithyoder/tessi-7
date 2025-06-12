@@ -26,7 +26,7 @@ module Efi
       cliente.updateSubscriptionMetadata(
         params: params,
         body: {
-          notification_url: 'https://webhook.site/#!/view/49da8d53-2210-4b88-a0a1-8b2d1772c7ff/53c3466b-76e9-49d8-aea8-e2a327dffce0/1',
+          notification_url: notification_url,
           custom_id: contrato.id.to_s
         }
       )
@@ -42,6 +42,10 @@ module Efi
 
     private
 
+    def notificacao_url
+      "https://erp7.tessi.com.br/webhooks/#{Webhook.find_by(tipo: :gerencianet).token}"
+    end
+
     def body # rubocop:disable Metrics/MethodLength
       {
         "items": [
@@ -53,7 +57,7 @@ module Efi
         ],
         "metadata": {
           "custom_id": @contrato.id.to_s,
-          "notification_url": "https://erp7.tessi.com.br/webhooks/#{Webhook.find_by(tipo: :gerencianet).token}"
+          "notification_url": notification_url
         },
         "customer": {
           "email": 'yoder@tessi.com.br'

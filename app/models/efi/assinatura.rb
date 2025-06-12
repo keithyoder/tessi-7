@@ -32,6 +32,14 @@ module Efi
       )
     end
 
+    def get
+      @cliente.detailSubscription(params: { id: @contrato.recorrencia_id })
+    end
+
+    def link
+      @cliente.detailCharge(params: { id: get.dig('data', 'link', 'payment_url') })
+    end
+
     private
 
     def body # rubocop:disable Metrics/MethodLength

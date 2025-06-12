@@ -199,28 +199,24 @@ class GerencianetClient # rubocop:disable Metrics/ClassLength,Style/Documentatio
     Rails.logger.info 'Inciando processamento'
     return if evento.processed_at.present?
 
-    payload = Efi::Notification.new(evento.notificacao).get
+    notificacao = Efi::Notification.new(evento.notificacao)
     Rails.logger.info 'Notificacao recebida'
-    return unless payload['code'] == 200
+    return unless notificacao.payload['code'] == 200
 
-    Rails.logger.info payload
-    pago = payload['data'].find { |e| e['type'] == 'charge' && e['status']['current'] == 'paid' }
-    identificado = payload['data'].find { |e| e['type'] == 'charge' && e['status']['current'] == 'identified' }
-    registro = payload['data'].find { |e| e['type'] == 'charge' && e['status']['current'] == 'waiting' }
-    cancelado = payload['data'].find { |e| e['type'] == 'charge' && e['status']['current'] == 'canceled' }
-    baixado = payload['data'].find { |e| e['type'] == 'charge' && e['status']['current'] == 'settled' }
-    Rails.logger.info 'Processando pagamento' if pago
-    Rails.logger.info 'Processando registro' if registro
-    Rails.logger.info 'Processando cancelamento' if cancelado
-    Rails.logger.info 'Processando baixa manual' if baixado
+    Rails.logger.info notificacao.payload
+    Rails.logger.info 'Processando pagamento' if notificacao.pago
+    Rails.logger.info 'Processando registro' if notificacao.registro
+    Rails.logger.info 'Processando cancelamento' if notificacao.cancelado
+    Rails.logger.info 'Processando baixa manual' if notificacao.baixado
 
-    return unless pago || identificado || registro || cancelado || baixado
+    unless notificacao.pago || notificacao.identificado || notificacao.registro || notificacao.cancelado || notificacao.baixado
+      return
+    end
 
-    if pago || identificado
-      fatura = Fatura.find(pago['custom_id'].to_i)
-      valor_pago = pago['value'] / 100.0
-      desconto = (valor_pago - fatura.valor if valor_pago < fatura.valor) || 0
-      juros = (valor_pago - fatura.valor if valor_pago > fatura.valor) || 0
+    if notificacao.pago || notificacao.identificado
+      valor_pago = notificacao.pago['value'] / 100.0
+      desconto = (valor_pago - notificacao.fatura.valor if valor_pago < notificacao.fatura.valor) || 0
+      juros = (valor_pago - notificacao.fatura.valor if valor_pago > notificacao.fatura.valor) || 0
       perfil = PagamentoPerfil.find_by(banco: 364)
 
       retorno = Retorno.create(
@@ -228,17 +224,16 @@ class GerencianetClient # rubocop:disable Metrics/ClassLength,Style/Documentatio
         data: evento.created_at.to_date,
         sequencia: evento.id
       )
-      fatura.update(
-        liquidacao: pago['received_by_bank_at'],
+      notificacao.fatura.update(
+        liquidacao: notificacao.pago['received_by_bank_at'],
         valor_liquidacao: valor_pago,
         desconto_concedido: desconto,
         juros_recebidos: juros,
         meio_liquidacao: :RetornoBancario,
         retorno_id: retorno.id
       )
-    elsif baixado
-      fatura = Fatura.find(baixado['custom_id'].to_i)
-      return if fatura.baixa.present?
+    elsif notificacao.baixado
+      return if notificacao.fatura.baixa.present?
 
       perfil = PagamentoPerfil.find_by(banco: 364)
       retorno = Retorno.create(
@@ -246,20 +241,17 @@ class GerencianetClient # rubocop:disable Metrics/ClassLength,Style/Documentatio
         data: evento.created_at.to_date,
         sequencia: evento.id
       )
-      fatura.update(baixa_id: retorno.id)
-    elsif cancelado
-      fatura = Fatura.find_by(id: cancelado['custom_id'].to_i)
-
-      if fatura.present?
-        if fatura.cancelamento.blank?
-          fatura.update(data_cancelamento: evento.created_at.to_date)
+      notificacao.fatura.update(baixa_id: retorno.id)
+    elsif notificacao.cancelado
+      if notificacao.fatura.present?
+        if notificacao.fatura.cancelamento.blank?
+          notificacao.fatura.update(data_cancelamento: evento.created_at.to_date)
         else
-          fatura.destroy
+          notificacao.fatura.destroy
         end
       end
-    elsif registro
-      fatura = Fatura.find(registro['custom_id'].to_i)
-      return if fatura.registro.present?
+    elsif notificacao.registro
+      return if notificacao.fatura.registro.present?
 
       perfil = PagamentoPerfil.find_by(banco: 364)
       retorno = Retorno.create(
@@ -267,7 +259,7 @@ class GerencianetClient # rubocop:disable Metrics/ClassLength,Style/Documentatio
         data: evento.created_at.to_date,
         sequencia: evento.id
       )
-      fatura.update(registro_id: retorno.id) if fatura.registro_id.blank?
+      notificacao.fatura.update(registro_id: retorno.id) if notificacao.fatura.registro_id.blank?
     end
     evento.update(processed_at: DateTime.now)
   end

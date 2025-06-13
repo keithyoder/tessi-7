@@ -42,7 +42,7 @@ module Efi
 
     private
 
-    def notificacao_url
+    def notification_url
       "https://erp7.tessi.com.br/webhooks/#{Webhook.find_by(tipo: :gerencianet).token}"
     end
 

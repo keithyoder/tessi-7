@@ -38,10 +38,6 @@ module Efi
       payload['data'].first['type'] == 'subscription'
     end
 
-    def custom_id
-      payload['data'].first['custom_id'].to_i
-    end
-
     def fatura
       @fatura ||= if assinatura?
                     Contrato.find(custom_id).faturas.em_aberto.first
@@ -51,6 +47,10 @@ module Efi
     end
 
     private
+
+    def custom_id
+      payload['data'].first['custom_id'].to_i
+    end
 
     def charge_status?(payload, status)
       CHARGE_TYPES.any?(payload['type']) && payload['status']['current'] == status

@@ -126,6 +126,12 @@ class Contrato < ApplicationRecord # rubocop:disable Metrics/ClassLength
     "#{id} - #{pessoa.nome}"
   end
 
+  def pix_automatico
+    return unless recorrencia_id.present?
+    
+    Efi::PixAutomatico.new(self)
+  end
+
   def gerar_faturas(quantas = prazo_meses)
     nossonumero = pagamento_perfil.proximo_nosso_numero
     vencimento = faturas.maximum(:vencimento) || primeiro_vencimento - 1.month

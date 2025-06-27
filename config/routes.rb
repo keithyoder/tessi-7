@@ -46,6 +46,7 @@ Rails.application.routes.draw do # rubocop:disable Metrics/BlockLength
     get :autentique, on: :member
     get :pendencias, on: :collection
     get :trocado, on: :member
+    resources :pix_automatico, only: %i[new create index]
   end
   resources :conexoes do
     get :suspenso, on: :collection
@@ -77,6 +78,7 @@ Rails.application.routes.draw do # rubocop:disable Metrics/BlockLength
   resources :estados, only: %i[index show edit update]
   resources :token
   resources :settings
+  resources :viablidades, only: %i[new create show]
   post '/webhooks/:token' => 'webhook_eventos#create'
   get 'welcome/index'
   root 'welcome#index'

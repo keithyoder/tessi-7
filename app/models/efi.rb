@@ -8,7 +8,8 @@ module Efi
     params = {
       client_id: kwargs[:client_id] || perfil.client_id,
       client_secret: kwargs[:client_secret] || perfil.client_secret,
-      sandbox: ENV['RAILS_ENV'] != 'production'
+      "x-skip-mtls-checking": 'true',
+      sandbox: false # ENV['RAILS_ENV'] != 'production'
     }
 
     params[:certificate] = kwargs[:certificate] if kwargs[:certificate].present?

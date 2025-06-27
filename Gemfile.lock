@@ -26,7 +26,7 @@ GIT
 
 GIT
   remote: https://github.com/keithyoder/sdk-ruby-apis-efi.git
-  revision: 007517408761a1e3b2d07508d4c247f9bdfa385f
+  revision: 54d0b6c22db45e9d0d33f14ca10ae0d287583502
   specs:
     sdk_ruby_apis_efi (1.0.2)
       base64 (~> 0.1)

@@ -91,5 +91,6 @@ class Ability
     can %i[create update autentique], [Retorno, Contrato]
     can %i[destroy termo pendencias], Contrato
     can :remessa, PagamentoPerfil
+    can :all, PixAutomatico
   end
 end

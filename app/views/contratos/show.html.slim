@@ -20,9 +20,14 @@ ul.nav.nav-pills
               = @contrato.pessoa.nome
           .d-print-none.col-sm-3[align="right"]
             - if @contrato.recorrencia_id.present?
-              => link_to("https://app.sejaefi.com.br/receber/gestao-de-cobrancas/assinaturas/#{@contrato.recorrencia_id}", class: "btn btn-sm btn-outline-dark", target: "_blank") do
-                i.fa.fa-bank.fa-lg[aria-hidden="true"]
-                |  Assinatura 
+              - if @contrato.recorrencia_id[0..1] == 'RR'
+                => link_to(contrato_pix_automatico_index_path(@contrato), class: "btn btn-sm btn-outline-dark") do
+                  i.fa.fa-bank.fa-lg[aria-hidden="true"]
+                  |  Pix Automático 
+              - else 
+                => link_to("https://app.sejaefi.com.br/receber/gestao-de-cobrancas/assinaturas/#{@contrato.recorrencia_id}", class: "btn btn-sm btn-outline-dark", target: "_blank") do
+                  i.fa.fa-bank.fa-lg[aria-hidden="true"]
+                  |  Assinatura 
             - else
               => link_to(boletos_contrato_path(format: :pdf), class: "btn btn-sm btn-outline-dark", target: "_blank") do
                 i.fa.fa-bank.fa-lg[aria-hidden="true"]

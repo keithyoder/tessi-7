@@ -11,7 +11,12 @@
       .row.row-cols-1.row-cols-sm-2.row-cols-md-3.row-cols-lg-4.g-4.pt-3
         = render 'shared/field_card', { campo: 'Status', valor: @pix_automatico.status }
         - if @pix_automatico.status == 'CRIADA'
-          = render 'shared/field_card', { campo: 'QR Code', valor: @pix_automatico.qrcode }
+          .card.border-secondary.m-1.p-0
+            .card-header= 'Pix QR Code'
+            .card-text.m-2.text-end
+              img src=@pix_automatico.qrcode_base64 width='50%'
+              br
+              = @pix_automatico.qrcode
         - else
           = render 'shared/field_card', { campo: 'Banco Pagador', valor: @pix_automatico.banco }
           = render 'shared/field_card', { campo: 'CPF Pagador', valor: @pix_automatico.cpf_pagador.formatted }

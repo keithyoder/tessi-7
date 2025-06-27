@@ -5,18 +5,14 @@ module Efi
     def initialize(contrato)
       @contrato = contrato
       @cliente = Efi.cliente(
-        client_id: 'Client_Id_c4e2a29034f02859e0558eb5741a81abc0b3b426',
-        client_secret: 'Client_Secret_5f4c11834df3524877d711d09bbf2b93b274ea28',
-        # client_id: contrato.pagamento_perfil.client_id,
-        # client_secret: contrato.pagamento_perfil.client_secret,
+        client_id: contrato.pagamento_perfil.client_id,
+        client_secret: contrato.pagamento_perfil.client_secret,
         certificate: Rails.application.credentials.efi_pix_certificate
       )
     end
 
     def create
-      puts location
       resposta = @cliente.createPixRecurring(body: body)
-      puts resposta
       @contrato.update(recorrencia_id: resposta['idRec'])
     end
 
@@ -62,19 +58,15 @@ module Efi
       {
         vinculo: {
           contrato: @contrato.id.to_s,
-          # contrato: '1234',
           devedor: {
             cpf: CPF.new(@contrato.pessoa.cpf).stripped.to_s,
             nome: @contrato.pessoa.nome.strip
-            # cpf: '00910644497',
-            # nome: 'Keith Ryan Yoder'
           },
           objeto: @contrato.descricao_personalizada.presence || @contrato.plano.nome
         },
         loc: location['id'],
         calendario: {
           dataInicial: @contrato.faturas.em_aberto.first.vencimento.strftime('%Y-%m-%d'),
-          # dataInicial: '2025-06-25',
           periodicidade: 'MENSAL'
         },
         valor: {

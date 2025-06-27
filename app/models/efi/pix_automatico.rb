@@ -32,6 +32,12 @@ module Efi
       pix.dig('dadosQR', 'pixCopiaECola')
     end
 
+    def qrcode_base64
+      return unless qrcode.present?
+
+      ::RQRCode::QRCode.new(qrcode, level: :q).as_png(margin: 0).to_data_url
+    end
+
     def cpf_pagador
       CPF.new(pix.dig('pagador', 'cpf'))
     end

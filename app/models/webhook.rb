@@ -16,6 +16,7 @@ class Webhook < ApplicationRecord
   enum tipo: {
     banco_do_brasil: 101,
     gerencianet: 102,
-    autentique: 103
+    autentique: 103,
+    efi_pix: 104
   }
 end

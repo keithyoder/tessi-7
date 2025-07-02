@@ -50,6 +50,13 @@ module Efi
       @cliente.listChargesRecurring(params: { inicio: '2025-06-25T16:01:35Z', fim: '2025-07-01T16:01:35Z' })
     end
 
+    def proxima_cobranca
+      fatura = @contrato.faturas.em_aberto.first
+      return unless fatura.id_externo.present?
+
+      @cliente.getChargeRecurring(params: { txid: fatura.id_externo })
+    end
+
     def criar_cobranca
       cobranca = @cliente.createChargeRecurring(body: cobranca_body)
       @contrato.faturas.em_aberto.first.update(id_externo: cobranca['txid'])
@@ -92,7 +99,8 @@ module Efi
         "idRec": @contrato.recorrencia_id,
         "infoAdicional": @contrato.descricao_personalizada.presence || @contrato.plano.nome,
         "calendario": {
-          "dataDeVencimento": [@contrato.faturas.em_aberto.first.vencimento, Date.today + 2.days].max.strftime('%Y-%m-%d')
+          "dataDeVencimento": [@contrato.faturas.em_aberto.first.vencimento,
+                               Date.today + 2.days].max.strftime('%Y-%m-%d')
         },
         "valor": {
           "original": format('%.2f', @contrato.plano.valor_com_desconto)

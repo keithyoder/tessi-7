@@ -26,7 +26,7 @@
               td= fatura.nossonumero
               td
                 small
-                  - if fatura.registro_id.present?
+                  - if fatura.id_externo.present? || fatura.registro_id.present?
                     span.badge.bg-success Registrada
                     '
                   - if fatura.retorno_id.present?

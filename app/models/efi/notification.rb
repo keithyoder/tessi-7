@@ -39,17 +39,19 @@ module Efi
     end
 
     def fatura
-      @fatura ||= if assinatura?
-                    Contrato.find(custom_id).faturas.em_aberto.first
-                  else
-                    Fatura.find(custom_id)
-                  end
+      @fatura ||= Fatura.find(custom_id) ||
+                  Fatura.find_by(id_externo: charge_id) ||
+                  Contrato.find(custom_id).faturas.em_aberto.first
     end
 
     private
 
     def custom_id
       payload['data'].first['custom_id'].to_i
+    end
+
+    def charge_id
+      payload['data'].last.dig('identifiers', 'charge_id')
     end
 
     def charge_status?(payload, status)

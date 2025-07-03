@@ -55,7 +55,8 @@ module Efi
         fatura = @contrato.faturas.em_aberto.first
         return unless fatura.id_externo.present?
 
-        @cliente.getChargeRecurring(params: { txid: fatura.id_externo })
+        resposta = @cliente.getChargeRecurring(params: { txid: fatura.id_externo })
+        return resposta unless resposta['status'] == 400
       end
     end
 
@@ -102,12 +103,12 @@ module Efi
         "infoAdicional": @contrato.descricao_personalizada.presence || @contrato.plano.nome,
         "calendario": {
           "dataDeVencimento": [@contrato.faturas.em_aberto.first.vencimento,
-                               Date.today + 2.days].max.strftime('%Y-%m-%d')
+                               Date.today + 3.days].max.strftime('%Y-%m-%d')
         },
         "valor": {
           "original": format('%.2f', @contrato.plano.valor_com_desconto)
         },
-        "ajusteDiaUtil": true,
+        "ajusteDiaUtil": false,
         "devedor": {
           "cep": @contrato.pessoa.logradouro.cep,
           "cidade": @contrato.pessoa.cidade.nome,

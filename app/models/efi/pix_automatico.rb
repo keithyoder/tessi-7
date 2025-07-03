@@ -51,10 +51,12 @@ module Efi
     end
 
     def proxima_cobranca
-      fatura = @contrato.faturas.em_aberto.first
-      return unless fatura.id_externo.present?
+      @proxima_cobranca ||= begin
+        fatura = @contrato.faturas.em_aberto.first
+        return unless fatura.id_externo.present?
 
-      @cliente.getChargeRecurring(params: { txid: fatura.id_externo })
+        @cliente.getChargeRecurring(params: { txid: fatura.id_externo })
+      end
     end
 
     def criar_cobranca

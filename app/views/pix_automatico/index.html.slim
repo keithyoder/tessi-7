@@ -20,3 +20,15 @@
         - else
           = render 'shared/field_card', { campo: 'Banco Pagador', valor: @pix_automatico.banco }
           = render 'shared/field_card', { campo: 'CPF Pagador', valor: @pix_automatico.cpf_pagador.formatted }
+- if @pix_automatico.proxima_cobranca.present?
+  .row
+    .card
+      .card-header
+        .row
+          .col-sm
+          h3 Próxima Cobrança
+      .card-body
+        .row.row-cols-1.row-cols-sm-2.row-cols-md-3.row-cols-lg-4.g-4.pt-3
+          = render 'shared/field_card', { campo: 'Data Vencimento', valor: @pix_automatico.proxima_cobranca["calendario"]["dataVencimento"] }
+          = render 'shared/field_card', { campo: 'Valor', valor: @pix_automatico.proxima_cobranca["valor"]["original"] }
+          = render 'shared/field_card', { campo: 'Status', valor: @pix_automatico.proxima_cobranca["status"] }

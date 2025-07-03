@@ -12,11 +12,15 @@
 #
 class Webhook < ApplicationRecord
   has_secure_token
-  has_many :webhook_eventos, as: :eventos, dependent: :destroy
+  has_many :eventos, class_name: 'WebhookEvento', dependent: :destroy
   enum tipo: {
     banco_do_brasil: 101,
     gerencianet: 102,
     autentique: 103,
     efi_pix: 104
   }
+
+  def url
+    "/webhooks/#{token}"
+  end
 end

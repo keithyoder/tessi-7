@@ -62,6 +62,7 @@ module Efi
 
     def criar_cobranca
       cobranca = @cliente.createChargeRecurring(body: cobranca_body)
+      puts cobranca
       @contrato.faturas.em_aberto.first.update(id_externo: cobranca['txid'])
     end
 
@@ -76,11 +77,15 @@ module Efi
     end
 
     def body # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
+      cpf_cnpj = if @contrato.pessoa.cpf.present?
+                   { vinculo: { devedor: { cpf: CPF.new(@contrato.pessoa.cpf).stripped.to_s } } }
+                 else
+                   { vinculo: { devedor: { cnpj: CNPJ.new(@contrato.pessoa.cnpj).stripped.to_s } } }
+                 end
       {
         vinculo: {
           contrato: @contrato.id.to_s,
           devedor: {
-            cpf: CPF.new(@contrato.pessoa.cpf).stripped.to_s,
             nome: @contrato.pessoa.nome.strip
           },
           objeto: @contrato.descricao_personalizada.presence || @contrato.plano.nome
@@ -91,10 +96,11 @@ module Efi
           periodicidade: 'MENSAL'
         },
         valor: {
-          valorRec: format('%.2f', @contrato.plano.valor_com_desconto)
+          valorRec: format('%.2f',
+                           (@contrato.valor_personalizado - @contrato.plano.desconto) || @contrato.plano.valor_com_desconto)
         },
         politicaRetentativa: 'PERMITE_3R_7D'
-      }
+      }.deep_merge(cpf_cnpj)
     end
 
     def cobranca_body # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
@@ -106,7 +112,8 @@ module Efi
                                Date.today + 3.days].max.strftime('%Y-%m-%d')
         },
         "valor": {
-          "original": format('%.2f', @contrato.plano.valor_com_desconto)
+          "original": format('%.2f',
+                             (@contrato.valor_personalizado - @contrato.plano.desconto) || @contrato.plano.valor_com_desconto)
         },
         "ajusteDiaUtil": false,
         "devedor": {

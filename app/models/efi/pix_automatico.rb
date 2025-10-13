@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Efi
-  class PixAutomatico # rubocop:disable Style/Documentation
+  class PixAutomatico # rubocop:disable Style/Documentation,Metrics/ClassLength
     def initialize(contrato)
       @contrato = contrato
       @cliente = Efi.cliente(
@@ -14,6 +14,15 @@ module Efi
     def create
       resposta = @cliente.createPixRecurring(body: body)
       @contrato.update(recorrencia_id: resposta['idRec'])
+    end
+
+    def cancel
+      resposta = @cliente.updatePixRecurring(
+        body: { status: 'CANCELADA' },
+        params: { id: @contrato.recorrencia_id }
+      )
+      puts resposta
+      # @contrato.update(recorrencia_id: resposta['idRec'])
     end
 
     def pix
@@ -52,7 +61,7 @@ module Efi
 
     def proxima_cobranca
       @proxima_cobranca ||= begin
-        fatura = @contrato.faturas.em_aberto.first
+        fatura = @contrato.faturas.a_vencer.first
         return unless fatura.id_externo.present?
 
         resposta = @cliente.getChargeRecurring(params: { txid: fatura.id_externo })
@@ -60,10 +69,16 @@ module Efi
       end
     end
 
+    def reenviar_cobranca
+      @cliente.retryChargeRecurring(
+        params: { txid: @contrato.faturas.a_vencer.first.id_externo, data: 1.day.from_now.strftime('%Y-%m-%d') }
+      )
+    end
+
     def criar_cobranca
       cobranca = @cliente.createChargeRecurring(body: cobranca_body)
       puts cobranca
-      @contrato.faturas.em_aberto.first.update(id_externo: cobranca['txid'])
+      @contrato.faturas.a_vencer.first.update(id_externo: cobranca['txid'])
     end
 
     private
@@ -92,12 +107,12 @@ module Efi
         },
         loc: location['id'],
         calendario: {
-          dataInicial: @contrato.faturas.em_aberto.first.vencimento.strftime('%Y-%m-%d'),
+          dataInicial: @contrato.faturas.a_vencer.first.vencimento.strftime('%Y-%m-%d'),
           periodicidade: 'MENSAL'
         },
         valor: {
           valorRec: format('%.2f',
-                           (@contrato.valor_personalizado - @contrato.plano.desconto) || @contrato.plano.valor_com_desconto)
+                           @contrato.mensalidade_com_desconto)
         },
         politicaRetentativa: 'PERMITE_3R_7D'
       }.deep_merge(cpf_cnpj)
@@ -108,12 +123,14 @@ module Efi
         "idRec": @contrato.recorrencia_id,
         "infoAdicional": @contrato.descricao_personalizada.presence || @contrato.plano.nome,
         "calendario": {
-          "dataDeVencimento": [@contrato.faturas.em_aberto.first.vencimento,
+          "dataDeVencimento": [@contrato.faturas.a_vencer.first.vencimento,
                                Date.today + 3.days].max.strftime('%Y-%m-%d')
         },
         "valor": {
-          "original": format('%.2f',
-                             (@contrato.valor_personalizado - @contrato.plano.desconto) || @contrato.plano.valor_com_desconto)
+          "original": format(
+            '%.2f',
+            @contrato.mensalidade_com_desconto
+          )
         },
         "ajusteDiaUtil": false,
         "devedor": {

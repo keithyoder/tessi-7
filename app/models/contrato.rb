@@ -128,7 +128,7 @@ class Contrato < ApplicationRecord # rubocop:disable Metrics/ClassLength
 
   def pix_automatico
     return unless recorrencia_id.present?
-    
+
     Efi::PixAutomatico.new(self)
   end
 
@@ -190,6 +190,10 @@ class Contrato < ApplicationRecord # rubocop:disable Metrics/ClassLength
 
   def mensalidade
     valor_personalizado || plano.mensalidade
+  end
+
+  def mensalidade_com_desconto
+    mensalidade - plano.desconto
   end
 
   def descricao

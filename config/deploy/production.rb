@@ -58,3 +58,27 @@
 
 server '201.71.24.5', user: 'deploy', roles: %w[app db web]
 # server '10.200.28.35', user: 'deploy', roles: %w{app db web}
+
+namespace :deploy do
+  desc 'Run yarn install'
+  task :yarn_install do
+    on roles(:web) do
+      within release_path do
+        execute :yarn, 'install --production --frozen-lockfile'
+      end
+    end
+  end
+
+  desc 'Build CSS'
+  task :build_css do
+    on roles(:web) do
+      within release_path do
+        execute :yarn, 'build:css'
+      end
+    end
+  end
+end
+
+# Run in this order
+before 'deploy:assets:precompile', 'deploy:yarn_install'
+after 'deploy:yarn_install', 'deploy:build_css'

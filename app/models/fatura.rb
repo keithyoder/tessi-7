@@ -13,7 +13,7 @@
 #  data_cancelamento   :date
 #  data_remessa        :date
 #  desconto_concedido  :decimal(, )
-#  id_externo          :integer
+#  id_externo          :string
 #  juros_recebidos     :decimal(, )
 #  link                :string
 #  liquidacao          :date
@@ -89,6 +89,20 @@ class Fatura < ApplicationRecord # rubocop:disable Metrics/ClassLength
                      left_joins(:nf21).joins(:contrato).where('contratos.emite_nf').group('faturas.id').having('count(nf21s.*) = 0')
                    }
   scope :notas_a_emitir, ->(range) { where(liquidacao: range).where('vencimento > ?', 3.months.ago).sem_nota }
+
+  scope :com_associacoes, lambda {
+    includes(
+      contrato: {
+        pessoa: {
+          logradouro: {
+            bairro: {
+              cidade: :estado
+            }
+          }
+        }
+      }
+    )
+  }
 
   validate :validar_liquidacao?, if: :liquidacao_changed?
 

@@ -36,6 +36,8 @@ class Nf21 < ApplicationRecord
 
   after_create :gerar_registros
 
+  validates :numero, uniqueness: true
+
   def gerar_registros
     update!(
       cadastro: Nf21Cadastro.new(self).generate,

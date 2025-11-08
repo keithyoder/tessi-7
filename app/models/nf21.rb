@@ -23,6 +23,17 @@ class Nf21 < ApplicationRecord
   belongs_to :fatura
   scope :competencia, ->(mes) { where("date_trunc('month', emissao) = ?", DateTime.parse("#{mes}-01")) }
 
+  scope :com_associacoes, lambda {
+    includes(
+      fatura: {
+        contrato: [
+          :plano,
+          { pessoa: { logradouro: { bairro: :cidade } } }
+        ]
+      }
+    )
+  }
+
   after_create :gerar_registros
 
   def gerar_registros
@@ -37,10 +48,10 @@ class Nf21 < ApplicationRecord
   end
 
   def referencia_item
-    Nf21Item.competencia(mes)
-            .select('count(*) as itens')
-            .joins(:nf21)
-            .where('nf21s.numero < ?', numero)[0].itens + 1
+    @referencia_item ||= Nf21Item.competencia(mes)
+                                 .joins(:nf21)
+                                 .where('nf21s.numero < ?', numero)
+                                 .count + 1
   end
 
   def parsed_mestre(field)

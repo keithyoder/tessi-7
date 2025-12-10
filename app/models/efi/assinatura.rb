@@ -52,7 +52,7 @@ module Efi
           {
             "amount": 1,
             "name": @contrato.descricao,
-            "value": (@contrato.plano.valor_com_desconto * 100).to_i
+            "value": (@contrato.mensalidade_com_desconto * 100).to_i
           }
         ],
         "metadata": {

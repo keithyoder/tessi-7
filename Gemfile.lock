@@ -25,6 +25,14 @@ GIT
     kaminari-core (1.2.2)
 
 GIT
+  remote: https://github.com/keithyoder/nfcom-ruby.git
+  revision: df02a3fa61535a937daa4bf3ea709e820a0c8a7d
+  specs:
+    nfcom (0.1.0)
+      httparty (~> 0.21)
+      nokogiri (~> 1.15)
+
+GIT
   remote: https://github.com/keithyoder/sdk-ruby-apis-efi.git
   revision: 7352685d838108a2da4f17ab4ad39a5b48d6a773
   specs:
@@ -206,6 +214,10 @@ GEM
       responders
       warden (~> 1.2.3)
     domain_name (0.6.20240107)
+    dotenv (3.2.0)
+    dotenv-rails (3.2.0)
+      dotenv (= 3.2.0)
+      railties (>= 6.1)
     drb (2.2.3)
     ed25519 (1.4.0)
     erb (6.0.0)
@@ -349,6 +361,9 @@ GEM
       matrix (~> 0.4)
       pdf-core (~> 0.10.0)
       ttfunk (~> 1.8)
+    prawn-qrcode (0.5.2)
+      prawn (>= 1)
+      rqrcode (>= 1.0.0)
     prawn-rails (1.6.0)
       actionview (>= 3.1.0)
       activesupport (>= 3.1.0)
@@ -610,6 +625,7 @@ DEPENDENCIES
   cssbundling-rails
   debug
   devise
+  dotenv-rails
   ed25519 (>= 1.2, < 2.0)
   extensobr
   fixy
@@ -627,11 +643,13 @@ DEPENDENCIES
   net-ftp
   net-ping
   net-ssh
+  nfcom!
   nokogiri
   oauth2
   pg
   phonelib
   popper_js
+  prawn-qrcode
   prawn-rails
   prawn-svg
   puma

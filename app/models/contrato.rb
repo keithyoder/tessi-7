@@ -118,8 +118,10 @@ class Contrato < ApplicationRecord # rubocop:disable Metrics/ClassLength
   before_destroy :verificar_exclusao, prepend: true
 
   def faturas_em_atraso(dias)
-    faturas.where(liquidacao: nil, cancelamento: nil)
-           .where('vencimento < ?', dias.days.ago).count
+    prazo = dias.days.ago
+    faturas
+      .select { |f| f.liquidacao.nil? && f.cancelamento.nil? && f.vencimento < prazo }
+      .count
   end
 
   def contrato_e_nome

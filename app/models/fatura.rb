@@ -68,6 +68,7 @@ class Fatura < ApplicationRecord # rubocop:disable Metrics/ClassLength
   belongs_to :registro, class_name: :Retorno, optional: true
   belongs_to :baixa, class_name: :Retorno, optional: true
   belongs_to :registro_webhook, class_name: :WebhookEvento, foreign_key: :registro_id, optional: true
+  has_many :nfcom_notas
   has_one :pessoa, through: :contrato
   has_one :logradouro, through: :pessoa
   has_one :bairro, through: :logradouro

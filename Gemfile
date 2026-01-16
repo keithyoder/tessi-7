@@ -51,11 +51,14 @@ gem 'mtik'
 gem 'net-ftp'
 gem 'net-ping'
 gem 'net-ssh'
+gem 'nfcom', git: 'https://github.com/keithyoder/nfcom-ruby.git'
+#gem 'nfcom', path: '../nfcom-ruby'
 gem 'nokogiri', force_ruby_platform: true
 gem 'oauth2'
 gem 'pg'
 gem 'phonelib'
 gem 'popper_js'
+gem 'prawn-qrcode'
 gem 'prawn-rails'
 gem 'prawn-svg'
 gem 'qbo_api'
@@ -86,6 +89,7 @@ group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem 'annotate'
   gem 'debug', platforms: %i[mri mingw x64_mingw]
+  gem 'dotenv-rails'
   gem 'rubocop'
   gem 'rubocop-rails'
 end

@@ -87,9 +87,18 @@ class Fatura < ApplicationRecord # rubocop:disable Metrics/ClassLength
   scope :vencidas, -> { where('vencimento < ?', 1.day.ago).em_aberto }
   scope :a_vencer, -> { where('vencimento > ?', Date.today).em_aberto }
   scope :sem_nota, lambda {
-                     left_joins(:nf21).joins(:contrato).where('contratos.emite_nf').group('faturas.id').having('count(nf21s.*) = 0')
-                   }
-  scope :notas_a_emitir, ->(range) { where(liquidacao: range).where('vencimento > ?', 3.months.ago).sem_nota }
+    left_joins(:nf21).joins(:contrato).where('contratos.emite_nf').group('faturas.id').having('count(nf21s.*) = 0')
+  }
+  scope :sem_nfcom_nota, lambda {
+    joins(:contrato)
+      .where(contratos: { emite_nf: true })
+      .where.not(
+        id: NfcomNota
+          .where(status: 'authorized')
+          .select(:fatura_id)
+      )
+  }
+  scope :notas_a_emitir, ->(range) { where(liquidacao: range).where('vencimento > ?', 3.months.ago).sem_nfcom_nota }
 
   scope :com_associacoes, lambda {
     includes(

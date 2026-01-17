@@ -1,16 +1,11 @@
 class NfcomNotasController < ApplicationController
-  before_action :set_nfcom_nota, only: [:show_pdf]
+  before_action :set_nfcom_nota, only: [:show]
+  load_and_authorize_resource
 
   def show
-    pdf = NfcomPdf.new(@nfcom_nota).render
-
     respond_to do |format|
-      format.pdf do
-        send_data pdf,
-                  filename: "NFCom-#{@nfcom_nota.numero}-#{@nfcom_nota.serie}.pdf",
-                  type: 'application/pdf',
-                  disposition: 'inline'
-      end
+      format.pdf
+      format.html { redirect_to nfcom_nota_path(@nfcom_nota, format: :pdf) }
     end
   end
 

@@ -21,5 +21,5 @@ Nfcom.configure do |config|
   config.serie_padrao = 1
   config.timeout = 60
   config.max_tentativas = 3
-  config.log_level = :debug
+  config.log_level = :info
 end

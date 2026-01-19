@@ -38,3 +38,11 @@
 !/app/assets/builds/.keep
 
 /node_modules
+
+/config/certificados/*.pfx
+/config/certificados/*.p12
+/config/certificados/*.pem
+
+.env
+.env.local
+.env.*.local

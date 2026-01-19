@@ -100,17 +100,22 @@ class Fatura < ApplicationRecord # rubocop:disable Metrics/ClassLength
   }
   scope :notas_a_emitir, ->(range) { where(liquidacao: range).where('vencimento > ?', 3.months.ago).sem_nfcom_nota }
 
-  scope :com_associacoes, lambda {
-    includes(
-      contrato: {
-        pessoa: {
+  scope :com_associacoes, -> {
+    eager_load(
+      :pagamento_perfil,
+      contrato: [
+        :plano,
+        :conexoes,
+        pessoa: [
+          :estado,
+          :cidade,
           logradouro: {
             bairro: {
               cidade: :estado
             }
           }
-        }
-      }
+        ]
+      ]
     )
   }
 
@@ -185,15 +190,19 @@ class Fatura < ApplicationRecord # rubocop:disable Metrics/ClassLength
   end
 
   def cfop
-    cfop = if pessoa.cidade.estado.sigla == 'PE'
-             5300
-           else
-             6300
-           end
-    if pessoa.ie.present?
-      cfop + 3
+    pessoa_obj = contrato.pessoa
+    estado_sigla = pessoa_obj.logradouro.bairro.cidade.estado.sigla
+    
+    cfop_base = if estado_sigla == 'PE'
+                  5300
+                else
+                  6300
+                end
+    
+    if pessoa_obj.ie.present?
+      cfop_base + 3
     else
-      cfop + 7
+      cfop_base + 7
     end
   end
 

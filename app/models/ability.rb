@@ -4,35 +4,10 @@ class Ability
   include CanCan::Ability
 
   def initialize(user)
-    # Define abilities for the passed in user here. For example:
-    #
-    #   user ||= User.new # guest user (not logged in)
-    #   if user.admin?
-    #     can :manage, :all
-    #   else
-    #     can :read, :all
-    #   end
-    #
-    # The first argument to `can` is the action you are giving the user
-    # permission to do.
-    # If you pass :manage it will apply to every action. Other common actions
-    # here are :read, :create, :update and :destroy.
-    #
-    # The second argument is the resource the user can perform the action on.
-    # If you pass :all it will apply to every resource. Otherwise pass a Ruby
-    # class of the resource.
-    #
-    # The third argument is an optional hash of conditions to further filter the
-    # objects.
-    # For example, here the user can only update published articles.
-    #
-    #   can :update, Article, :published => true
-    #
-    # See the wiki for details:
-    # https://github.com/CanCanCommunity/cancancan/wiki/Defining-Abilities
     return if user.blank?
 
     todos(user) if user.role?
+
     if user.admin?
       admin
     elsif user.tecnico_n1?
@@ -53,22 +28,30 @@ class Ability
     can :suspenso, Conexao
     can %i[boletos renovar], Contrato
     can %i[udate liquidacao boleto], Fatura
-    can :encerrar, Atendimento.por_responsavel(user).abertos
+
+    # Only allow encerrar on Atendimento assigned to the user and not closed
+    can :encerrar, Atendimento, responsavel_id: user.id, fechamento: nil
+
     can :mapa, Servidor
-    can %i[create update], [Bairro, Logradouro, Conexao, Pessoa, Os, Atendimento, AtendimentoDetalhe]
+    can %i[create update], [Bairro, Logradouro, Conexao, Pessoa, Os, AtendimentoDetalhe]
     can :impressao, Os
-    cannot :update, Os.fechadas
+
+    # Avoid loading all closed OS into memory: use SQL-friendly condition
+    cannot :update, Os, ["fechamento IS NOT NULL"]
+
     can :create, [Excecao]
   end
 
   def admin
     can :manage, :all
+
+    # Only block destroying Estado or closing already closed Atendimento
     cannot :destroy, Estado
-    cannot :encerrar, Atendimento.fechados
+    cannot :encerrar, Atendimento, ["fechamento IS NOT NULL"]
   end
 
   def tecnico_n1
-    can [:update], [FibraCaixa]
+    can :update, [FibraCaixa]
     can %i[create update], Conexao
   end
 

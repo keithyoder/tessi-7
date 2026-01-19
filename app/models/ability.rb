@@ -37,7 +37,7 @@ class Ability
     can :impressao, Os
 
     # Avoid loading all closed OS into memory: use SQL-friendly condition
-    cannot :update, Os, ["fechamento IS NOT NULL"]
+    cannot :update, Os, fechamento: nil
 
     can :create, [Excecao]
   end

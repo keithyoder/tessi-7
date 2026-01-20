@@ -7,7 +7,7 @@ class GerencianetBaixarBoletoJob < ApplicationJob
       id: id_externo
     }
       
-    GerencianetClient.cliente.settle_charge(params: params)
+    GerencianetClient.cliente.settleCharge(params: params)
   end
 end
   

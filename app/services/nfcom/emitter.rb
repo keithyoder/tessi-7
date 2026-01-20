@@ -2,12 +2,14 @@
 
 module Nfcom
   class Emitter
+    PUBLIC_KEYWORDS = ["fundo municipal"].freeze
+
     def initialize(client: Nfcom::Client.new)
       @client = client
     end
 
     # Emit a NFCom for a given fatura_id
-    # Returns the Nfcom record (with status: 'authorized' or 'rejected')
+    # Returns the NfcomNota record (with status: 'authorized' or 'rejected')
     def emitir(fatura_id)
       fatura = Fatura.com_associacoes.find(fatura_id)
 
@@ -50,11 +52,19 @@ module Nfcom
     private
 
     def criar_registro(fatura)
+      competencia_date = fatura.liquidacao || fatura.vencimento
+
+      # Ensure unpaid faturas are in the current month
+      if fatura.valor_liquidacao.blank? &&
+         (competencia_date.month != Date.current.month || competencia_date.year != Date.current.year)
+        raise "Não é possível emitir NF para Faturas não pagas fora do mês corrente"
+      end
+
       NfcomNota.create!(
         fatura: fatura,
         serie: 1,
-        numero: NfcomNota.proximo_numero(1), # Auto-increment
-        competencia: Date.parse("#{fatura.liquidacao.strftime('%Y-%m')}-01"),
+        numero: NfcomNota.proximo_numero(1),
+        competencia: Date.parse("#{competencia_date.strftime('%Y-%m')}-01"),
         valor_total: fatura.base_calculo_icms,
         status: 'pending'
       )
@@ -63,34 +73,19 @@ module Nfcom
     def build_nota(nfcom_record:, fatura:, contrato:, pessoa:)
       nota = Nfcom::Models::Nota.new
 
-      # Use numero from database
       nota.numero = nfcom_record.numero
       nota.serie = nfcom_record.serie
-
-      # Fixed: use symbols, not integers
       nota.tipo_emissao = :normal
       nota.finalidade = :normal
       nota.data_emissao = Time.current
 
-      # Emitente
       nota.emitente = build_emitente
-
-      # Destinatário
       nota.destinatario = build_destinatario(pessoa)
-
-      # Assinante
       nota.assinante = build_assinante(pessoa, contrato)
-
-      # Fatura
       nota.fatura = build_fatura(fatura)
-
-      # Item
       add_item(nota, fatura, contrato)
 
-      # Recalculate totals
       nota.recalcular_totais
-
-      # Informacoes Complementares
       nota.informacoes_adicionais = build_informacoes_adicionais(fatura)
 
       nota
@@ -107,7 +102,6 @@ module Nfcom
         nome_fantasia: 'Tessi Telecom'
       )
 
-      #municipio = Cidade.find_by(nome: 'Pesqueira')
       emitente.endereco = Nfcom::Models::Endereco.new(
         logradouro: 'Rua Treze de Maio',
         numero: '5',
@@ -143,7 +137,7 @@ module Nfcom
       bairro = logradouro.bairro
       cidade = bairro.cidade
       estado = cidade.estado
-      
+
       destinatario.endereco = Nfcom::Models::Endereco.new(
         logradouro: logradouro.nome,
         numero: pessoa.numero.presence || 0,
@@ -158,13 +152,17 @@ module Nfcom
     end
 
     def build_assinante(pessoa, contrato)
+      tipo = if PUBLIC_KEYWORDS.any? { |kw| pessoa.nome.downcase.include?(kw.downcase) }
+               Nfcom::Models::Assinante::TIPO_ORGAO_PUBLICO
+             elsif pessoa.pessoa_juridica?
+               Nfcom::Models::Assinante::TIPO_COMERCIAL
+             else
+               Nfcom::Models::Assinante::TIPO_RESIDENCIAL
+             end
+
       Nfcom::Models::Assinante.new(
         codigo: pessoa.id.to_s,
-        tipo: if pessoa.pessoa_juridica?
-                Nfcom::Models::Assinante::TIPO_COMERCIAL
-              else
-                Nfcom::Models::Assinante::TIPO_RESIDENCIAL
-              end,
+        tipo: tipo,
         tipo_servico: Nfcom::Models::Assinante::SERVICO_INTERNET,
         numero_contrato: contrato.id.to_s,
         data_inicio_contrato: contrato.adesao,
@@ -173,8 +171,10 @@ module Nfcom
     end
 
     def build_fatura(fatura)
+      competencia_date = fatura.liquidacao || fatura.vencimento
+
       Nfcom::Models::Fatura.new(
-        competencia: fatura.liquidacao.strftime('%Y-%m'),
+        competencia: competencia_date.strftime('%Y-%m'),
         data_vencimento: fatura.vencimento,
         valor_fatura: fatura.base_calculo_icms,
         codigo_barras: fatura.codigo_de_barras,
@@ -198,7 +198,6 @@ module Nfcom
     def build_informacoes_adicionais(fatura)
       info = []
 
-      # Service installation address (if different from customer address)
       if fatura.contrato.endereco_instalacao_diferente?
         info << 'Endereço de Instalação:'
         fatura.contrato.enderecos.each do |endereco|
@@ -206,25 +205,20 @@ module Nfcom
         end
       end
 
-      # Simples Nacional info
       info << 'Documento emitido por ME ou EPP optante pelo Simples Nacional.'
       info << 'Não gera direito a crédito fiscal de IPI.'
-
-      # Tax transparency (REQUIRED by Law 12.741/2012)
       info << 'Valor aproximado dos Tributos: Federal 13,45%, Municipal 2,00%. Fonte: IBPT (Lei 12.741/2012)'
 
       info.join("\n")
     end
 
     def corrigir_juros_desconto(fatura)
-      # Only correct if they paid less than full value AND have juros recorded
       return unless fatura.valor_liquidacao.present?
       return unless fatura.valor_liquidacao < fatura.valor
-      return unless fatura.juros_recebidos.to_f > 0
-      
-      # Calculate the actual discount given
+      return unless fatura.juros_recebidos.to_f.positive?
+
       desconto_real = fatura.valor - fatura.valor_liquidacao
-      
+
       Rails.logger.warn "=" * 60
       Rails.logger.warn "CORREÇÃO AUTOMÁTICA - Fatura ##{fatura.id}"
       Rails.logger.warn "  Valor original: R$ #{fatura.valor}"
@@ -232,16 +226,14 @@ module Nfcom
       Rails.logger.warn "  Juros incorretos: R$ #{fatura.juros_recebidos}"
       Rails.logger.warn "  Desconto anterior: R$ #{fatura.desconto_concedido || 0}"
       Rails.logger.warn "  Base ICMS antes: R$ #{fatura.base_calculo_icms}"
-      
-      # Fix: set juros to 0 and desconto to the actual amount discounted
+
       fatura.update_columns(
         juros_recebidos: 0,
         desconto_concedido: desconto_real
       )
-      
-      # Reload to get corrected values
+
       fatura.reload
-      
+
       Rails.logger.warn "  Desconto corrigido: R$ #{fatura.desconto_concedido}"
       Rails.logger.warn "  Base ICMS depois: R$ #{fatura.base_calculo_icms}"
       Rails.logger.warn "=" * 60

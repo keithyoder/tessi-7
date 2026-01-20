@@ -26,7 +26,7 @@ GIT
 
 GIT
   remote: https://github.com/keithyoder/nfcom-ruby.git
-  revision: bbb991e8bc67d2fe9ccb8f739fbbd0a96bdea1b1
+  revision: c539f148dd33a89baa1d31a20ca6ccb6c71da2f8
   specs:
     nfcom (0.1.1)
       nokogiri (>= 1.15.7, < 2.0)

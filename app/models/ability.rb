@@ -4,26 +4,27 @@ class Ability
   include CanCan::Ability
 
   def initialize(user)
-    return if user.blank?
+    return unless user.present?
 
-    todos(user) if user.role?
+    general_permissions(user) if user.role?
 
     if user.admin?
-      admin
+      admin_permissions
     elsif user.tecnico_n1?
-      tecnico_n1
+      tecnico_n1_permissions
     elsif user.tecnico_n2?
-      tecnico_n2
+      tecnico_n2_permissions
     elsif user.financeiro_n1?
-      financeiro_n1
+      financeiro_n1_permissions
     elsif user.financeiro_n2?
-      financeiro_n2
+      financeiro_n2_permissions
     end
   end
 
   private
 
-  def todos(user)
+  # Common permissions for all users with a role
+  def general_permissions(user)
     can :read, :all
     can :suspenso, Conexao
     can %i[boletos renovar], Contrato
@@ -33,41 +34,42 @@ class Ability
     can :encerrar, Atendimento, responsavel_id: user.id, fechamento: nil
 
     can :mapa, Servidor
-    can %i[create update], [Bairro, Logradouro, Conexao, Pessoa, Os, AtendimentoDetalhe, Atendimento]
+    can %i[create update], [Bairro, Logradouro, Conexao, Pessoa, Os, Atendimento, AtendimentoDetalhe]
     can :impressao, Os
+    can :create, Excecao
 
-    # Avoid loading all closed OS into memory: use SQL-friendly condition
-    cannot :update, Os, fechamento: nil
-
-    can :create, [Excecao]
+    cannot :update, Os, ["fechamento IS NOT NULL"]
   end
 
-  def admin
+  # Admin permissions
+  def admin_permissions
     can :manage, :all
-
-    # Only block destroying Estado or closing already closed Atendimento
     cannot :destroy, Estado
     cannot :encerrar, Atendimento, ["fechamento IS NOT NULL"]
   end
 
-  def tecnico_n1
-    can :update, [FibraCaixa]
+  # Level 1 technician
+  def tecnico_n1_permissions
+    can :update, FibraCaixa
     can %i[create update], Conexao
   end
 
-  def tecnico_n2
+  # Level 2 technician
+  def tecnico_n2_permissions
     can :update, [Cidade, Ponto, Servidor]
     can %i[create update], [FibraRede, FibraCaixa, IpRede, Conexao, Equipamento]
     can :destroy, Conexao
     can %i[backup backups], Servidor
   end
 
-  def financeiro_n1
+  # Level 1 financial
+  def financeiro_n1_permissions
     can %i[update liquidacao], Fatura
-    can %i[termo], [Contrato]
+    can :termo, Contrato
   end
 
-  def financeiro_n2
+  # Level 2 financial
+  def financeiro_n2_permissions
     can :update, Cidade
     can :destroy, Conexao
     can %i[update liquidacao estornar cancelar gerar_nf], Fatura

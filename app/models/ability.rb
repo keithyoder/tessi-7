@@ -33,7 +33,7 @@ class Ability
     can :encerrar, Atendimento, responsavel_id: user.id, fechamento: nil
 
     can :mapa, Servidor
-    can %i[create update], [Bairro, Logradouro, Conexao, Pessoa, Os, AtendimentoDetalhe]
+    can %i[create update], [Bairro, Logradouro, Conexao, Pessoa, Os, AtendimentoDetalhe, Atendimento]
     can :impressao, Os
 
     # Avoid loading all closed OS into memory: use SQL-friendly condition

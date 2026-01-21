@@ -37,15 +37,14 @@ class Ability
     can %i[create update], [Bairro, Logradouro, Conexao, Pessoa, Os, Atendimento, AtendimentoDetalhe]
     can :impressao, Os
     can :create, Excecao
-
-    cannot :update, Os, ["fechamento IS NOT NULL"]
+    can :update, Os, fechamento: nil
   end
 
   # Admin permissions
   def admin_permissions
     can :manage, :all
     cannot :destroy, Estado
-    cannot :encerrar, Atendimento, ["fechamento IS NOT NULL"]
+    can :encerrar, Atendimento, fechamento: nil
   end
 
   # Level 1 technician
@@ -73,8 +72,8 @@ class Ability
     can :update, Cidade
     can :destroy, Conexao
     can %i[update liquidacao estornar cancelar gerar_nf], Fatura
-    can %i[create update autentique], [Retorno, Contrato]
-    can %i[destroy termo pendencias], Contrato
+    can %i[create update], [Retorno, Contrato]
+    can %i[destroy termo pendencias autentique trocado], Contrato
     can :remessa, PagamentoPerfil
   end
 end

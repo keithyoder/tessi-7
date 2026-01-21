@@ -119,6 +119,19 @@ class Conexao < ApplicationRecord
       .limit(20)
   }
 
+  scope :para_logradouro, lambda { |logradouro_id|
+    left_joins(:pessoa).where(
+      <<~SQL,
+        conexoes.logradouro_id = :id
+        OR (
+          conexoes.logradouro_id IS NULL
+          AND pessoas.logradouro_id = :id
+        )
+    SQL
+      id: logradouro_id
+    )
+  }
+
   attr_accessor :current_user
 
   RADIUS_SENHA = 'Cleartext-Password'

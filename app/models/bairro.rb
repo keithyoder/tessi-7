@@ -20,26 +20,34 @@
 #
 #  fk_rails_...  (cidade_id => cidades.id)
 #
-require 'csv'
 
 class Bairro < ApplicationRecord
   belongs_to :cidade
   has_one :estado, through: :cidade
+
   has_many :logradouros
   has_many :assinantes,
            -> { assinantes },
            source: :pessoas,
            through: :logradouros
-
   has_many :conexoes, through: :assinantes
+
   geocoded_by :nome_cidade_uf
-  after_validation :geocode
+  after_validation :geocode, if: :should_geocode?
+
+  RANSACKABLE_ATTRIBUTES = %w[nome].freeze
 
   def nome_cidade_uf
     "#{nome} - #{cidade.nome_uf}"
   end
 
-  def self.ransackable_attributes(auth_object = nil)
-    ["nome"]
+  def self.ransackable_attributes(_auth_object = nil)
+    RANSACKABLE_ATTRIBUTES
+  end
+
+  private
+
+  def should_geocode?
+    nome_changed? || cidade_id_changed?
   end
 end

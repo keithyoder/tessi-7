@@ -9,105 +9,122 @@ module Faturas
   # - meses_por_fatura = 1 → Jan 10 – Feb 9
   # - meses_por_fatura = 3 → Jan 10 – Apr 9
   #
-  # Este serviço NÃO realiza rateio parcial de mês. Para isso, use Faturas::PeriodoUtilizado.
+  # Este serviço NÃO realiza rateio parcial de mês.
   #
   class GerarService
-    # Interface de chamada principal
-    #
-    # @param contrato [Contrato] contrato para gerar faturas
-    # @param quantidade [Integer] quantidade de faturas a gerar
-    # @param meses_por_fatura [Integer] meses cobertos por cada fatura
-    # @return [Array<Fatura>] faturas geradas
+    InvalidParams = Class.new(StandardError)
+    MissingPagamentoPerfil = Class.new(StandardError)
+
     def self.call(contrato:, quantidade: 1, meses_por_fatura: 1)
       new(contrato, quantidade, meses_por_fatura).call
     end
 
     def initialize(contrato, quantidade, meses_por_fatura)
-      @contrato          = contrato
-      @quantidade        = quantidade.to_i
-      @meses_por_fatura  = (meses_por_fatura.presence || 1).to_i
+      @contrato         = contrato
+      @quantidade       = quantidade.to_i
+      @meses_por_fatura = (meses_por_fatura.presence || 1).to_i
     end
 
-    # Executa a geração das faturas
-    #
-    # Retorna nil se quantidade ou meses_por_fatura forem <= 0
-    def call # rubocop:disable Metrics/MethodLength
-      return if quantidade <= 0 || meses_por_fatura <= 0
-
-      faturas_geradas = []
+    def call
+      validate!
 
       ActiveRecord::Base.transaction do
-        # Inicializa a próxima parcela e o próximo nosso número
-        parcela_atual      = contrato.faturas.maximum(:parcela) || 0
-        nossonumero_atual  = contrato.pagamento_perfil.proximo_nosso_numero
-
-        quantidade.times do
-          parcela_atual += 1
-          nossonumero_atual += 1
-
-          fatura = gerar_proxima_fatura(parcela_atual, nossonumero_atual)
-          faturas_geradas << fatura
-        end
+        inicializar_estado
+        gerar_faturas
       end
-
-      faturas_geradas
     end
 
     private
 
     attr_reader :contrato, :quantidade, :meses_por_fatura
 
-    # Gera a próxima fatura usando a parcela e nossonumero informados
-    def gerar_proxima_fatura(parcela, nossonumero) # rubocop:disable Metrics/MethodLength
-      inicio = data_inicio_proxima_fatura
-      fim    = fim_do_periodo(inicio)
+    # ----------------------------------------------------------------------
+    # Inicialização de estado
+    # ----------------------------------------------------------------------
 
-      # Calcula valor da fatura considerando mensalidade e parcelas de instalação
-      valor = valor_da_fatura(parcela)
+    def inicializar_estado
+      @parcela_atual =
+        contrato.faturas.maximum(:parcela) || 0
 
-      contrato.faturas.create!(
+      @nossonumero_atual =
+        contrato.pagamento_perfil.proximo_nosso_numero.to_i
+
+      @ultima_fatura =
+        contrato.faturas.order(:periodo_fim).last
+    end
+
+    # ----------------------------------------------------------------------
+    # Execução principal
+    # ----------------------------------------------------------------------
+
+    def gerar_faturas
+      Array.new(quantidade) { gerar_proxima_fatura }
+    end
+
+    def gerar_proxima_fatura
+      @parcela_atual     += 1
+      @nossonumero_atual += 1
+
+      inicio = proximo_periodo_inicio
+      fim    = proximo_periodo_fim(inicio)
+
+      fatura = contrato.faturas.create!(
         periodo_inicio: inicio,
         periodo_fim: fim,
-        valor: valor,
-        valor_original: valor,
-        parcela: parcela,
-        nossonumero: nossonumero,
+        valor: valor_atual(@parcela_atual),
+        valor_original: valor_atual(@parcela_atual),
+        parcela: @parcela_atual,
+        nossonumero: @nossonumero_atual.to_s,
         pagamento_perfil: contrato.pagamento_perfil,
         vencimento: fim,
         vencimento_original: fim
       )
+
+      @ultima_fatura = fatura
+      fatura
     end
 
-    # Data de início do próximo período de fatura
-    #
-    # Se já houver faturas, começa um dia após a última fatura.
-    # Caso contrário, inicia na data de adesão do contrato.
-    def data_inicio_proxima_fatura
-      ultima_fatura = contrato.faturas.order(:periodo_fim).last
-      ultima_fatura ? ultima_fatura.periodo_fim + 1.day : contrato.adesao
+    # ----------------------------------------------------------------------
+    # Domínio
+    # ----------------------------------------------------------------------
+
+    def proximo_periodo_inicio
+      @ultima_fatura ? @ultima_fatura.periodo_fim + 1.day : contrato.adesao
     end
 
-    # Data final do período da fatura
-    #
-    # Considera a quantidade de meses por fatura e subtrai 1 dia
-    def fim_do_periodo(inicio)
-      inicio.advance(months: meses_por_fatura) - 1.day
-    end
+    def proximo_periodo_fim(inicio)
+      fim_base = inicio.advance(months: meses_por_fatura)
 
-    # Valor total da fatura considerando mensalidade e parcela de instalação
-    def valor_da_fatura(parcela_num)
-      contrato.mensalidade * meses_por_fatura + parcela_instalacao(parcela_num)
-    end
-
-    # Calcula a parcela de instalação para a fatura atual
-    #
-    # Só é aplicada nas primeiras faturas, de acordo com parcelas_instalacao
-    def parcela_instalacao(parcela_num)
-      if contrato.parcelas_instalacao.to_i.positive? && parcela_num <= contrato.parcelas_instalacao
-        (contrato.valor_instalacao / contrato.parcelas_instalacao).round(2)
+      if inicio == inicio.end_of_month
+        fim_base.end_of_month
       else
-        0
+        fim_base - 1.day
       end
+    end
+
+    def valor_atual(parcela)
+      (contrato.mensalidade * meses_por_fatura) + parcela_instalacao(parcela)
+    end
+
+    def parcela_instalacao(parcela)
+      return 0 unless aplica_instalacao?(parcela)
+
+      (contrato.valor_instalacao / contrato.parcelas_instalacao).round(2)
+    end
+
+    def aplica_instalacao?(parcela)
+      contrato.parcelas_instalacao.to_i.positive? &&
+        parcela <= contrato.parcelas_instalacao
+    end
+
+    # ----------------------------------------------------------------------
+    # Validações
+    # ----------------------------------------------------------------------
+
+    def validate!
+      raise InvalidParams, 'Quantidade inválida' if quantidade <= 0
+      raise InvalidParams, 'Meses por fatura inválido' if meses_por_fatura <= 0
+      raise MissingPagamentoPerfil if contrato.pagamento_perfil.blank?
     end
   end
 end

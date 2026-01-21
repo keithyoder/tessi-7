@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # spec/services/faturas/gerar_service_spec.rb
 require 'rails_helper'
 
@@ -27,6 +29,7 @@ RSpec.describe Faturas::GerarService do
 
       it 'cria exatamente 1 fatura' do
         ultima_contagem = contrato.faturas.count
+        faturas
         expect(contrato.faturas.count).to eq(ultima_contagem + 1)
       end
 
@@ -95,6 +98,28 @@ RSpec.describe Faturas::GerarService do
 
         expect(f1.nossonumero.to_i).to eq(ultima_nosso + 1)
         expect(f2.nossonumero.to_i).to eq(ultima_nosso + 2)
+      end
+
+      it 'não gera períodos encurtados quando o mês anterior termina no dia 30 ou 31' do
+        contrato.faturas.destroy_all
+        contrato.faturas.create!(
+          periodo_inicio: Date.new(2026, 1, 1),
+          periodo_fim: Date.new(2026, 1, 30),
+          valor: 100,
+          parcela: 1,
+          nossonumero: 1,
+          pagamento_perfil: contrato.pagamento_perfil,
+          vencimento: Date.new(2026, 1, 30)
+        )
+
+        f2 = described_class.call(
+          contrato: contrato,
+          quantidade: 1,
+          meses_por_fatura: 1
+        ).first
+
+        expect(f2.periodo_inicio).to eq(Date.new(2026, 1, 31))
+        expect(f2.periodo_fim).to eq(Date.new(2026, 2, 28))
       end
     end
 

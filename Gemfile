@@ -52,7 +52,7 @@ gem 'net-ftp'
 gem 'net-ping'
 gem 'net-ssh'
 gem 'nfcom', git: 'https://github.com/keithyoder/nfcom-ruby.git'
-#gem 'nfcom', path: '../nfcom-ruby'
+# gem 'nfcom', path: '../nfcom-ruby'
 gem 'nokogiri', force_ruby_platform: true
 gem 'oauth2'
 gem 'pg'
@@ -108,6 +108,8 @@ end
 group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem 'capybara'
+  gem 'factory_bot_rails'
+  gem 'rspec-rails'
   gem 'selenium-webdriver'
   gem 'webdrivers'
 end

@@ -35,7 +35,7 @@ module Spec
       )
     end
 
-    def any_contrato(attrs = {}) # rubocop:disable Metrics/MethodLength
+    def any_contrato(attrs = {})
       adesao_date = attrs.delete(:adesao) || Date.new(2026, 1, 10)
 
       create(
@@ -84,6 +84,16 @@ module Spec
       )
 
       contrato
+    end
+
+    def admin_user(attrs = {})
+      create(
+        :user,
+        {
+          role: :admin,
+          confirmed_at: Time.current
+        }.merge(attrs)
+      )
     end
   end
 end

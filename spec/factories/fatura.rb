@@ -3,8 +3,8 @@
 FactoryBot.define do
   factory :fatura do
     contrato { association :contrato, pessoa: nil, plano: nil } # will use any_contrato
-    periodo_inicio { Date.today.beginning_of_month }
-    periodo_fim { Date.today.end_of_month }
+    periodo_inicio { Time.zone.today.beginning_of_month }
+    periodo_fim { Time.zone.today.end_of_month }
     valor { 100.0 }
     vencimento { fim }
     nossonumero { nil }

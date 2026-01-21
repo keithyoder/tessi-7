@@ -2,7 +2,7 @@
 
 module Nfcom
   class Emitter
-    PUBLIC_KEYWORDS = ["fundo municipal"].freeze
+    PUBLIC_KEYWORDS = ['fundo municipal'].freeze
 
     def initialize(client: Nfcom::Client.new)
       @client = client
@@ -37,7 +37,7 @@ module Nfcom
           xml: nota.xml_autorizado
         )
       else
-        nfcom_record&.rejeitar!("#{resultado[:mensagem_sefaz]}")
+        nfcom_record&.rejeitar!(resultado[:mensagem_sefaz].to_s)
       end
 
       nfcom_record
@@ -57,7 +57,7 @@ module Nfcom
       # Ensure unpaid faturas are in the current month
       if fatura.valor_liquidacao.blank? &&
          (competencia_date.month != Date.current.month || competencia_date.year != Date.current.year)
-        raise "Não é possível emitir NF para Faturas não pagas fora do mês corrente"
+        raise 'Não é possível emitir NF para Faturas não pagas fora do mês corrente'
       end
 
       NfcomNota.create!(
@@ -106,7 +106,7 @@ module Nfcom
         logradouro: 'Rua Treze de Maio',
         numero: '5',
         bairro: 'Centro',
-        codigo_municipio: 2610905,
+        codigo_municipio: 2_610_905,
         municipio: 'Pesqueira',
         uf: 'PE',
         cep: '55200000'
@@ -213,13 +213,13 @@ module Nfcom
     end
 
     def corrigir_juros_desconto(fatura)
-      return unless fatura.valor_liquidacao.present?
+      return if fatura.valor_liquidacao.blank?
       return unless fatura.valor_liquidacao < fatura.valor
       return unless fatura.juros_recebidos.to_f.positive?
 
       desconto_real = fatura.valor - fatura.valor_liquidacao
 
-      Rails.logger.warn "=" * 60
+      Rails.logger.warn '=' * 60
       Rails.logger.warn "CORREÇÃO AUTOMÁTICA - Fatura ##{fatura.id}"
       Rails.logger.warn "  Valor original: R$ #{fatura.valor}"
       Rails.logger.warn "  Valor pago: R$ #{fatura.valor_liquidacao}"
@@ -236,7 +236,7 @@ module Nfcom
 
       Rails.logger.warn "  Desconto corrigido: R$ #{fatura.desconto_concedido}"
       Rails.logger.warn "  Base ICMS depois: R$ #{fatura.base_calculo_icms}"
-      Rails.logger.warn "=" * 60
+      Rails.logger.warn '=' * 60
     end
   end
 end

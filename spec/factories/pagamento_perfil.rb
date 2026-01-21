@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # spec/factories/pagamento_perfis.rb
 FactoryBot.define do
   factory :pagamento_perfil do

@@ -90,7 +90,7 @@ RSpec.describe Faturas::PeriodoUtilizado do
       end
     end
 
-    context 'garantias numéricas' do
+    context 'para garantias numéricas' do
       let(:inicio) { Date.new(2026, 1, 10) }
 
       it 'nunca retorna valor negativo' do

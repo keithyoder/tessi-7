@@ -53,10 +53,10 @@ module Contratos
     #
     def remover_faturas_futuras_nao_registradas
       contrato.faturas
-              .nao_pagas
-              .nao_registradas
-              .where('periodo_inicio >= ?', data_cancelamento)
-              .destroy_all
+        .nao_pagas
+        .nao_registradas
+        .where(periodo_inicio: data_cancelamento..)
+        .destroy_all
     end
 
     # Marca como canceladas as faturas que:
@@ -69,10 +69,10 @@ module Contratos
     #
     def cancelar_faturas_futuras_registradas
       contrato.faturas
-              .registradas
-              .nao_pagas
-              .where('periodo_inicio >= ?', data_cancelamento)
-              .update_all(cancelamento: Time.current)
+        .registradas
+        .nao_pagas
+        .where(periodo_inicio: data_cancelamento..)
+        .update_all(cancelamento: Time.current)
     end
 
     # Ajusta o valor da fatura referente ao período em que
@@ -104,9 +104,9 @@ module Contratos
     #
     def faturas_parciais
       contrato.faturas
-              .nao_pagas
-              .nao_registradas
-              .where('? BETWEEN periodo_inicio AND periodo_fim', data_cancelamento)
+        .nao_pagas
+        .nao_registradas
+        .where('? BETWEEN periodo_inicio AND periodo_fim', data_cancelamento)
     end
   end
 end

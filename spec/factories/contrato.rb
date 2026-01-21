@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :contrato do
     # Associations
@@ -5,6 +7,6 @@ FactoryBot.define do
     plano  { association :plano }
 
     # Attributes
-    adesao { Date.today }
+    adesao { Time.zone.today }
   end
 end

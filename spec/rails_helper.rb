@@ -50,6 +50,8 @@ RSpec.configure do |config|
     ]
   )
 
+  config.include Devise::Test::ControllerHelpers, type: :controller
+
   #
   # === Custom helpers ===
   #

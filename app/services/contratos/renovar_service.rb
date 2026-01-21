@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Contratos
   # Serviço para renovar um contrato gerando as faturas necessárias.
   #
@@ -47,7 +49,7 @@ module Contratos
     end
 
     def fim_contrato
-      Date.today.advance(months: contrato.prazo_meses)
+      Time.zone.today.advance(months: contrato.prazo_meses)
     end
 
     def gerar_faturas_necessarias(meses_restantes)
@@ -65,7 +67,7 @@ module Contratos
     # @param fim [Date] data final
     # @return [Integer] quantidade de meses completos entre as datas
     def months_between(inicio, fim)
-      (fim.year * 12 + fim.month) - (inicio.year * 12 + inicio.month) + (fim.day >= inicio.day ? 0 : -1)
+      ((fim.year * 12) + fim.month) - ((inicio.year * 12) + inicio.month) + (fim.day >= inicio.day ? 0 : -1)
     end
   end
 end

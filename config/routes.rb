@@ -39,13 +39,17 @@ Rails.application.routes.draw do # rubocop:disable Metrics/BlockLength
   patch '/contratos/:id/assinatura' => 'contratos#update_assinatura'
   resources :contratos do
     get :boletos, on: :member
-    get :renovar, on: :member
     get :termo, on: :member
     get :churn, on: :collection
     get :assinatura, on: :member
     get :autentique, on: :member
     get :pendencias, on: :collection
     get :trocado, on: :member
+
+    member do
+      post :renovacao, to: 'contratos/renovacoes#create'
+    end
+
     resources :pix_automatico, only: %i[new create index]
   end
   resources :conexoes do

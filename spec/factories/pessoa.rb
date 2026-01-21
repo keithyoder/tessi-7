@@ -4,7 +4,7 @@ FactoryBot.define do
   factory :pessoa do
     nome { 'Pessoa Default' }
     telefone1 { '11987654321' }
-    logradouro { create(:logradouro) }
+    logradouro
 
     # Subfactory for pessoa física (optional, mostly redundant here)
     factory :pessoa_fisica do

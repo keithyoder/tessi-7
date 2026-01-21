@@ -57,7 +57,7 @@ ul.nav.nav-pills
             = link_to @contrato.documentos.first['link'], target: "_blank" do
               = render 'shared/field_card', {campo: @contrato.documentos.first['nome'], valor: l(@contrato.documentos.first['data'].to_date)}
         - if can? :renovar, @contrato
-          = link_to renovar_contrato_path do
+          = link_to renovacao_contrato_path do
             = button_tag("Renovar", {:class => "btn btn-success mt-1"}) do
               i.fas.fa-refresh[aria-hidden="true"]
               |  Renovar 

@@ -8,6 +8,8 @@ RSpec.describe Contratos::RenovacoesController, type: :controller do
       :contrato,
       adesao: Date.new(2026, 1, 10),
       prazo_meses: 12,
+      dia_vencimento: 10,
+      primeiro_vencimento: Date.new(2026, 2, 10),
       pagamento_perfil: any_pagamento_perfil
     )
   end

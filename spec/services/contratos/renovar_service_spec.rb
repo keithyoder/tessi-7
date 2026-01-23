@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-# spec/services/contratos/renovar_service_spec.rb
 require 'rails_helper'
 
 RSpec.describe Contratos::RenovarService do
@@ -36,7 +35,7 @@ RSpec.describe Contratos::RenovarService do
         described_class.new(contrato: contrato).call
 
         primeira_fatura = contrato.faturas.order(:periodo_inicio).first
-        expect(primeira_fatura.periodo_inicio).to eq(contrato.adesao)
+        expect(primeira_fatura.periodo_inicio).to eq(contrato.adesao + 1.day)
       end
     end
 

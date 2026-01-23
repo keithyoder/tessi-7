@@ -31,7 +31,7 @@ RSpec.describe Faturas::GerarService do
           expect(fatura.periodo_fim).to eq(contrato.primeiro_vencimento)
           expect(fatura.vencimento).to eq(contrato.primeiro_vencimento)
           expect(fatura.parcela).to eq(1)
-          expect(fatura.valor).to eq(contrato.mensalidade + contrato.valor_instalacao / contrato.parcelas_instalacao)
+          expect(fatura.valor).to eq(contrato.mensalidade + (contrato.valor_instalacao / contrato.parcelas_instalacao))
         end
       end
     end

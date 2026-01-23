@@ -1,5 +1,8 @@
 plugins:
   - rubocop-rspec
+  - rubocop-rails
+  - rubocop-factory_bot
+  - rubocop-capybara
 
 AllCops:
   TargetRubyVersion: 2.7

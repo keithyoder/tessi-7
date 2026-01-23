@@ -50,9 +50,9 @@
       - if @fatura.nf21.present?
         = link_to nf21_path(@fatura.nf21, format: :pdf), target: :blank do
           = render 'shared/field_card', {campo: "Nota Fiscal", valor: @fatura.nf21.numero}
-      - if @fatura.nfcom_notas.first.present?
-        = link_to nfcom_nota_path(@fatura.nfcom_notas.first, format: :pdf), target: :blank do
-          = render 'shared/field_card', {campo: "Nota Fiscal NFCom", valor: @fatura.nfcom_notas.first.numero}
+      - if @fatura.nfcom_notas.authorized.first.present?
+        = link_to nfcom_nota_path(@fatura.nfcom_notas.authorized.first, format: :pdf), target: :blank do
+          = render 'shared/field_card', {campo: "Nota Fiscal NFCom", valor: @fatura.nfcom_notas.authorized.first.numero}
       - if @fatura.retorno.present?
         = render 'shared/field_card', {campo: "Retorno", valor: @fatura.retorno.sequencia, link: @fatura.retorno}
       - if @fatura.registro.present?

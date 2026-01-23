@@ -3,19 +3,18 @@
 require 'nfcom'
 
 Nfcom.configure do |config|
-  # Ambiente
-  config.ambiente = :producao
-  config.estado = 'PE'
-
-  # Certificado digital
-  config.certificado_path = ENV['NFCOM_CERTIFICADO_PATH']
-  config.certificado_senha = ENV['NFCOM_CERTIFICADO_SENHA']
-
-  # Dados do emitente
-  config.cnpj = ENV['NFCOM_CNPJ']
-  config.razao_social = ENV['NFCOM_RAZAO_SOCIAL']
-  config.inscricao_estadual = ENV['NFCOM_INSCRICAO_ESTADUAL']
-  config.regime_tributario = :simples_nacional
+  credentials = Rails.application.credentials.nfcom
+  
+  config.cnpj = credentials[:cnpj]
+  config.inscricao_estadual = credentials[:inscricao_estadual]
+  config.razao_social = credentials[:razao_social]
+  config.regime_tributario = credentials[:regime_tributario]
+  config.estado = credentials[:uf]
+  config.ambiente = credentials[:ambiente]&.to_sym || :homologacao
+  
+  # Certificate configuration
+  config.certificado_path = credentials[:certificado_path]
+  config.certificado_senha = credentials[:certificado_senha]
 
   # Opcional
   config.serie_padrao = 1

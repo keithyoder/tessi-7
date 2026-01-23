@@ -41,16 +41,16 @@ RSpec.describe Faturas::AtualizarValorService, type: :service do
       end
 
       it 'deleta a fatura antiga' do
-        expect {
+        expect do
           described_class.call(fatura: fatura, novo_valor: 150.00)
-        }.to change { Fatura.exists?(fatura.id) }.from(true).to(false)
+        end.to change { Fatura.exists?(fatura.id) }.from(true).to(false)
       end
 
       it 'cria uma nova fatura com o novo valor' do
-        expect {
+        # -1 deleted, +1 created
+        expect do
           described_class.call(fatura: fatura, novo_valor: 150.00)
-        }.to change { contrato.faturas.count }.by(0) # -1 deleted, +1 created
-
+        end.not_to(change { contrato.faturas.count })
         nova_fatura = contrato.faturas.reload.order(:created_at).last
         expect(nova_fatura.valor.to_f).to eq(150.00)
         expect(nova_fatura.valor_original.to_f).to eq(100.00) # Mantém o valor original
@@ -99,28 +99,28 @@ RSpec.describe Faturas::AtualizarValorService, type: :service do
       end
 
       it 'não deleta a fatura antiga' do
-        expect {
+        expect do
           described_class.call(fatura: fatura, novo_valor: 150.00)
-        }.not_to change { Fatura.exists?(fatura.id) }
+        end.not_to(change { Fatura.exists?(fatura.id) })
       end
 
       it 'marca a fatura antiga como cancelada' do
-        expect {
+        expect do
           described_class.call(fatura: fatura, novo_valor: 150.00)
-        }.to change { fatura.reload.cancelamento }.from(nil).to(be_present)
+        end.to change { fatura.reload.cancelamento }.from(nil).to(be_present)
       end
 
       it 'define cancelamento para o momento atual' do
         described_class.call(fatura: fatura, novo_valor: 150.00)
-        
+
         fatura.reload
         expect(fatura.cancelamento).to be_within(1.second).of(Time.current)
       end
 
       it 'cria uma nova fatura com o novo valor' do
-        expect {
+        expect do
           described_class.call(fatura: fatura, novo_valor: 150.00)
-        }.to change { contrato.faturas.count }.by(1)
+        end.to change { contrato.faturas.count }.by(1)
 
         nova_fatura = contrato.faturas.reload.order(:created_at).last
         expect(nova_fatura.valor.to_f).to eq(150.00)
@@ -159,9 +159,9 @@ RSpec.describe Faturas::AtualizarValorService, type: :service do
         allow_any_instance_of(ActiveRecord::Associations::CollectionProxy)
           .to receive(:create!).and_raise(StandardError, 'Erro de teste')
 
-        expect {
+        expect do
           described_class.call(fatura: fatura, novo_valor: 150.00)
-        }.to raise_error(StandardError, 'Erro de teste')
+        end.to raise_error(StandardError, 'Erro de teste')
 
         # Fatura original deve ainda existir e não estar cancelada
         expect(Fatura.exists?(fatura.id)).to be true

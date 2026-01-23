@@ -47,7 +47,11 @@ module Contratos
 
     def validar_contrato!
       raise ArgumentError, 'Contrato deve ter data de adesão' if contrato.adesao.blank?
-      raise ArgumentError, 'Contrato deve ter prazo em meses' if contrato.prazo_meses.blank? || contrato.prazo_meses <= 0
+
+      if contrato.prazo_meses.blank? || contrato.prazo_meses <= 0
+        raise ArgumentError,
+              'Contrato deve ter prazo em meses'
+      end
       raise ArgumentError, 'Contrato deve ter pagamento_perfil' if contrato.pagamento_perfil.blank?
     end
 

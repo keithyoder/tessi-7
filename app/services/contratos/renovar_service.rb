@@ -35,6 +35,8 @@ module Contratos
     #
     # @return [Array<Fatura>, nil] faturas geradas ou nil se não houver meses restantes
     def call
+      validar_contrato!
+
       meses_restantes = months_between(inicio_proximo_periodo + 1.day, fim_contrato)
       return if meses_restantes.to_i <= 0
 
@@ -42,6 +44,12 @@ module Contratos
     end
 
     private
+
+    def validar_contrato!
+      raise ArgumentError, 'Contrato deve ter data de adesão' if contrato.adesao.blank?
+      raise ArgumentError, 'Contrato deve ter prazo em meses' if contrato.prazo_meses.blank? || contrato.prazo_meses <= 0
+      raise ArgumentError, 'Contrato deve ter pagamento_perfil' if contrato.pagamento_perfil.blank?
+    end
 
     def inicio_proximo_periodo
       ultima_fatura = contrato.faturas.order(:periodo_fim).last

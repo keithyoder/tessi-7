@@ -16,15 +16,16 @@ gem 'rails', '~> 7.2'
 # ------------------------------------------------------------
 # Frontend / Assets
 # ------------------------------------------------------------
-gem 'bootstrap', '~> 5'
-gem 'popper_js'
-gem 'sassc-rails'
+# gem 'bootstrap', '~> 5'
+# gem 'popper_js'
+gem "sassc"
 gem 'slim'
 gem 'slim-rails'
 
 gem 'cssbundling-rails'
 gem 'jsbundling-rails'
-# gem 'sprockets-rails'
+#gem 'sprockets-rails'
+gem 'propshaft'
 gem 'stimulus-rails'
 gem 'turbo-rails'
 
@@ -61,6 +62,7 @@ gem 'snmp'
 # ------------------------------------------------------------
 # Brazilian ecosystem / Finance
 # ------------------------------------------------------------
+gem 'barby'
 gem 'brcobranca', git: 'https://github.com/kivanio/brcobranca.git', ref: '246c1ea'
 gem 'cpf_cnpj'
 gem 'extensobr'

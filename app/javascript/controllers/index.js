@@ -1,11 +1,9 @@
 import { application } from "./application"
 
-const context = require.context(".", true, /\.js$/)
-context.keys().forEach((key) => {
-  const controller = context(key).default
-  const name = key
-    .replace("./", "")
-    .replace("_controller.js", "")
-    .toLowerCase()
-  application.register(name, controller)
-})
+// Manually import each controller for esbuild
+import FaturaController from "./fatura_controller"
+import HelloController from "./hello_controller"
+
+// Register controllers
+application.register("fatura", FaturaController)
+application.register("hello", HelloController)

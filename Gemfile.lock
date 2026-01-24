@@ -145,6 +145,7 @@ GEM
       activerecord (>= 3.2, < 8.0)
       rake (>= 10.4, < 14.0)
     ast (2.4.3)
+    barby (0.7.0)
     base64 (0.3.0)
     bcrypt (3.1.21)
     bcrypt_pbkdf (1.1.2)
@@ -154,8 +155,6 @@ GEM
     bindex (0.8.1)
     bootsnap (1.21.1)
       msgpack (~> 1.2)
-    bootstrap (5.3.8)
-      popper_js (>= 2.11.8, < 3)
     brakeman (7.1.2)
       racc
     builder (3.3.0)
@@ -361,7 +360,6 @@ GEM
     pdf-core (0.10.0)
     pg (1.6.3)
     phonelib (0.10.15)
-    popper_js (2.11.8)
     pp (0.6.3)
       prettyprint
     prawn (2.5.0)
@@ -385,6 +383,10 @@ GEM
       prawn (>= 1.3.0, < 3.0.0)
     prettyprint (0.2.0)
     prism (1.8.0)
+    propshaft (1.3.1)
+      actionpack (>= 7.0.0)
+      activesupport (>= 7.0.0)
+      rack
     psych (5.3.1)
       date
       stringio
@@ -516,12 +518,6 @@ GEM
       fugit (~> 1.1, >= 1.11.1)
     sassc (2.4.0)
       ffi (~> 1.9)
-    sassc-rails (2.1.2)
-      railties (>= 4.0.0)
-      sassc (>= 2.0)
-      sprockets (> 3.0)
-      sprockets-rails
-      tilt
     securerandom (0.4.1)
     selenium-webdriver (4.40.0)
       base64 (~> 0.2)
@@ -554,14 +550,6 @@ GEM
       hashie (>= 0.1.0, < 6)
       version_gem (>= 1.1.8, < 3)
     snmp (1.3.3)
-    sprockets (4.2.2)
-      concurrent-ruby (~> 1.0)
-      logger
-      rack (>= 2.2.4, < 4)
-    sprockets-rails (3.5.2)
-      actionpack (>= 6.1)
-      activesupport (>= 6.1)
-      sprockets (>= 3.0.0)
     sshkit (1.25.0)
       base64
       logger
@@ -631,9 +619,9 @@ PLATFORMS
 
 DEPENDENCIES
   annotate
+  barby
   bcrypt_pbkdf (>= 1.0, < 2.0)
   bootsnap
-  bootstrap (~> 5)
   brakeman
   brcobranca!
   bundler-audit
@@ -671,10 +659,10 @@ DEPENDENCIES
   oauth2
   pg (>= 1.6, < 2.0)
   phonelib
-  popper_js
   prawn-qrcode
   prawn-rails
   prawn-svg
+  propshaft
   puma
   rails (~> 7.2)
   rails-settings-cached (~> 2.0)
@@ -688,7 +676,7 @@ DEPENDENCIES
   ruby_ami
   rubyzip
   rufus-scheduler
-  sassc-rails
+  sassc
   sdk_ruby_apis_efi!
   selenium-webdriver
   sidekiq

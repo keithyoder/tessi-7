@@ -11,7 +11,13 @@
  * It is generally better to create a new file per style scope.
  *
 */
-@import 'bootstrap';
+
+// Import Bootstrap from node_modules
+// The --load-path=node_modules flag in package.json makes this work
+@import 'bootstrap/scss/bootstrap';
+@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css");
+
+// Import custom components
 @import "components/mega_menu";
 
 @media print {

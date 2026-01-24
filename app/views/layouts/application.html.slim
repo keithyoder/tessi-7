@@ -1,23 +1,29 @@
-/ app/views/layouts/application.html.slim
-/ Updated layout with top navigation (no sidebar)
-
 doctype html
 html
   head
     title Tessi Telecom
     meta name="viewport" content="width=device-width, initial-scale=1.0"
-    = stylesheet_link_tag "application.bootstrap", "data-turbo-track": "reload"
+    
+    = stylesheet_link_tag "application", "data-turbo-track": "reload"
     = javascript_include_tag "application", type: "module", "data-turbo-track": "reload"
+    
     = csrf_meta_tags
+    = csp_meta_tag
+    
   body
     - if controller.controller_name == 'sac'
       = yield
     - else
       / Top navigation bar
-      -if user_signed_in?
+      - if user_signed_in?
         = render 'shared/mega_menu'
       
       / Main content area - full width
       .container-fluid.py-3
-        = flash_message
+        / Flash messages
+        - if flash.any?
+          - flash.each do |type, message|
+            div class="alert alert-#{type}" role="alert"
+              = message
+        
         = yield

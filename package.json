@@ -1,21 +1,21 @@
 {
   "name": "app",
-  "private": "true",
+  "private": true,
+  "scripts": {
+    "build": "esbuild app/javascript/application.js --bundle --sourcemap --format=esm --outdir=app/assets/builds --public-path=/assets",
+    "build:css": "sass ./app/assets/stylesheets/application.scss:./app/assets/builds/application.css --no-source-map --load-path=node_modules --quiet-deps"
+  },
   "dependencies": {
     "@hotwired/stimulus": "^3.2.2",
-    "@hotwired/turbo-rails": "^7.3.0",
+    "@hotwired/turbo-rails": "^8.0.4",
     "@popperjs/core": "^2.11.8",
     "bootstrap": "^5.3.3",
-    "bootstrap-icons": "^1.11.3",
-    "chart.js": "^4.3.0",
+    "chart.js": "^4.4.1",
     "chartkick": "^5.0.1",
-    "esbuild": "^0.18.20",
-    "jquery": "^3.7.1",
-    "sass": "^1.71.1"
+    "jquery": "^3.7.1"
   },
-  "scripts": {
-    "build": "esbuild app/javascript/*.* --bundle --sourcemap --outdir=app/assets/builds --public-path=assets",
-    "build:css": "sass ./app/assets/stylesheets/application.bootstrap.scss:./app/assets/builds/application.css --no-source-map --load-path=node_modules"
-  },
-  "packageManager": "yarn@1.22.19"
+  "devDependencies": {
+    "esbuild": "^0.27.2",
+    "sass": "^1.70.0"
+  }
 }

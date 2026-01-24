@@ -6,6 +6,7 @@
 
 # Ignore bundler config.
 /.bundle
+.bundle/config
 
 # Ignore the default SQLite database.
 /db/*.sqlite3
@@ -46,3 +47,25 @@
 .env
 .env.local
 .env.*.local
+/config/credentials/production.key
+
+# OS / editor
+.DS_Store
+.idea
+.vscode
+*.swp
+*.swo
+
+# Test / coverage
+/coverage
+/spec/examples.txt
+/.rspec_status
+
+# Frontend logs
+yarn-error.log
+npm-debug.log*
+
+# Backups / dumps
+*.dump
+*.sql
+*.bak

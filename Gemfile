@@ -5,112 +5,147 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 ruby '3.3.4'
 
+# ------------------------------------------------------------
+# Core framework
+# ------------------------------------------------------------
+gem 'bootsnap', require: false
+gem 'pg'
+gem 'puma'
 gem 'rails', '~> 7.2'
 
-gem 'barby'
-gem 'bcrypt_pbkdf', '>= 1.0', '< 2.0'
-# gem 'base64', '0.1.1'
-gem 'bootsnap', require: false
+# ------------------------------------------------------------
+# Frontend / Assets
+# ------------------------------------------------------------
 gem 'bootstrap', '~> 5'
-gem 'brcobranca', git: 'https://github.com/kivanio/brcobranca.git', ref: '246c1ea'
-gem 'cancancan'
-gem 'capistrano'
-gem 'capistrano-passenger', '~> 0.2.1'
-gem 'capistrano-rails', '~> 1.6'
-gem 'capistrano-rbenv', '~> 2.2', '>= 2.1.4'
-gem 'chartkick'
-gem 'coffee-rails'
-gem 'cpf_cnpj'
-gem 'cssbundling-rails'
-gem 'devise'
-gem 'ed25519', '>= 1.2', '< 2.0'
-gem 'extensobr'
-gem 'fixy'
-gem 'geocoder'
-gem 'graphql', '< 2.1'
-gem 'graphql-client', git: 'https://github.com/keithyoder/graphql-client.git'
-gem 'httparty'
-gem 'image_processing'
-gem 'jbuilder'
-gem 'jsbundling-rails'
-gem 'kaminari', git: 'https://github.com/keithyoder/kaminari'
-gem 'matrix'
-gem 'multipart-post'
-gem 'puma'
-gem 'redis', '~> 4.0'
+gem 'popper_js'
 gem 'sassc-rails'
-gem 'sdk_ruby_apis_efi', git: 'https://github.com/keithyoder/sdk-ruby-apis-efi.git'
-# gem 'sdk_ruby_apis_efi', path: '../sdk-ruby-apis-efi/'
+gem 'slim'
+gem 'slim-rails'
+
+gem 'cssbundling-rails'
+gem 'jsbundling-rails'
 gem 'sprockets-rails'
 gem 'stimulus-rails'
-gem 'strscan', '~>3.0.9'
 gem 'turbo-rails'
-gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
-# gem 'mtik', git: 'https://github.com/astounding/mtik.git'
-gem 'mtik'
-gem 'net-ftp'
-gem 'net-ping'
-gem 'net-ssh'
-gem 'nfcom', git: 'https://github.com/keithyoder/nfcom-ruby.git'
-# gem 'nfcom', path: '../nfcom-ruby'
-gem 'nokogiri', force_ruby_platform: true
-gem 'oauth2'
-gem 'pg'
-gem 'phonelib'
-gem 'popper_js'
-gem 'prawn-qrcode'
-gem 'prawn-rails'
-gem 'prawn-svg'
-gem 'qbo_api'
-gem 'qrcode_pix_ruby'
-gem 'rack', '2.2.9'
-gem 'rails4-autocomplete'
-gem 'rails-settings-cached', '~> 2.0'
-gem 'ransack'
-gem 'ruby_ami'
-gem 'rubyzip', require: 'zip'
+
+# ------------------------------------------------------------
+# Authentication / Authorization
+# ------------------------------------------------------------
+gem 'bcrypt_pbkdf', '>= 1.0', '< 2.0'
+gem 'cancancan'
+gem 'devise'
+
+# ------------------------------------------------------------
+# Background jobs / Scheduling
+# ------------------------------------------------------------
+gem 'redis', '~> 4.0'
 gem 'rufus-scheduler'
 gem 'sidekiq'
 gem 'sidekiq-cron'
-gem 'simple_form'
-gem 'slim'
-gem 'slim-rails'
+
+# ------------------------------------------------------------
+# API / Networking / Integrations
+# ------------------------------------------------------------
+gem 'graphql', '< 2.1'
+gem 'graphql-client', git: 'https://github.com/keithyoder/graphql-client.git'
+
+gem 'httparty'
+gem 'multipart-post'
+gem 'oauth2'
+
+gem 'net-ftp'
+gem 'net-ping'
+gem 'net-ssh'
 gem 'snmp'
+
+# ------------------------------------------------------------
+# Brazilian ecosystem / Finance
+# ------------------------------------------------------------
+gem 'brcobranca', git: 'https://github.com/kivanio/brcobranca.git', ref: '246c1ea'
+gem 'cpf_cnpj'
+gem 'extensobr'
+gem 'fixy'
+
+gem 'nfcom', git: 'https://github.com/keithyoder/nfcom-ruby.git'
+# gem 'nfcom', path: '../nfcom-ruby'
+
+gem 'sdk_ruby_apis_efi', git: 'https://github.com/keithyoder/sdk-ruby-apis-efi.git'
+# gem 'sdk_ruby_apis_efi', path: '../sdk-ruby-apis-efi/'
+
+# ------------------------------------------------------------
+# Reporting / Documents / PDFs
+# ------------------------------------------------------------
+gem 'prawn-qrcode'
+gem 'prawn-rails'
+gem 'prawn-svg'
 gem 'wicked_pdf'
 gem 'wkhtmltopdf-binary'
 
-# Use Sass to process CSS
-# gem "sassc-rails"
+# ------------------------------------------------------------
+# UI helpers / Utilities
+# ------------------------------------------------------------
+gem 'chartkick'
+gem 'geocoder'
+gem 'image_processing'
+gem 'kaminari', git: 'https://github.com/keithyoder/kaminari'
+gem 'phonelib'
+gem 'rails-settings-cached', '~> 2.0'
+gem 'ransack'
+gem 'simple_form'
 
-# Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
-# gem "image_processing", "~> 1.2"
+# ------------------------------------------------------------
+# Serialization / Parsing
+# ------------------------------------------------------------
+gem 'jbuilder'
+gem 'matrix'
+gem 'nokogiri', force_ruby_platform: true
+gem 'rubyzip', require: 'zip'
+gem 'strscan', '~> 3.0.9'
 
+# ------------------------------------------------------------
+# Telephony / VoIP
+# ------------------------------------------------------------
+gem 'mtik'
+gem 'ruby_ami'
+
+# ------------------------------------------------------------
+# Low-level / Compatibility
+# ------------------------------------------------------------
+gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
+
+# ------------------------------------------------------------
+# Development & Deployment
+# ------------------------------------------------------------
+group :development do
+  gem 'capistrano'
+  gem 'capistrano-passenger'
+  gem 'capistrano-rails'
+  gem 'capistrano-rbenv'
+  gem 'web-console'
+end
+
+# ------------------------------------------------------------
+# Development & Test
+# ------------------------------------------------------------
 group :development, :test do
-  # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem 'annotate'
-  gem 'brakeman', require: false
-  gem 'bundler-audit', require: false
-  gem 'debug', platforms: %i[mri mingw x64_mingw]
   gem 'dotenv-rails'
-  gem 'rubocop'
+
+  gem 'debug', platforms: %i[mri mingw x64_mingw]
+
+  gem 'rubocop', require: false
   gem 'rubocop-capybara', require: false
   gem 'rubocop-factory_bot', require: false
-  gem 'rubocop-rails'
+  gem 'rubocop-rails', require: false
+
+  gem 'brakeman', require: false
+  gem 'bundler-audit', require: false
 end
 
-group :development do
-  # Use console on exceptions pages [https://github.com/rails/web-console]
-  gem 'web-console'
-
-  # Add speed badges [https://github.com/MiniProfiler/rack-mini-profiler]
-  # gem "rack-mini-profiler"
-
-  # Speed up commands on slow machines / big apps [https://github.com/rails/spring]
-  # gem "spring"
-end
-
+# ------------------------------------------------------------
+# Test only
+# ------------------------------------------------------------
 group :test do
-  # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem 'capybara'
   gem 'factory_bot_rails'
   gem 'rspec-rails'

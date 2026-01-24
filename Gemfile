@@ -88,12 +88,14 @@ gem 'wkhtmltopdf-binary'
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem 'annotate'
+  gem 'brakeman', require: false
+  gem 'bundler-audit', require: false
   gem 'debug', platforms: %i[mri mingw x64_mingw]
   gem 'dotenv-rails'
   gem 'rubocop'
-  gem 'rubocop-rails'
-  gem 'rubocop-factory_bot', require: false
   gem 'rubocop-capybara', require: false
+  gem 'rubocop-factory_bot', require: false
+  gem 'rubocop-rails'
 end
 
 group :development do

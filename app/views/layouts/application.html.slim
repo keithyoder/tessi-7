@@ -14,7 +14,8 @@ html
       = yield
     - else
       / Top navigation bar
-      = render 'shared/mega_menu'
+      -if user_signed_in?
+        = render 'shared/mega_menu'
       
       / Main content area - full width
       .container-fluid.py-3

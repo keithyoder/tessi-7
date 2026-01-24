@@ -1,0 +1,26 @@
+.row.justify-content-center.align-items-center.min-vh-100
+  .col-sm-4
+    .card
+      .card-header.text-center
+        = image_tag "logo-cores.svg",
+            class: "mb-3 img-fluid",
+            style: "max-height: 60px;",
+            alt: "Company logo"
+
+        / h3 Login
+
+      .card-body
+        = simple_form_for(resource, as: resource_name, url: session_path(resource_name)) do |f|
+          .form-inputs
+            = f.input :email, autofocus: true, autocomplete: "email"
+            = f.input :password, label: "Senha", autocomplete: "current-password"
+
+            - if devise_mapping.rememberable?
+              = f.input :remember_me, label: "Lembrar senha", as: :boolean
+
+          = button_tag type: "submit", class: "btn btn-primary w-100" do
+            i.fa.fa-sign-in
+            |  Entrar
+
+        / .text-center.mt-3
+        /   = render "devise/shared/links"

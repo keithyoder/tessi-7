@@ -20,6 +20,5 @@ br
 - home_path = begin
   - uri = URI.parse(params[:host_uri]) rescue nil
   - uri.to_s if uri && allowed_hosts.include?(uri.host)
-- end
 
 = link_to "Home", (home_path || root_path)

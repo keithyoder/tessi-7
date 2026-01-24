@@ -697,7 +697,6 @@ DEPENDENCIES
   slim
   slim-rails
   snmp
-  sprockets-rails
   stimulus-rails
   strscan (~> 3.0.9)
   turbo-rails

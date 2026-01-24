@@ -24,7 +24,7 @@ gem 'slim-rails'
 
 gem 'cssbundling-rails'
 gem 'jsbundling-rails'
-gem 'sprockets-rails'
+# gem 'sprockets-rails'
 gem 'stimulus-rails'
 gem 'turbo-rails'
 

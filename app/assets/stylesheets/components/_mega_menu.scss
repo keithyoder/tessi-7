@@ -1,0 +1,71 @@
+.mega-menu {
+  left: 0 !important;
+  right: 0 !important;
+  background: white;
+  min-height: 400px;
+}
+
+.mega-menu h6 {
+  color: #333;
+  border-bottom: 2px solid #dee2e6;
+  padding-bottom: 0.5rem;
+}
+
+.mega-menu .text-primary {
+  color: #0d6efd !important;
+  border-bottom-color: #0d6efd !important;
+}
+
+.mega-menu .text-success {
+  color: #198754 !important;
+  border-bottom-color: #198754 !important;
+}
+
+.mega-menu .text-warning {
+  color: #ffc107 !important;
+  border-bottom-color: #ffc107 !important;
+}
+
+.mega-menu .text-info {
+  color: #0dcaf0 !important;
+  border-bottom-color: #0dcaf0 !important;
+}
+
+.mega-menu .text-secondary {
+  color: #6c757d !important;
+  border-bottom-color: #6c757d !important;
+}
+
+.mega-menu small.text-uppercase {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  font-size: 0.7rem;
+}
+
+.mega-menu .dropdown-item {
+  color: #495057;
+  transition: all 0.2s;
+  padding: 0.5rem 0.75rem;
+}
+
+.mega-menu .dropdown-item:hover {
+  background-color: #f8f9fa;
+  padding-left: 1rem;
+  transform: translateX(4px);
+}
+
+.mega-menu .dropdown-item i {
+  width: 20px;
+  text-align: center;
+}
+
+.mega-menu .dropdown-item.position-relative {
+  padding-right: 3rem;
+}
+
+/* Keyboard focus (UX polish) */
+.mega-menu .dropdown-item:focus {
+  outline: none;
+  background-color: #e9ecef;
+  padding-left: 1rem;
+}

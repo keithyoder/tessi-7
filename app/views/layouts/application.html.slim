@@ -1,3 +1,6 @@
+/ app/views/layouts/application.html.slim
+/ Updated layout with top navigation (no sidebar)
+
 doctype html
 html
   head
@@ -10,10 +13,10 @@ html
     - if controller.controller_name == 'sac'
       = yield
     - else
-      .container-fluid
-        .row.flex-nowrap
-          .col-auto.col-md-3.col-xl-2.px-sm-2.px-0.bg-light
-            = render 'shared/new_navigation'
-          .col.py-3
-            = flash_message
-            = yield
+      / Top navigation bar
+      = render 'shared/mega_menu'
+      
+      / Main content area - full width
+      .container-fluid.py-3
+        = flash_message
+        = yield

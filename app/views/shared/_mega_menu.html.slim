@@ -1,0 +1,168 @@
+/ app/views/shared/_mega_menu_navigation.html.slim
+/ Light theme mega menu - better for colorful logos
+- atendimentos_abertos = Atendimento.por_responsavel(current_user).abertos.count
+
+nav.navbar.navbar-expand-lg.navbar-light.bg-white.shadow-sm.sticky-top
+  .container-fluid
+    / Logo and brand (clickable to go home)
+    = link_to "/", class: "navbar-brand d-flex align-items-center" do
+      = image_tag("logo-cores.svg", height: "32", class: "me-2")
+      span.d-none.d-md-inline.text-dark Tessi Telecom
+    
+    / Mobile hamburger toggle
+    button.navbar-toggler type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
+      span.navbar-toggler-icon
+    
+    / Main navigation
+    .collapse.navbar-collapse#mainNavbar
+      ul.navbar-nav.me-auto.mb-2.mb-lg-0
+        / MEGA MENU - All sections in one dropdown
+        li.nav-item.dropdown.position-static
+          a.nav-link.dropdown-toggle.text-dark.fw-semibold href="#" data-bs-toggle="dropdown" data-bs-auto-close="outside"
+            i.bi.bi-grid-3x3-gap.me-1
+            | Menu
+            =badge_if_positive(atendimentos_abertos, extra_classes: "ms-2")
+        
+          .dropdown-menu.mega-menu.w-100.border-0.shadow-lg
+            .container-fluid
+              .row.g-4.p-4
+                / Column 1: Assinantes & Atendimentos
+                .col-lg-3
+                  h6.text-uppercase.fw-bold.mb-3.text-primary
+                    i.bi.bi-people.me-2
+                    | Assinantes
+                  ul.list-unstyled
+                    li.mb-2
+                      = link_to pessoas_path, class: "dropdown-item rounded" do
+                        i.bi.bi-person-circle.me-2
+                        | Pessoas
+                    li.mb-2
+                      = link_to excecoes_path, class: "dropdown-item rounded" do
+                        i.bi.bi-exclamation-triangle.me-2
+                        | Exceções
+                  
+                  h6.text-uppercase.fw-bold.mb-3.mt-4.text-info
+                    i.bi.bi-headset.me-2
+                    | Atendimento
+                  ul.list-unstyled
+                    li.mb-2
+                      = link_to atendimentos_path(meus: 1, abertos: 1), class: "dropdown-item rounded position-relative" do
+                        i.bi.bi-telephone.me-2
+                        | Meus Atendimentos
+                        = badge_if_positive(atendimentos_abertos, extra_classes: "position-absolute top-50 end-0 translate-middle-y me-2")
+                    li.mb-2
+                      = link_to os_index_path(minhas: 1, abertas: 1), class: "dropdown-item rounded" do
+                        i.bi.bi-truck.me-2
+                        | Minhas OS
+                
+                / Column 2: Financeiro
+                .col-lg-3
+                  h6.text-uppercase.fw-bold.mb-3.text-success
+                    i.bi.bi-cash-coin.me-2
+                    | Financeiro
+                  
+                  small.text-muted.text-uppercase.fw-bold.d-block.mb-2 Pagamentos
+                  ul.list-unstyled.mb-3
+                    li.mb-2
+                      = link_to retornos_path, class: "dropdown-item rounded" do
+                        i.bi.bi-arrow-left-right.me-2
+                        | Retornos Bancários
+                    li.mb-2
+                      = link_to liquidacoes_path, class: "dropdown-item rounded" do
+                        i.bi.bi-check-circle.me-2
+                        | Liquidações
+                  
+                  small.text-muted.text-uppercase.fw-bold.d-block.mb-2 Contratos
+                  ul.list-unstyled
+                    li.mb-2
+                      = link_to contratos_path(renovaveis: 1), class: "dropdown-item rounded" do
+                        i.bi.bi-arrow-clockwise.me-2
+                        | Para Renovar
+                    li.mb-2
+                      = link_to contratos_path(cancelaveis: 1), class: "dropdown-item rounded" do
+                        i.bi.bi-x-circle.me-2
+                        | Para Cancelar
+                    li.mb-2
+                      = link_to contratos_path(sem_conexao: 1), class: "dropdown-item rounded" do
+                        i.bi.bi-wifi-off.me-2
+                        | Sem Conexão
+                    li.mb-2
+                      = link_to pendencias_contratos_path, class: "dropdown-item rounded" do
+                        i.bi.bi-file-earmark-text.me-2
+                        | Termos Pendentes
+                
+                / Column 3: Técnico
+                .col-lg-3
+                  h6.text-uppercase.fw-bold.mb-3.text-warning
+                    i.bi.bi-ethernet.me-2
+                    | Técnico
+                  
+                  small.text-muted.text-uppercase.fw-bold.d-block.mb-2 Operações
+                  ul.list-unstyled.mb-3
+                    li.mb-2
+                      = link_to os_index_path(abertas: 1), class: "dropdown-item rounded" do
+                        i.bi.bi-clipboard-check.me-2
+                        | Ordens de Serviço
+                    li.mb-2
+                      = link_to conexoes_path, class: "dropdown-item rounded" do
+                        i.bi.bi-router.me-2
+                        | Conexões
+                  
+                  small.text-muted.text-uppercase.fw-bold.d-block.mb-2 Infraestrutura
+                  ul.list-unstyled
+                    li.mb-2
+                      = link_to servidores_path, class: "dropdown-item rounded" do
+                        i.bi.bi-server.me-2
+                        | Concentradores
+                    li.mb-2
+                      = link_to pontos_path, class: "dropdown-item rounded" do
+                        i.bi.bi-wifi.me-2
+                        | Pontos de Acesso
+                    li.mb-2
+                      = link_to fibra_redes_path, class: "dropdown-item rounded" do
+                        i.bi.bi-diagram-3.me-2
+                        | Redes de Fibra
+                    li.mb-2
+                      = link_to ip_redes_path, class: "dropdown-item rounded" do
+                        i.bi.bi-sort-numeric-down.me-2
+                        | Redes IP
+                
+                / Column 4: Configurações
+                .col-lg-3
+                  h6.text-uppercase.fw-bold.mb-3.text-secondary
+                    i.bi.bi-gear.me-2
+                    | Configurações
+                  ul.list-unstyled
+                    li.mb-2
+                      = link_to estados_path, class: "dropdown-item rounded" do
+                        i.bi.bi-globe-americas.me-2
+                        | Estados
+                    li.mb-2
+                      = link_to planos_path, class: "dropdown-item rounded" do
+                        i.bi.bi-speedometer.me-2
+                        | Planos
+                    li.mb-2
+                      = link_to classificacoes_path, class: "dropdown-item rounded" do
+                        i.bi.bi-list-check.me-2
+                        | Classificações
+                    li.mb-2
+                      = link_to pagamento_perfis_path, class: "dropdown-item rounded" do
+                        i.bi.bi-credit-card.me-2
+                        | Perfis de Pagamento
+                    li.mb-2
+                      = link_to equipamentos_path, class: "dropdown-item rounded" do
+                        i.bi.bi-router.me-2
+                        | Equipamentos
+      
+      / Right side - User menu only
+      ul.navbar-nav.ms-auto
+        / User dropdown
+        li.nav-item.dropdown
+          a.nav-link.dropdown-toggle.text-dark.d-flex.align-items-center href="#" data-bs-toggle="dropdown"
+            i.bi.bi-person-circle.me-2.fs-3
+            span.d-none.d-md-inline= current_user.email || "Usuário"
+          ul.dropdown-menu.dropdown-menu-end
+            li
+              = link_to destroy_user_session_path, data: { turbo_method: :delete }, class: "dropdown-item" do
+                i.bi.bi-box-arrow-right.me-2
+                | Desconectar

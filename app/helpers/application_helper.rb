@@ -46,14 +46,12 @@ module ApplicationHelper
   end
 
   def flash_message
-    puts flash.to_json
     messages = ""
     [:notice, :info, :warning, :error].each {|type|
       if flash[type]
         messages += "<div class=\"alert alert-#{BOOTSTRAP_ALERT_MAP[type]}\" role=\"alert\">#{flash[type]}</div>"
       end
     }
-    puts messages
     messages.html_safe
   end
 

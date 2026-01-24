@@ -1,28 +1,34 @@
 h1 Below is the Result of Your Access Token:
 
 p
-  | Realm ID: #{params[:realmId]}  
+  | Realm ID: #{params[:realmId]}
   br
-  | Access Token: #{params[:access_token]}  
+  | Access Token: #{params[:access_token]}
   br
-  | Access Token Expires In: #{params[:expires_in]}  
+  | Access Token Expires In: #{params[:expires_in]}
   br
-  | Refresh Token: #{params[:refresh_token]}  
+  | Refresh Token: #{params[:refresh_token]}
   br
   | Refresh Token Expires In: #{params[:x_refresh_token_expires_in]}
 
 -# Safe link to refresh token page (only relative paths)
-- refresh_path = begin
-  - uri = URI.parse(params[:refresh_token] + "/edit") rescue nil
-  - uri.to_s if uri && uri.host.nil?
+- refresh_path = nil
+- begin
+  - uri = URI.parse(params[:refresh_token] + "/edit")
+  - refresh_path = uri.to_s if uri.host.nil?
+- rescue
+  - refresh_path = nil
 
 = link_to "Refresh Your OAuth Token", (refresh_path || root_path)
 br
 
 -# Safe home link using whitelisted host
 - allowed_hosts = [request.host]
-- home_path = begin
-  - uri = URI.parse(params[:host_uri]) rescue nil
-  - uri.to_s if uri && allowed_hosts.include?(uri.host)
+- home_path = nil
+- begin
+  - uri = URI.parse(params[:host_uri])
+  - home_path = uri.to_s if allowed_hosts.include?(uri.host)
+- rescue
+  - home_path = nil
 
 = link_to "Home", (home_path || root_path)

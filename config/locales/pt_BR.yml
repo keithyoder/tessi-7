@@ -231,4 +231,19 @@ pt-BR:
       short: "%d de %B, %H:%M"
 
   estados:
-    updated: "Estado atualizado com sucesso."
+    update:
+      notice: "Estado atualizado com sucesso."
+  bairros:
+    create:
+      notice: "Bairro criado com sucesso."
+    update:
+      notice: "Bairro atualizado com sucesso."
+    destroy:
+      notice: "Bairro removido com sucesso."
+  cidades:
+    create:
+      notice: "Cidade criada com sucesso."
+    update:
+      notice: "Cidade atualizada com sucesso."
+    destroy:
+      notice: "Cidade removida com sucesso."

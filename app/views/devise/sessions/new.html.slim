@@ -10,7 +10,7 @@
         / h3 Login
 
       .card-body
-        = simple_form_for(resource, as: resource_name, url: session_path(resource_name)) do |f|
+        = simple_form_for(resource, as: resource_name, url: session_path(resource_name), data: { turbo: false }) do |f|
           .form-inputs
             = f.input :email, autofocus: true, autocomplete: "email"
             = f.input :password, label: "Senha", autocomplete: "current-password"

@@ -34,7 +34,7 @@ class EstadosController < ApplicationController
   # PATCH/PUT /estados/1
   def update
     if @estado.update(estado_params)
-      redirect_to @estado, notice: t('estados.updated')
+      redirect_to @estado, notice: t('.notice')
     else
       render :edit, status: :unprocessable_content
     end

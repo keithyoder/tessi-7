@@ -43,7 +43,7 @@ class Ability
   # Admin permissions
   def admin_permissions
     can :manage, :all
-    cannot :destroy, Estado
+    cannot %i[destroy create], Estado
     can :encerrar, Atendimento, fechamento: nil
   end
 

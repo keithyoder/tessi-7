@@ -14,7 +14,6 @@ window.bootstrap = bootstrap
 
 import "chartkick/chart.js"
 
-import "./conexao"
 import "./faturas"
 import "./fibra_caixas"
 import "./os"

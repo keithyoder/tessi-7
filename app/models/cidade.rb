@@ -22,7 +22,7 @@
 #
 class Cidade < ApplicationRecord
   belongs_to :estado
-  has_many :bairros
+  has_many :bairros, dependent: :restrict_with_error
   has_many :logradouros, through: :bairros
   has_many :pessoas, through: :logradouros
   has_many :conexoes, through: :pessoas
@@ -55,7 +55,7 @@ class Cidade < ApplicationRecord
     CSV.generate(headers: true) do |csv|
       csv << attributes
 
-      all.each do |cidade|
+      find_each do |cidade|
         csv << attributes.map { |attr| cidade.send(attr) }
       end
     end

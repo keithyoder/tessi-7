@@ -17,7 +17,7 @@
 #
 class Estado < ApplicationRecord
   require 'csv'
-  has_many :cidades
+  has_many :cidades, dependent: :restrict_with_error
   validates :sigla, presence: true
 
   def titulo
@@ -41,7 +41,7 @@ class Estado < ApplicationRecord
     CSV.generate(headers: true) do |csv|
       csv << attributes
 
-      all.each do |estado|
+      find_each do |estado|
         csv << attributes.map { |attr| estado.send(attr) }
       end
     end

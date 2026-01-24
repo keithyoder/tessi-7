@@ -25,12 +25,14 @@ class Logradouro < ApplicationRecord
   has_one :cidade, through: :bairro
   has_one :estado, through: :cidade
 
-  has_many :pessoas
+  has_many :pessoas, dependent: :restrict_with_error
   has_many :assinantes,
-           -> { assinantes },
+           -> { merge(Pessoa.assinantes) },
            class_name: 'Pessoa',
-           through: :pessoas
-  has_many :fibra_caixas
+           foreign_key: :logradouro_id,
+           dependent: false,
+           inverse_of: :logradouro
+  has_many :fibra_caixas, dependent: :restrict_with_error
 
   RANSACKABLE_ATTRIBUTES = %w[nome].freeze
 

@@ -2,55 +2,55 @@
 
 class EstadosController < ApplicationController
   load_and_authorize_resource
-  before_action :set_estado, only: %i[show edit update destroy]
 
   # GET /estados
-  # GET /estados.json
   def index
     @q = Estado.ransack(params[:q])
-    @estados = @q.result(order: :nome).page params[:page]
+    @estados = @q.result.order(:nome).page(params[:page])
+
     respond_to do |format|
       format.html
-      format.csv { send_data @estados.except(:limit, :offset).to_csv, filename: "estados-#{Date.today}.csv" }
+      format.csv { send_data export_csv, filename: csv_filename }
     end
   end
 
   # GET /estados/1
-  # GET /estados/1.json
   def show
-    @estado = Estado.find(params[:id])
+    # @estado is already loaded by load_and_authorize_resource
     @q = @estado.cidades.ransack(params[:q])
-    @q.sorts = 'nome'
-    @cidades = @q.result.page params[:page]
+    @cidades = @q.result.order(:nome).page(params[:page])
   end
 
   # GET /estados/new
   def new
-    @estado = Estado.new
+    # @estado is already initialized by load_and_authorize_resource
   end
 
   # GET /estados/1/edit
-  def edit; end
+  def edit
+    # @estado is already loaded by load_and_authorize_resource
+  end
 
   # PATCH/PUT /estados/1
-  # PATCH/PUT /estados/1.json
   def update
     if @estado.update(estado_params)
-      redirect_to @estado, notice: 'Estado atualizado com sucesso.'
+      redirect_to @estado, notice: t('estados.updated')
     else
-      render :edit, status: :unprocessable_entity
+      render :edit, status: :unprocessable_content
     end
   end
 
   private
 
-  # Use callbacks to share common setup or constraints between actions.
-  def set_estado
-    @estado = Estado.find(params[:id])
-  end
-
-  # Never trust parameters from the scary internet, only allow the white list through.
   def estado_params
     params.require(:estado).permit(:sigla, :nome, :ibge)
+  end
+
+  def export_csv
+    @estados.except(:limit, :offset).to_csv
+  end
+
+  def csv_filename
+    "estados-#{Time.zone.today}.csv"
   end
 end

@@ -90,14 +90,14 @@ class Ponto < ApplicationRecord
     CSV.generate(headers: true) do |csv|
       csv << attributes
 
-      all.find_each do |estado|
+      find_each do |estado|
         csv << attributes.map { |attr| estado.send(attr) }
       end
     end
   end
 
   def frequencia_text
-    "#{frequencia} MHz#{canal_tamanho.present? ? " (#{canal_tamanho})" : ''}"
+    "#{frequencia} MHz#{" (#{canal_tamanho})" if canal_tamanho.present?}"
   end
 
   def snmp

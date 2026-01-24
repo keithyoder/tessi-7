@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AddIpv6Fields < ActiveRecord::Migration[5.2]
   def change
     add_column :pontos, :ipv6, :inet

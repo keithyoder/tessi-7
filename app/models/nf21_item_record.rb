@@ -10,6 +10,7 @@ class Nf21ItemRecord < Fixy::Record
   include Fixy::Formatter::Numeric
   include Fixy::Formatter::Amount
   include Fixy::Formatter::Date
+
   set_line_ending Fixy::Record::LINE_ENDING_CRLF
   set_record_length 331
 

@@ -51,7 +51,7 @@ class Plano < ApplicationRecord
     attributes = %w[id nome mensalidade download upload burst]
     CSV.generate(headers: true) do |csv|
       csv << attributes
-      all.find_each do |plano|
+      find_each do |plano|
         csv << attributes.map { |attr| plano.send(attr) }
       end
     end

@@ -39,9 +39,9 @@ class PagamentoPerfil < ApplicationRecord
 
   def proximo_nosso_numero
     faturas.select('MAX(nossonumero::bigint) as nossonumero')
-           .where("nossonumero ~ E'^\\\\d+$'")
-           .to_a[0][:nossonumero]
-           .to_i
+      .where("nossonumero ~ E'^\\\\d+$'")
+      .to_a[0][:nossonumero]
+      .to_i
   end
 
   def liquidacoes(mes, meio_liquidacao)
@@ -54,9 +54,9 @@ class PagamentoPerfil < ApplicationRecord
 
   def meses
     faturas.select("date_trunc('month', vencimento) as mes")
-           .where('vencimento < :agora or (liquidacao is null and liquidacao < :agora)', agora: DateTime.now)
-           .group(:mes)
-           .order(mes: :desc)
+      .where('vencimento < :agora or (liquidacao is null and liquidacao < :agora)', agora: DateTime.now)
+      .group(:mes)
+      .order(mes: :desc)
   end
 
   def forma_pagamento
@@ -112,7 +112,7 @@ class PagamentoPerfil < ApplicationRecord
 
   def faturas_com_numero
     faturas.eager_load(%i[pessoa logradouro bairro cidade estado plano])
-           .where.not(nossonumero: '')
+      .where.not(nossonumero: '')
   end
 
   def faturas_para_registrar

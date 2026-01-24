@@ -10,6 +10,7 @@ class Nf21Cadastro < Fixy::Record
   include Fixy::Formatter::Numeric
   include Fixy::Formatter::Amount
   include Fixy::Formatter::Date
+
   set_line_ending Fixy::Record::LINE_ENDING_CRLF
   set_record_length 287
 
@@ -23,8 +24,8 @@ class Nf21Cadastro < Fixy::Record
   field :razao_social,        35, '29-63',       :alphanumeric
   field :logradouro,          45, '64-108',      :alphanumeric
   field :numero,               5, '109-113',     :numeric
-  field :complemento,         15, '114-128',     :alphanumeric
-  field :cep,                  8, '129-136',     :alphanumeric
+  field :complemento, 15, '114-128', :alphanumeric
+  field :cep, 8, '129-136', :alphanumeric
   field :bairro,              15, '137-151',     :alphanumeric
   field :municipio,           30, '152-181',     :alphanumeric
   field :uf,                   2, '182-183',     :alphanumeric

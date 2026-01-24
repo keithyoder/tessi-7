@@ -29,48 +29,48 @@
 #
 class NfcomNota < ApplicationRecord
   belongs_to :fatura
-  
+
   # Status state machine
   STATUSES = %w[pending authorized rejected cancelled].freeze
-  
+
   validates :numero, presence: true, uniqueness: { scope: :serie }
   validates :status, inclusion: { in: STATUSES }
   validates :chave_acesso, uniqueness: true, allow_nil: true
   validate :fatura_does_not_have_authorized_nota, on: :create
 
   def fatura_does_not_have_authorized_nota
-    if fatura.nfcom_notas.where(status: 'authorized').exists?
-      errors.add(:base, 'Não é possível criar outra NFComNota: já existe uma autorizada.')
-    end
+    return unless fatura.nfcom_notas.exists?(status: 'authorized')
+
+    errors.add(:base, 'Não é possível criar outra NFComNota: já existe uma autorizada.')
   end
 
   # Scopes for common queries
   scope :competencia, ->(mes) { where(competencia: Date.parse("#{mes}-01")) }
   scope :authorized, -> { where(status: 'authorized') }
   scope :pending, -> { where(status: 'pending') }
-  
+
   # Get next numero for a given serie
   def self.proximo_numero(serie = 1)
     where(serie: serie).maximum(:numero).to_i + 1
   end
-  
+
   # Parse XML to extract data if needed
   def parse_xml
-    return unless xml_autorizado.present?
-    
-    @parsed_xml ||= Nokogiri::XML(xml_autorizado)
+    return if xml_autorizado.blank?
+
+    @parse_xml ||= Nokogiri::XML(xml_autorizado)
   end
-  
+
   # Extract specific values from XML (lazy loaded, not stored)
   def valor_servicos_from_xml
     parse_xml&.at_xpath('//xmlns:vProd', 'xmlns' => 'http://www.portalfiscal.inf.br/nfcom')&.text&.to_d
   end
-  
+
   def data_emissao_from_xml
     dhemi = parse_xml&.at_xpath('//xmlns:dhEmi', 'xmlns' => 'http://www.portalfiscal.inf.br/nfcom')&.text
     DateTime.parse(dhemi) if dhemi
   end
-  
+
   # State transitions
   def autorizar!(protocolo:, chave:, xml:)
     update!(
@@ -81,14 +81,14 @@ class NfcomNota < ApplicationRecord
       data_autorizacao: Time.current
     )
   end
-  
+
   def rejeitar!(mensagem)
     update!(
       status: 'rejected',
       mensagem_sefaz: mensagem
     )
   end
-  
+
   def cancelar!
     update!(status: 'cancelled')
   end

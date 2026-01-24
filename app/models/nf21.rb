@@ -51,9 +51,9 @@ class Nf21 < ApplicationRecord
 
   def referencia_item
     @referencia_item ||= Nf21Item.competencia(mes)
-                                 .joins(:nf21)
-                                 .where('nf21s.numero < ?', numero)
-                                 .count + 1
+      .joins(:nf21)
+      .where(nf21s: { numero: ...numero })
+      .count + 1
   end
 
   def parsed_mestre(field)

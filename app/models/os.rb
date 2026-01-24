@@ -67,11 +67,11 @@ class Os < ApplicationRecord
     %i[abertas cidade]
   end
 
-  def self.ransackable_attributes(auth_object = nil)
-    ["descricao", "tipo"]
+  def self.ransackable_attributes(_auth_object = nil)
+    %w[descricao tipo]
   end
 
-  def self.ransackable_associations(auth_object = nil)
-    ["cidade", "classificacao", "conexao", "estado", "logradouro", "pessoa", "responsavel"]
+  def self.ransackable_associations(_auth_object = nil)
+    %w[cidade classificacao conexao estado logradouro pessoa responsavel]
   end
 end

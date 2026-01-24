@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AddAssinaturaToContrato < ActiveRecord::Migration[5.2]
   def change
     add_column :contratos, :gerencianet_assinatura_id, :integer

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AddGerencianetFields < ActiveRecord::Migration[5.2]
   def change
     add_column :pagamento_perfis, :client_id, :string

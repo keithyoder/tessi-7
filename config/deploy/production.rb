@@ -59,8 +59,8 @@
 server '201.71.24.5', user: 'deploy', roles: %w[app db web]
 # server '10.200.28.35', user: 'deploy', roles: %w{app db web}
 
-append :linked_files, "config/certificates/tessi.pfx"
-append :linked_dirs, "log", "tmp/pids", "tmp/cache", "tmp/sockets", "public/system"
+append :linked_files, 'config/certificates/tessi.pfx'
+append :linked_dirs, 'log', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'public/system'
 
 namespace :deploy do
   desc 'Run yarn install'

@@ -231,7 +231,7 @@ RSpec.describe Faturas::AtualizarValorService, type: :service do
       it 'preserva o vencimento_original para fatura registrada' do
         retorno = create(:retorno, pagamento_perfil: pagamento_perfil)
         fatura.update!(registro_id: retorno.id)
-        
+
         nova_fatura = described_class.call(fatura: fatura, novo_valor: 150.00)
 
         expect(nova_fatura.vencimento_original).to eq(fatura.vencimento_original)

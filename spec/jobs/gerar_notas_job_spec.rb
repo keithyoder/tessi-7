@@ -23,10 +23,6 @@ RSpec.describe GerarNotasJob, type: :job do
     allow(Nfcom::EmitirLoteService).to receive(:call).and_return(service_resultado)
   end
 
-  after do
-    travel_back
-  end
-
   describe '#perform' do
     context 'quando não são fornecidas datas' do
       it 'usa o mês atual como padrão' do
@@ -124,24 +120,22 @@ RSpec.describe GerarNotasJob, type: :job do
       end
 
       it 'captura e relança o erro' do
-        expect {
+        expect do
           described_class.perform_now(
             data_inicio: '2025-12-01',
             data_fim: '2025-12-31'
           )
-        }.to raise_error(ArgumentError, 'data_inicio deve estar no mês atual')
+        end.to raise_error(ArgumentError, 'data_inicio deve estar no mês atual')
       end
 
       it 'exibe mensagem de erro de validação' do
         output = capture_stdout do
-          begin
-            described_class.perform_now(
-              data_inicio: '2025-12-01',
-              data_fim: '2025-12-31'
-            )
-          rescue ArgumentError
-            # Expected
-          end
+          described_class.perform_now(
+            data_inicio: '2025-12-01',
+            data_fim: '2025-12-31'
+          )
+        rescue ArgumentError
+          # Expected
         end
 
         expect(output).to include('Erro de validação: data_inicio deve estar no mês atual')
@@ -174,9 +168,9 @@ RSpec.describe GerarNotasJob, type: :job do
       end
 
       it 'captura e relança o erro' do
-        expect {
+        expect do
           described_class.perform_now
-        }.to raise_error(StandardError, 'Erro de conexão')
+        end.to raise_error(StandardError, 'Erro de conexão')
       end
 
       it 'registra no log com backtrace' do
@@ -196,18 +190,18 @@ RSpec.describe GerarNotasJob, type: :job do
 
     context 'quando executado em background' do
       it 'enfileira o job' do
-        expect {
+        expect do
           described_class.perform_later
-        }.to have_enqueued_job(described_class)
+        end.to have_enqueued_job(described_class)
       end
 
       it 'enfileira o job com parâmetros' do
-        expect {
+        expect do
           described_class.perform_later(
             data_inicio: '2026-01-01',
             data_fim: '2026-01-31'
           )
-        }.to have_enqueued_job(described_class).with(
+        end.to have_enqueued_job(described_class).with(
           data_inicio: '2026-01-01',
           data_fim: '2026-01-31'
         )

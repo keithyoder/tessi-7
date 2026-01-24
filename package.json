@@ -12,10 +12,10 @@
     "bootstrap": "^5.3.3",
     "chart.js": "^4.4.1",
     "chartkick": "^5.0.1",
-    "jquery": "^3.7.1"
+    "esbuild": "^0.17.19",
+    "jquery": "^3.7.1",
+    "sass": "^1.70.0"
   },
   "devDependencies": {
-    "esbuild": "^0.17.19",
-    "sass": "^1.70.0"
   }
 }

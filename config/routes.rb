@@ -56,7 +56,7 @@ Rails.application.routes.draw do # rubocop:disable Metrics/BlockLength
     get :suspenso, on: :collection
     get :integrar, on: :collection
   end
-  resources :nfcom_notas, only: [:show] 
+  resources :nfcom_notas, only: [:show]
   resources :pessoas do
     get :autocomplete_logradouro_nome, on: :collection
   end

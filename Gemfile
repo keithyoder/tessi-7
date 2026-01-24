@@ -139,6 +139,7 @@ group :development, :test do
   gem 'rubocop-capybara', require: false
   gem 'rubocop-factory_bot', require: false
   gem 'rubocop-rails', require: false
+  gem 'rubocop-rspec', require: false
 
   gem 'brakeman', require: false
   gem 'bundler-audit', require: false

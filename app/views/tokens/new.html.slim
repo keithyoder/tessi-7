@@ -11,7 +11,6 @@ p
 - refresh_path = begin
   - uri = URI.parse(params[:refresh_token] + "/edit") rescue nil
   - uri.to_s if uri && uri.host.nil? # only allow relative paths
-- end
 
 = link_to "Refresh Your OAuth Token", (refresh_path || root_path)
 br

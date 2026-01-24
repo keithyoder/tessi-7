@@ -62,6 +62,7 @@ class Fatura < ApplicationRecord # rubocop:disable Metrics/ClassLength
   require 'barby/barcode/qr_code'
   require 'barby/outputter/svg_outputter'
   include ActionView::Helpers::NumberHelper
+
   belongs_to :contrato
   belongs_to :pagamento_perfil
   belongs_to :retorno, optional: true
@@ -80,12 +81,12 @@ class Fatura < ApplicationRecord # rubocop:disable Metrics/ClassLength
   paginates_per 18
   scope :pagas, -> { where.not(liquidacao: nil) }
   scope :em_aberto, -> { where(liquidacao: nil, cancelamento: nil) }
-  scope :inadimplentes, -> { where('vencimento < ?', 5.days.ago).em_aberto }
-  scope :suspensos, -> { where('vencimento < ?', 15.days.ago).em_aberto }
+  scope :inadimplentes, -> { where(vencimento: ...5.days.ago).em_aberto }
+  scope :suspensos, -> { where(vencimento: ...15.days.ago).em_aberto }
   scope :registradas, -> { where.not(registro: nil) }
   scope :nao_registradas, -> { where(registro: nil) }
-  scope :vencidas, -> { where('vencimento < ?', 1.day.ago).em_aberto }
-  scope :a_vencer, -> { where('vencimento > ?', Date.today).em_aberto }
+  scope :vencidas, -> { where(vencimento: ...1.day.ago).em_aberto }
+  scope :a_vencer, -> { where('vencimento > ?', Time.zone.today).em_aberto }
   scope :sem_nota, lambda {
     left_joins(:nf21).joins(:contrato).where('contratos.emite_nf').group('faturas.id').having('count(nf21s.*) = 0')
   }
@@ -100,21 +101,21 @@ class Fatura < ApplicationRecord # rubocop:disable Metrics/ClassLength
   }
   scope :notas_a_emitir, ->(range) { where(liquidacao: range).where('vencimento > ?', 3.months.ago).sem_nfcom_nota }
 
-  scope :com_associacoes, -> {
+  scope :com_associacoes, lambda {
     eager_load(
       :pagamento_perfil,
       contrato: [
         :plano,
         :conexoes,
-        pessoa: [
+        { pessoa: [
           :estado,
           :cidade,
-          logradouro: {
+          { logradouro: {
             bairro: {
               cidade: :estado
             }
-          }
-        ]
+          } }
+        ] }
       ]
     )
   }
@@ -163,13 +164,13 @@ class Fatura < ApplicationRecord # rubocop:disable Metrics/ClassLength
   end
 
   def pix_base64
-    return unless pix.present?
+    return if pix.blank?
 
     ::RQRCode::QRCode.new(pix, level: :q).as_png(margin: 0).to_data_url
   end
 
   def pix_imagem
-    return unless pix.present?
+    return if pix.blank?
 
     barcode = Barby::QrCode.new(pix, level: :q)
     StringIO.new(
@@ -192,13 +193,13 @@ class Fatura < ApplicationRecord # rubocop:disable Metrics/ClassLength
   def cfop
     pessoa_obj = contrato.pessoa
     estado_sigla = pessoa_obj.logradouro.bairro.cidade.estado.sigla
-    
+
     cfop_base = if estado_sigla == 'PE'
                   5300
                 else
                   6300
                 end
-    
+
     if pessoa_obj.ie.present?
       cfop_base + 3
     else
@@ -207,7 +208,7 @@ class Fatura < ApplicationRecord # rubocop:disable Metrics/ClassLength
   end
 
   def gerar_nota
-    return unless nf21.blank?
+    return if nf21.present?
 
     next_nf = (Nf21.maximum(:numero).presence || 0) + 1
     emissao = liquidacao.presence || vencimento
@@ -231,17 +232,17 @@ class Fatura < ApplicationRecord # rubocop:disable Metrics/ClassLength
   end
 
   def gerar_nota?
-    return false unless nf21.blank?
-    return mes_referencia(liquidacao) == mes_referencia(Date.today) if liquidacao.present?
+    return false if nf21.present?
+    return mes_referencia(liquidacao) == mes_referencia(Time.zone.today) if liquidacao.present?
 
-    mes_referencia(vencimento) == mes_referencia(Date.today)
+    mes_referencia(vencimento) == mes_referencia(Time.zone.today)
   end
 
   def nosso_numero_remessa
     nossonumero + (dv_santander.to_s if pagamento_perfil.banco == 33).to_s
   end
 
-  def boleto_attrs # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
+  def boleto_attrs # rubocop:disable Metrics/AbcSize
     {
       convenio: pagamento_perfil.cedente,
       cedente: Setting.razao_social,
@@ -268,7 +269,7 @@ class Fatura < ApplicationRecord # rubocop:disable Metrics/ClassLength
     }
   end
 
-  def codigo_de_barras # rubocop:disable Metrics/AbcSize
+  def codigo_de_barras
     @codigo_de_barras ||= begin
       codigo = "#{pagamento_perfil.banco.to_s.rjust(3, '0')}9#{fator_vencimento}#{(valor * 100).to_i.to_s.rjust(10, '0')}#{campo_livre}" # rubocop:disable Layout/LineLength
       dv = codigo.modulo11
@@ -337,10 +338,10 @@ class Fatura < ApplicationRecord # rubocop:disable Metrics/ClassLength
     inicio = data - dias.days - 1.month
     fim = data - (dias + 1).days
     Fatura.where(vencimento: [inicio..fim])
-          .merge(
-            Fatura.where(liquidacao: nil)
-                  .or(Fatura.where(liquidacao: [data..DateTime::Infinity.new]))
-          ).sum(:valor)
+      .merge(
+        Fatura.where(liquidacao: nil)
+              .or(Fatura.where(liquidacao: [data..DateTime::Infinity.new]))
+      ).sum(:valor)
   end
 
   def self.taxa_inadimplencia(data, dias)
@@ -364,7 +365,7 @@ class Fatura < ApplicationRecord # rubocop:disable Metrics/ClassLength
     GerencianetCriarBoletoJob.set(wait: 10.seconds).perform_later(self)
   end
 
-  def remessa_attr # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+  def remessa_attr # rubocop:disable Metrics/AbcSize
     {
       valor:,
       data_vencimento: vencimento,
@@ -385,7 +386,7 @@ class Fatura < ApplicationRecord # rubocop:disable Metrics/ClassLength
     }.merge ocorrencia_attr
   end
 
-  def ocorrencia_attr # rubocop:disable Metrics/MethodLength
+  def ocorrencia_attr
     if baixar?
       {
         cod_primeira_instrucao: pagamento_perfil.banco == 1 ? '44' : '00',
@@ -407,8 +408,8 @@ class Fatura < ApplicationRecord # rubocop:disable Metrics/ClassLength
   end
 
   def validar_liquidacao?
-    return if liquidacao.blank? || (1.week.ago..Date.today).cover?(liquidacao)
-    return unless meio_liquidacao == 'Dinheiro'
+    return false if liquidacao.blank? || (1.week.ago..Time.zone.today).cover?(liquidacao)
+    return false unless meio_liquidacao == 'Dinheiro'
 
     errors.add(:liquidacao, 'fora da faixa permitida')
   end

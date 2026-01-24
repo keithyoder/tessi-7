@@ -4,39 +4,42 @@
 #
 # Table name: radacct
 #
-#  acctauthentic      :text
-#  acctinputoctets    :bigint
-#  acctinterval       :bigint
-#  acctoutputoctets   :bigint
-#  acctsessionid      :text             not null
-#  acctsessiontime    :bigint
-#  acctstarttime      :timestamptz
-#  acctstoptime       :timestamptz
-#  acctterminatecause :text
-#  acctuniqueid       :text             not null
-#  acctupdatetime     :timestamptz
-#  calledstationid    :text
-#  callingstationid   :text
-#  connectinfo_start  :text
-#  connectinfo_stop   :text
-#  framedipaddress    :inet
-#  framedprotocol     :text
-#  groupname          :text
-#  nasipaddress       :inet             not null
-#  nasportid          :text
-#  nasporttype        :text
-#  radacctid          :bigint           not null, primary key
-#  realm              :text
-#  servicetype        :text
-#  username           :text
-#  pessoa_id          :bigint
+#  acctauthentic       :text
+#  acctinputoctets     :bigint
+#  acctinterval        :bigint
+#  acctoutputoctets    :bigint
+#  acctsessionid       :text             not null
+#  acctsessiontime     :bigint
+#  acctstarttime       :timestamptz
+#  acctstoptime        :timestamptz
+#  acctterminatecause  :text
+#  acctuniqueid        :text             not null
+#  acctupdatetime      :timestamptz
+#  calledstationid     :text
+#  callingstationid    :text
+#  connectinfo_start   :text
+#  connectinfo_stop    :text
+#  delegatedipv6prefix :string
+#  framedipaddress     :inet
+#  framedipv6address   :string
+#  framedprotocol      :text
+#  groupname           :text
+#  nasipaddress        :inet             not null
+#  nasportid           :text
+#  nasporttype         :text
+#  radacctid           :bigint           not null, primary key
+#  realm               :text
+#  servicetype         :text
+#  username            :text
+#  pessoa_id           :bigint
 #
 # Indexes
 #
-#  radacct_acctuniqueid_key    (acctuniqueid) UNIQUE
-#  radacct_active_session_idx  (acctuniqueid) WHERE (acctstoptime IS NULL)
-#  radacct_bulk_close          (nasipaddress,acctstarttime) WHERE (acctstoptime IS NULL)
-#  radacct_start_user_idx      (acctstarttime,username)
+#  index_radacct_on_username_and_acctstarttime  (username,acctstarttime)
+#  radacct_acctuniqueid_key                     (acctuniqueid) UNIQUE
+#  radacct_active_session_idx                   (acctuniqueid) WHERE (acctstoptime IS NULL)
+#  radacct_bulk_close                           (nasipaddress,acctstarttime) WHERE (acctstoptime IS NULL)
+#  radacct_start_user_idx                       (acctstarttime,username)
 #
 # Foreign Keys
 #
@@ -56,6 +59,6 @@ class RadAcct < ApplicationRecord
 
   def self.codef(mes)
     RadAcct.where("date_trunc('month', acctstarttime) = ?", mes)
-           .sum('(acctinputoctets + acctoutputoctets) / (1024 * 1024)').to_i
+      .sum('(acctinputoctets + acctoutputoctets) / (1024 * 1024)').to_i
   end
 end

@@ -2,7 +2,7 @@
 
 class WebhookEventoJob < ApplicationJob
   queue_as :default
-  
+
   def perform(evento_id)
     evento = WebhookEvento.find(evento_id)
     Rails.logger.info "Processando evento #{evento.id} de tipo #{evento&.webhook&.tipo}"
@@ -10,7 +10,7 @@ class WebhookEventoJob < ApplicationJob
     when 'gerencianet'
       GerencianetClient.processar_webhook(evento)
     when 'autentique'
-      Autentique::processar_webhook(evento)
+      Autentique.processar_webhook(evento)
     end
   end
 end

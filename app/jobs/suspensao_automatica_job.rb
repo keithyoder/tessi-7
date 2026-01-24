@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
-class SuspensaoAutomaticaJob < ApplicationJob # rubocop:disable Style/Documentation
+class SuspensaoAutomaticaJob < ApplicationJob
   queue_as :default
 
   def perform
-    Contrato.eager_load(:conexoes).ativos.each(&:atualizar_conexoes)
+    contratos = Contrato.ativos.includes(:conexoes, :faturas, :excecoes)
+    contratos.find_each(batch_size: 100, &:atualizar_conexoes)
   end
 end

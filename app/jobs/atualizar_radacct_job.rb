@@ -4,7 +4,7 @@ class AtualizarRadacctJob < ApplicationJob
   queue_as :default
 
   def perform
-    query = <<-SQL
+    query = <<-SQL.squish
         update radacct set pessoa_id = conexoes.pessoa_id
         from conexoes where acctstoptime > $1
         and radacct.username = conexoes.usuario

@@ -19,6 +19,6 @@ module RetornosHelper
   end
 
   def cnab_to_nosso_numero_bb(s)
-    s[10..-1].sub!(/^0+/, '')
+    s[10..].sub!(/^0+/, '')
   end
 end

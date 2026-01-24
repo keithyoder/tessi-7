@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class GerencianetCancelarBoletoJob < ApplicationJob # rubocop:disable Style/Documentation
+class GerencianetCancelarBoletoJob < ApplicationJob
   queue_as :default
 
   def perform(id_externo)

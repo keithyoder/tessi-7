@@ -46,12 +46,12 @@ module ApplicationHelper
   end
 
   def flash_message
-    messages = ""
-    [:notice, :info, :warning, :error].each {|type|
+    messages = ''
+    %i[notice info warning error].each do |type|
       if flash[type]
         messages += "<div class=\"alert alert-#{BOOTSTRAP_ALERT_MAP[type]}\" role=\"alert\">#{flash[type]}</div>"
       end
-    }
+    end
     messages.html_safe
   end
 

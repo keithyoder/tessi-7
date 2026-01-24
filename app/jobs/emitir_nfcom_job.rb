@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class EmitirNfcomJob < ApplicationJob
   queue_as :default
 

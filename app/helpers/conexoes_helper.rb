@@ -9,15 +9,15 @@ module ConexoesHelper
   end
 
   def parcelas_instalacao_display
-    return '' unless @contrato.valor_instalacao > 0
-    return 'À Vista' if @contrato.parcelas_instalacao == 0
+    return '' unless @contrato.valor_instalacao.positive?
+    return 'À Vista' if @contrato.parcelas_instalacao.zero?
 
     @contrato.parcelas_instalacao
   end
 
   def parcelas_vencimento
-    return '' unless @contrato.parcelas_instalacao > 0
+    return '' unless @contrato.parcelas_instalacao.positive?
 
-    @contrato.faturas.first(@contrato.parcelas_instalacao).map { |f| I18n.localize(f.vencimento)}.join(', ')
+    @contrato.faturas.first(@contrato.parcelas_instalacao).map { |f| I18n.l(f.vencimento) }.join(', ')
   end
 end

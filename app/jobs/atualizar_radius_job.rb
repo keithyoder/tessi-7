@@ -4,7 +4,7 @@ class AtualizarRadiusJob < ApplicationJob
   queue_as :default
 
   def perform
-    Conexao.all.each(&:integrar)
+    Conexao.find_each(&:integrar)
   end
 end
 

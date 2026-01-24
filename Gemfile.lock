@@ -359,9 +359,7 @@ GEM
       ast (~> 2.4.1)
       racc
     pdf-core (0.10.0)
-    pg (1.6.3-aarch64-linux)
-    pg (1.6.3-arm64-darwin)
-    pg (1.6.3-x86_64-linux)
+    pg (1.6.3)
     phonelib (0.10.15)
     popper_js (2.11.8)
     pp (0.6.3)
@@ -671,7 +669,7 @@ DEPENDENCIES
   nfcom!
   nokogiri
   oauth2
-  pg
+  pg (>= 1.6, < 2.0)
   phonelib
   popper_js
   prawn-qrcode

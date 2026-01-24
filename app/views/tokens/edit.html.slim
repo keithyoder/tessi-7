@@ -1,0 +1,15 @@
+h1 Below is the Result of Your update Access Token:
+
+p
+  | Access Token: #{params[:updated_access_token]}  
+  | Access Token Expires In: #{params[:updated_expires_in]}  
+  | Refresh Token: #{params[:updated_refresh_token]}  
+  | Refresh Token Expires In: #{params[:updated_x_refresh_token_expires_in]}
+
+- allowed_hosts = [request.host]
+- begin
+  - uri = URI.parse(params[:host_uri])
+- rescue
+  - uri = nil
+
+= link_to "Home", (uri && allowed_hosts.include?(uri.host) ? uri.to_s : root_path)

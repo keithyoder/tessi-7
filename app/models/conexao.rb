@@ -113,11 +113,22 @@ class Conexao < ApplicationRecord
     left_joins(:contrato).where('conexoes.tipo = 1 and contrato_id is null or cancelamento is not null')
   }
   scope :proximas, lambda { |lat, lng|
-    select("*, 6371 * acos( cos( radians(#{lat}) ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians(#{lng}) ) + sin( radians(#{lat}) ) * sin(radians(latitude)) ) as distancia") # rubocop:disable Layout/LineLength
+    distance_sql = Arel.sql(
+      "6371 * acos(
+        cos(radians(?)) *
+        cos(radians(latitude)) *
+        cos(radians(longitude) - radians(?)) +
+        sin(radians(?)) *
+        sin(radians(latitude))
+      )"
+    )
+
+    select("#{table_name}.*, #{sanitize_sql_array([distance_sql, lat, lng, lat])} AS distancia")
       .includes(:ponto)
-      .order(:distancia)
+      .order("distancia")
       .limit(20)
   }
+
 
   scope :para_logradouro, lambda { |logradouro_id|
     left_joins(:pessoa).where(

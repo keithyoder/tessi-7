@@ -1,0 +1,26 @@
+h1 Below is the Result of Your Access Token:
+
+p
+  | Realm ID: #{params[:realmId]}  
+  | Access Token: #{params[:access_token]}  
+  | Access Token Expires In: #{params[:expires_in]}  
+  | Refresh Token: #{params[:refresh_token]}  
+  | Refresh Token Expires In: #{params[:x_refresh_token_expires_in]}
+
+-# Safe link to refresh token page
+- refresh_path = begin
+  - uri = URI.parse(params[:refresh_token] + "/edit") rescue nil
+  - uri.to_s if uri && uri.host.nil? # only allow relative paths
+- end
+
+= link_to "Refresh Your OAuth Token", (refresh_path || root_path)
+br
+
+-# Safe home link using whitelisted host
+- allowed_hosts = [request.host]
+- home_path = begin
+  - uri = URI.parse(params[:host_uri]) rescue nil
+  - uri.to_s if uri && allowed_hosts.include?(uri.host)
+- end
+
+= link_to "Home", (home_path || root_path)

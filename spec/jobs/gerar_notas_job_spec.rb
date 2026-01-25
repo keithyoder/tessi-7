@@ -3,6 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe GerarNotasJob, type: :job do
+  let(:logs) { StringIO.new }
+
   let(:service_resultado) do
     {
       success_count: 5,
@@ -18,9 +20,16 @@ RSpec.describe GerarNotasJob, type: :job do
     }
   end
 
+  let(:original_logger) { Rails.logger }
+
   before do
     travel_to Date.new(2026, 1, 23)
+    Rails.logger = Logger.new(logs)
     allow(Nfcom::EmitirLoteService).to receive(:call).and_return(service_resultado)
+  end
+
+  after do
+    Rails.logger = original_logger
   end
 
   describe '#perform' do
@@ -41,22 +50,18 @@ RSpec.describe GerarNotasJob, type: :job do
       end
 
       it 'exibe resumo com contadores' do
-        output = capture_stdout do
-          described_class.perform_now
-        end
+        described_class.perform_now
 
-        expect(output).to include('Emissão de NFCom - Resumo')
-        expect(output).to include('Sucesso: 5')
-        expect(output).to include('Erros: 2')
+        expect(logs.string).to include('Emissão de NFCom - Resumo')
+        expect(logs.string).to include('Sucesso: 5')
+        expect(logs.string).to include('Erros: 2')
       end
 
       it 'exibe detalhes dos erros' do
-        output = capture_stdout do
-          described_class.perform_now
-        end
+        described_class.perform_now
 
-        expect(output).to include('Fatura #3: Erro na SEFAZ')
-        expect(output).to include('Fatura #4: Documento inválido')
+        expect(logs.string).to include('Fatura #3: Erro na SEFAZ')
+        expect(logs.string).to include('Fatura #4: Documento inválido')
       end
     end
 
@@ -101,13 +106,11 @@ RSpec.describe GerarNotasJob, type: :job do
       end
 
       it 'não exibe seção de erros' do
-        output = capture_stdout do
-          described_class.perform_now
-        end
+        described_class.perform_now
 
-        expect(output).to include('Sucesso: 10')
-        expect(output).to include('Erros: 0')
-        expect(output).not_to include('Fatura #')
+        expect(logs.string).to include('Sucesso: 10')
+        expect(logs.string).to include('Erros: 0')
+        expect(logs.string).not_to include('Fatura #')
       end
     end
 
@@ -129,7 +132,7 @@ RSpec.describe GerarNotasJob, type: :job do
       end
 
       it 'exibe mensagem de erro de validação' do
-        output = capture_stdout do
+        begin
           described_class.perform_now(
             data_inicio: '2025-12-01',
             data_fim: '2025-12-31'
@@ -138,7 +141,7 @@ RSpec.describe GerarNotasJob, type: :job do
           # Expected
         end
 
-        expect(output).to include('Erro de validação: data_inicio deve estar no mês atual')
+        expect(logs.string).to include('Erro de validação: data_inicio deve estar no mês atual')
       end
 
       it 'registra no log' do

@@ -3,7 +3,7 @@
 FactoryBot.define do
   factory :contrato do
     # Associations
-    pessoa { association :pessoa_fisica }
+    pessoa { association :pessoa, :fisica }
     plano  { association :plano }
 
     # Attributes

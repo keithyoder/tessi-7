@@ -3,7 +3,12 @@
 class Users::SessionsController < Devise::SessionsController
   # POST /users/sign_in
   def create
-    super
+    super do |resource|
+      respond_to do |format|
+        format.html { redirect_to after_sign_in_path_for(resource) }
+        format.turbo_stream { redirect_to after_sign_in_path_for(resource), status: :see_other }
+      end
+    end
   end
 
   # DELETE /users/sign_out
@@ -14,5 +19,11 @@ class Users::SessionsController < Devise::SessionsController
     respond_to do |format|
       format.html { redirect_to after_sign_out_path_for(resource_name), status: :see_other }
     end
+  end
+
+  protected
+
+  def auth_options
+    { scope: resource_name, recall: "#{controller_path}#new" }
   end
 end

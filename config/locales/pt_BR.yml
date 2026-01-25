@@ -239,6 +239,13 @@ pt-BR:
       notice: "Atendimento excluído com sucesso."
     encerrar:
       notice: "Atendimento encerrado com sucesso."
+  atendimento_detalhes:
+    create:
+      notice: "Atendimento detalhe criado com sucesso."
+    update:
+      notice: "Atendimento detalhe atualizado com sucesso."
+    destroy:
+      notice: "Atendimento detalhe excluído com sucesso."
   estados:
     update:
       notice: "Estado atualizado com sucesso."

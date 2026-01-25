@@ -28,7 +28,7 @@ class Ability
     can :read, :all
     can :suspenso, Conexao
     can %i[boletos renovar], Contrato
-    can %i[udate liquidacao boleto], Fatura
+    can %i[update liquidacao boleto], Fatura
 
     # Only allow encerrar on Atendimento assigned to the user and not closed
     can :encerrar, Atendimento, responsavel_id: user.id, fechamento: nil

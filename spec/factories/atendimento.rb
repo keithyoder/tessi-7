@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :atendimento do
-    pessoa
+    pessoa factory: %i[pessoa fisica]
     classificacao
     responsavel { association :user }
 

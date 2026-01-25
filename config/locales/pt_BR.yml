@@ -230,6 +230,15 @@ pt-BR:
       long: "%d de %B de %Y, %H:%M"
       short: "%d de %B, %H:%M"
 
+  atendimentos:
+    create:
+      notice: "Atendimento criado com sucesso."
+    update:
+      notice: "Atendimento atualizado com sucesso."
+    destroy:
+      notice: "Atendimento excluído com sucesso."
+    encerrar:
+      notice: "Atendimento encerrado com sucesso."
   estados:
     update:
       notice: "Estado atualizado com sucesso."

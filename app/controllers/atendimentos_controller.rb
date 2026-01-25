@@ -1,20 +1,16 @@
 # frozen_string_literal: true
 
 class AtendimentosController < ApplicationController
-  before_action :set_atendimento, only: %i[show edit update destroy encerrar]
-  before_action :set_scope, only: %i[index show new encerrar]
+  before_action :set_scope, only: %i[index show new]
+  before_action :set_atendimento, only: [:encerrar]
   load_and_authorize_resource
 
   # GET /atendimentos or /atendimentos.json
   def index
-    atendimento = Atendimento
-    atendimento = atendimento.abertos if params.key?(:abertos)
-    atendimento = atendimento.fechados if params.key?(:fechados)
-    atendimento = atendimento.por_responsavel(current_user) if params.key?(:meus)
-    atendimento = atendimento.por_responsavel(params[:responsavel]) if params.key?(:responsavel)
-    @q = atendimento.ransack(params[:q])
-    @q.sorts = 'created_at'
-    @atendimentos = @q.result.page params[:page]
+    @q = build_query.ransack(params[:q])
+    @q.sorts = 'created_at' if @q.sorts.empty?
+    @atendimentos = @q.result.page(params[:page])
+
     respond_to do |format|
       format.html
     end
@@ -25,44 +21,47 @@ class AtendimentosController < ApplicationController
 
   # GET /atendimentos/new
   def new
-    @atendimento = Atendimento.new
-    @atendimento.pessoa_id = params[:pessoa_id] if params.key?(:pessoa_id)
-    @atendimento.responsavel = current_user
-    @detalhe = AtendimentoDetalhe.new atendimento: @atendimento
+    @atendimento = Atendimento.new(
+      pessoa_id: params[:pessoa_id],
+      responsavel: current_user
+    )
+    @detalhe = AtendimentoDetalhe.new(atendimento: @atendimento)
   end
 
   # GET /atendimentos/1/edit
   def edit; end
 
+  # PATCH /atendimentos/1/encerrar
   def encerrar
+    authorize! :encerrar, @atendimento
+
+    @atendimento.update!(fechamento: Time.current)
+
     respond_to do |format|
-      if @atendimento.update!(fechamento: DateTime.now)
-        format.html { redirect_to @atendimento, notice: 'Atendimento encerrado com sucesso.' }
-        format.json { render :show, status: :created, location: @atendimento }
-      else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @atendimento.errors, status: :unprocessable_entity }
-      end
+      format.html { redirect_to @atendimento, notice: t('.notice') }
+      format.json { render :show, status: :ok, location: @atendimento }
     end
   end
 
   # POST /atendimentos or /atendimentos.json
   def create
-    puts detalhe_params
-    @atendimento = Atendimento.new(atendimento_params)
-    @detalhe = AtendimentoDetalhe.new(
-      atendimento: @atendimento,
-      atendente: current_user,
-      tipo: AtendimentoDetalhe.tipos.key(atendimento_params[:detalhe_tipo].to_i),
-      descricao: atendimento_params[:detalhe_descricao]
+    result = Atendimentos::CriarService.call(
+      atendimento_params: atendimento_params.except(:detalhe_tipo, :detalhe_descricao),
+      detalhe_tipo: atendimento_params[:detalhe_tipo],
+      detalhe_descricao: atendimento_params[:detalhe_descricao],
+      atendente: current_user
     )
+
+    @atendimento = result[:atendimento]
+    @detalhe = result[:detalhe]
+
     respond_to do |format|
-      if @atendimento.save && @detalhe.save
-        format.html { redirect_to @atendimento, notice: 'Atendimento criado com sucesso.' }
+      if result[:success]
+        format.html { redirect_to @atendimento, notice: t('.notice') }
         format.json { render :show, status: :created, location: @atendimento }
       else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @atendimento.errors, status: :unprocessable_entity }
+        format.html { render :new, status: :unprocessable_content }
+        format.json { render json: @atendimento.errors, status: :unprocessable_content }
       end
     end
   end
@@ -70,28 +69,28 @@ class AtendimentosController < ApplicationController
   # PATCH/PUT /atendimentos/1 or /atendimentos/1.json
   def update
     respond_to do |format|
-      if @atendimento.update(atendimento_params)
-        format.html { redirect_to @atendimento, notice: 'Atendimento was successfully updated.' }
+      if @atendimento.update(atendimento_params.except(:detalhe_tipo, :detalhe_descricao))
+        format.html { redirect_to @atendimento, notice: t('.notice') }
         format.json { render :show, status: :ok, location: @atendimento }
       else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @atendimento.errors, status: :unprocessable_entity }
+        format.html { render :edit, status: :unprocessable_content }
+        format.json { render json: @atendimento.errors, status: :unprocessable_content }
       end
     end
   end
 
   # DELETE /atendimentos/1 or /atendimentos/1.json
   def destroy
-    @atendimento.destroy
+    @atendimento.destroy!
+
     respond_to do |format|
-      format.html { redirect_to atendimentos_url, notice: 'Atendimento was successfully destroyed.' }
+      format.html { redirect_to atendimentos_url, notice: t('.notice') }
       format.json { head :no_content }
     end
   end
 
   private
 
-  # Use callbacks to share common setup or constraints between actions.
   def set_atendimento
     @atendimento = Atendimento.find(params[:id])
   end
@@ -100,7 +99,6 @@ class AtendimentosController < ApplicationController
     @params = params.permit(:abertos, :fechados, :meus, :responsavel)
   end
 
-  # Only allow a list of trusted parameters through.
   def atendimento_params
     params.require(:atendimento).permit(
       :pessoa_id, :classificacao_id, :responsavel_id, :fechamento, :contrato_id,
@@ -108,7 +106,12 @@ class AtendimentosController < ApplicationController
     )
   end
 
-  def detalhe_params
-    params.permit(:detalhe_tipo, :detalhe_descricao)
+  def build_query
+    query = Atendimento.all
+    query = query.abertos if params.key?(:abertos)
+    query = query.fechados if params.key?(:fechados)
+    query = query.por_responsavel(current_user) if params.key?(:meus)
+    query = query.por_responsavel(params[:responsavel]) if params.key?(:responsavel)
+    query
   end
 end

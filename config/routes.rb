@@ -94,7 +94,7 @@ Rails.application.routes.draw do # rubocop:disable Metrics/BlockLength
 
   # Support and Service Orders
   resources :atendimentos do
-    get :encerrar, on: :member
+    patch :encerrar, on: :member
   end
   resources :atendimento_detalhes, only: %i[new create index]
   resources :os do

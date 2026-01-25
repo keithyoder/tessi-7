@@ -24,7 +24,8 @@ module Spec
 
     def any_pessoa_fisica(_attrs = {})
       @any_pessoa_fisica ||= create(
-        :pessoa_fisica
+        :pessoa_fisica,
+        { cpf: '11111111111' }
       )
     end
 

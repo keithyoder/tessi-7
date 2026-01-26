@@ -246,6 +246,10 @@ pt-BR:
       notice: "Atendimento detalhe atualizado com sucesso."
     destroy:
       notice: "Atendimento detalhe excluído com sucesso."
+  contratos:
+    termos:
+      create:
+        notice: "Termo de adesão enviado com sucesso."
   estados:
     update:
       notice: "Estado atualizado com sucesso."

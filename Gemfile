@@ -9,7 +9,7 @@ ruby '3.3.4'
 # Core framework
 # ------------------------------------------------------------
 gem 'bootsnap', require: false
-gem "pg", ">= 1.6", "< 2.0", force_ruby_platform: true
+gem 'pg', '>= 1.6', '< 2.0', force_ruby_platform: true
 gem 'puma'
 gem 'rails', '~> 7.2'
 
@@ -18,13 +18,13 @@ gem 'rails', '~> 7.2'
 # ------------------------------------------------------------
 # gem 'bootstrap', '~> 5'
 # gem 'popper_js'
-gem "sassc"
+gem 'sassc'
 gem 'slim'
 gem 'slim-rails'
 
 gem 'cssbundling-rails'
 gem 'jsbundling-rails'
-#gem 'sprockets-rails'
+# gem 'sprockets-rails'
 gem 'propshaft'
 gem 'stimulus-rails'
 gem 'turbo-rails'
@@ -62,6 +62,7 @@ gem 'snmp'
 # ------------------------------------------------------------
 # Brazilian ecosystem / Finance
 # ------------------------------------------------------------
+gem 'autentique', git: 'https://github.com/keithyoder/autentique-ruby.git'
 gem 'barby'
 gem 'brcobranca', git: 'https://github.com/kivanio/brcobranca.git', ref: '246c1ea'
 gem 'cpf_cnpj'

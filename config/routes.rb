@@ -57,12 +57,11 @@ Rails.application.routes.draw do # rubocop:disable Metrics/BlockLength
   # Contracts and Billing
   resources :contratos do
     get :boletos, on: :member
-    get :termo, on: :member
     get :churn, on: :collection
     get :assinatura, on: :member
-    get :autentique, on: :member
     get :pendencias, on: :collection
     get :trocado, on: :member
+    resource :termo, only: %i[show create], module: :contratos
 
     member do
       post :renovacao, to: 'contratos/renovacoes#create'

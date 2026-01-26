@@ -3,7 +3,7 @@
 require 'graphql/client'
 require 'graphql/client/http'
 
-module Autentique
+module AutentiqueOld
   HTTP = GraphQL::Client::HTTP.new('https://api.autentique.com.br/v2/graphql') do
     def headers(_context)
       { Authorization: "Bearer #{Rails.application.credentials.autentique_key}" }

@@ -1,4 +1,12 @@
 GIT
+  remote: https://github.com/keithyoder/autentique-ruby.git
+  revision: 85dfc0686f6a281df356480f233449a7fa4430e5
+  specs:
+    autentique (0.1.0)
+      graphql-client (~> 0.18)
+      mime-types (~> 3.0)
+
+GIT
   remote: https://github.com/keithyoder/graphql-client.git
   revision: 708af98508351e8c187268acf43b020d320e974d
   specs:
@@ -306,6 +314,10 @@ GEM
       net-smtp
     marcel (1.1.0)
     matrix (0.4.3)
+    mime-types (3.7.0)
+      logger
+      mime-types-data (~> 3.2025, >= 3.2025.0507)
+    mime-types-data (3.2026.0113)
     mini_magick (5.3.1)
       logger
     mini_mime (1.1.5)
@@ -622,6 +634,7 @@ PLATFORMS
 
 DEPENDENCIES
   annotate
+  autentique!
   barby
   bcrypt_pbkdf (>= 1.0, < 2.0)
   bootsnap

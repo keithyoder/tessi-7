@@ -44,7 +44,7 @@ class Ability
   def admin_permissions
     can :manage, :all
     cannot %i[destroy create], Estado
-    can :encerrar, Atendimento, fechamento: nil
+    # can :encerrar, Atendimento, fechamento: nil
   end
 
   # Level 1 technician
@@ -64,7 +64,6 @@ class Ability
   # Level 1 financial
   def financeiro_n1_permissions
     can %i[update liquidacao], Fatura
-    can :termo, Contrato
   end
 
   # Level 2 financial
@@ -73,7 +72,8 @@ class Ability
     can :destroy, Conexao
     can %i[update liquidacao estornar cancelar gerar_nf], Fatura
     can %i[create update], [Retorno, Contrato]
-    can %i[destroy termo pendencias autentique trocado], Contrato
+    can %i[destroy pendencias trocado assinar], Contrato
+    can :create, ContratoTermo
     can :remessa, PagamentoPerfil
   end
 end

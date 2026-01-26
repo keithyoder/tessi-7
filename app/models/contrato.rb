@@ -34,19 +34,7 @@
 #  plano_id                :bigint           not null
 #  recorrencia_id          :string
 #
-# Indexes
-#
-#  index_contratos_on_pagamento_perfil_id  (pagamento_perfil_id)
-#  index_contratos_on_pessoa_id            (pessoa_id)
-#  index_contratos_on_plano_id             (plano_id)
-#
-# Foreign Keys
-#
-#  fk_rails_...  (pagamento_perfil_id => pagamento_perfis.id)
-#  fk_rails_...  (pessoa_id => pessoas.id)
-#  fk_rails_...  (plano_id => planos.id)
-#
-class Contrato < ApplicationRecord # rubocop:disable Metrics/ClassLength
+class Contrato < ApplicationRecord
   belongs_to :pessoa
   belongs_to :plano
   belongs_to :pagamento_perfil
@@ -54,7 +42,9 @@ class Contrato < ApplicationRecord # rubocop:disable Metrics/ClassLength
   has_many :conexoes
   has_many :excecoes, dependent: :delete_all
 
-  # contratos que tem menos conexoes que permitido.
+  # --------------------
+  # SCOPES
+  # --------------------
   scope :disponiveis, lambda {
     where(id: Contrato.select('contratos.id')
       .left_joins(:conexoes)
@@ -62,44 +52,48 @@ class Contrato < ApplicationRecord # rubocop:disable Metrics/ClassLength
       .having('count(conexoes.*) < contratos.numero_conexoes'))
   }
 
-  scope :ativos, lambda {
-    where(cancelamento: nil)
-  }
+  scope :ativos, -> { where(cancelamento: nil) }
+
   scope :suspendiveis, lambda {
-                         includes(:pessoa)
-                           .joins(:conexoes, :faturas)
-                           .where(
-                             conexoes: { bloqueado: false },
-                             faturas: { liquidacao: nil, cancelamento: nil }
-                           )
-                           .where('faturas.vencimento < ?', 15.days.ago)
-                           .distinct
-                       }
+    includes(:pessoa)
+      .joins(:conexoes, :faturas)
+      .where(
+        conexoes: { bloqueado: false },
+        faturas: { liquidacao: nil, cancelamento: nil }
+      )
+      .where('faturas.vencimento < ?', 15.days.ago)
+      .distinct
+  }
+
   scope :liberaveis, lambda {
-                       joins(:conexoes)
-                         .joins("LEFT OUTER JOIN faturas ON contratos.id = faturas.contrato_id and faturas.cancelamento is null and liquidacao is null and vencimento < '#{15.days.ago}'")
-                         .where(
-                           cancelamento: nil,
-                           conexoes: { bloqueado: true }
-                         )
-                         .group('contratos.id')
-                         .having('count(faturas.*) = 0')
-                         .distinct
-                     }
+    joins(:conexoes)
+      .joins("LEFT OUTER JOIN faturas ON contratos.id = faturas.contrato_id AND faturas.cancelamento IS NULL AND liquidacao IS NULL AND vencimento < '#{15.days.ago}'")
+      .where(
+        cancelamento: nil,
+        conexoes: { bloqueado: true }
+      )
+      .group('contratos.id')
+      .having('count(faturas.*) = 0')
+      .distinct
+  }
+
   scope :cancelaveis, lambda {
     joins(:pessoa, :faturas, :plano)
       .where(faturas: { liquidacao: nil, cancelamento: nil })
       .where('faturas.vencimento < ?', 1.day.ago)
       .group('contratos.id, pessoas.id, planos.id')
-      .having('COUNT(faturas.*) > 4').ativos
+      .having('COUNT(faturas.*) > 4')
+      .ativos
   }
 
   scope :renovaveis, lambda {
     joins(:pessoa, :plano)
       .joins("LEFT JOIN faturas ON contratos.id = faturas.contrato_id AND faturas.periodo_fim > '#{15.days.from_now}'")
       .group('contratos.id', 'pessoas.id', 'planos.id')
-      .having('COUNT(faturas.*) = 0').ativos
+      .having('COUNT(faturas.*) = 0')
+      .ativos
   }
+
   scope :fisica, -> { joins(:pessoa).where('pessoas.tipo = 1') }
   scope :juridica, -> { joins(:pessoa).where('pessoas.tipo = 2') }
   scope :novos_por_mes, ->(mes) { where("date_trunc('month', adesao) = ?", mes) }
@@ -108,20 +102,23 @@ class Contrato < ApplicationRecord # rubocop:disable Metrics/ClassLength
     joins(:pessoa, :plano)
       .left_outer_joins(:conexoes)
       .group('contratos.id', 'pessoas.id', 'planos.id')
-      .having('COUNT(conexoes.*) = 0').ativos
+      .having('COUNT(conexoes.*) = 0')
+      .ativos
   }
 
-  after_create :gerar_faturas
-
+  # --------------------
+  # CALLBACKS
+  # --------------------
+  after_create :gerar_faturas_iniciais
   after_save :after_save
-
   before_destroy :verificar_exclusao, prepend: true
 
+  # --------------------
+  # MÉTODOS PÚBLICOS
+  # --------------------
   def faturas_em_atraso(dias)
     prazo = dias.days.ago
-    faturas
-      .select { |f| f.liquidacao.nil? && f.cancelamento.nil? && f.vencimento < prazo }
-      .count
+    faturas.select { |f| f.liquidacao.nil? && f.cancelamento.nil? && f.vencimento < prazo }.count
   end
 
   def contrato_e_nome
@@ -134,39 +131,7 @@ class Contrato < ApplicationRecord # rubocop:disable Metrics/ClassLength
     Efi::PixAutomatico.new(self)
   end
 
-  def gerar_faturas(quantas = prazo_meses)
-    nossonumero = pagamento_perfil.proximo_nosso_numero
-    vencimento = faturas.maximum(:vencimento) || primeiro_vencimento - 1.month
-    inicio = faturas.maximum(:vencimento) || adesao
-    parcela = faturas.maximum(:parcela) || 0
-    (1..quantas).each do
-      nossonumero += 1
-      vencimento = proximo_mes(vencimento)
-      parcela += 1
-      instalacao = if parcela <= parcelas_instalacao
-                     (valor_instalacao / parcelas_instalacao).round(2)
-                   else
-                     0
-                   end
-      valor = (mensalidade * fracao_de_mes(inicio, vencimento)).round(2) + instalacao
-      faturas.create!(
-        pagamento_perfil_id: pagamento_perfil_id,
-        valor: valor,
-        valor_original: valor,
-        parcela: parcela,
-        vencimento: vencimento,
-        vencimento_original: vencimento,
-        nossonumero: nossonumero,
-        periodo_inicio: inicio + 1.day,
-        periodo_fim: vencimento
-      )
-      inicio = vencimento
-    end
-  end
-
   def suspender?
-    # suspender se tiver faturas em atraso mas não tem regra de exeção para
-    # liberar ou se tiver uma regra para bloquear.
     (faturas_em_atraso(15).positive? && excecoes.validas_para_desbloqueio.none?) || excecoes.validas_para_bloqueio.any?
   end
 
@@ -181,13 +146,6 @@ class Contrato < ApplicationRecord # rubocop:disable Metrics/ClassLength
         inadimplente: atraso
       )
     end
-  end
-
-  def renovar
-    faturas_a_vencer = faturas.a_vencer.count
-    # se faltar uma fatura, gera mais 12.  Se faltar mais, gera a quantidade para completar 12.
-    faturas_a_vencer = 0 if faturas_a_vencer <= 1
-    gerar_faturas(prazo_meses - faturas_a_vencer) if faturas_a_vencer < prazo_meses
   end
 
   def mensalidade
@@ -216,7 +174,7 @@ class Contrato < ApplicationRecord # rubocop:disable Metrics/ClassLength
     ultima_fatura_paga.vencimento > primeira_fatura_em_aberto.vencimento
   end
 
-  def self.to_csv # rubocop:disable Metrics/MethodLength
+  def self.to_csv
     headers = %i[ID Assinante Plano Adesão Cancelamento]
     CSV.generate(headers: true) do |csv|
       csv << headers
@@ -233,23 +191,22 @@ class Contrato < ApplicationRecord # rubocop:disable Metrics/ClassLength
     end
   end
 
-  def vincular_documento(id) # rubocop:disable Metrics/MethodLength
+  def vincular_documento(id)
     require 'autentique'
 
     documento = Autentique::Client.query(
-      Autentique::ResgatarDocumento,
+      Autentique::resgatar_documento,
       variables: { "id": id }
     ).original_hash['data']['document']
-    documentos = [] if documentos.blank?
+    documentos_array = documentos.presence || []
     update(
-      documentos:
-        documentos + [
-          {
-            'data': documento['created_at'],
-            'nome': documento['name'],
-            'link': documento['files']['signed']
-          }
-        ]
+      documentos: documentos_array + [
+        {
+          'data' => documento['created_at'],
+          'nome' => documento['name'],
+          'link' => documento['files']['signed']
+        }
+      ]
     )
   end
 
@@ -258,17 +215,15 @@ class Contrato < ApplicationRecord # rubocop:disable Metrics/ClassLength
   end
 
   def enderecos
-    return ["#{pessoa.endereco} - #{pessoa.logradouro.bairro.nome_cidade_uf}"] unless conexoes.count > 0
+    return ["#{pessoa.endereco} - #{pessoa.logradouro.bairro.nome_cidade_uf}"] if conexoes.empty?
 
-    enderecos = []
-    conexoes.each do |conexao|
+    conexoes.map do |conexao|
       if conexao.logradouro.present?
-        enderecos.append("#{conexao.logradouro.nome} - #{conexao.logradouro.bairro.nome_cidade_uf}")
+        "#{conexao.logradouro.nome} - #{conexao.logradouro.bairro.nome_cidade_uf}"
       else
-        enderecos.append("#{pessoa.endereco} - #{pessoa.logradouro.bairro.nome_cidade_uf}")
+        "#{pessoa.endereco} - #{pessoa.logradouro.bairro.nome_cidade_uf}"
       end
     end
-    enderecos
   end
 
   def self.ransackable_attributes(_auth_object = nil)
@@ -279,7 +234,18 @@ class Contrato < ApplicationRecord # rubocop:disable Metrics/ClassLength
     ['pessoas']
   end
 
+  # --------------------
+  # MÉTODOS PRIVADOS
+  # --------------------
   private
+
+  def gerar_faturas_iniciais
+    Faturas::GerarService.call(
+      contrato: self,
+      quantidade: prazo_meses,
+      meses_por_fatura: 1
+    )
+  end
 
   def verificar_exclusao
     return if faturas.registradas.none? && faturas.pagas.none?
@@ -294,46 +260,11 @@ class Contrato < ApplicationRecord # rubocop:disable Metrics/ClassLength
   end
 
   def verificar_cancelamento
-    # apagar todas as faturas que nao foram pagas ou registradas
-    # e que sao referentes a periodos após o cancelamento
-    faturas.where(liquidacao: nil, registro: nil)
-           .where('periodo_inicio >= ?', cancelamento)
-           .each(&:destroy)
-    faturas.where(liquidacao: nil).where.not(registro: nil)
-           .where('periodo_inicio >= ?', cancelamento)
-           .each { |f| f.update(cancelamento: DateTime.now) }
-    parcial = faturas.where(liquidacao: nil, registro: nil)
-                     .where('? between periodo_inicio and periodo_fim', cancelamento)
-    parcial.each { |fatura| fatura.update!(valor: fatura.valor * fracao_de_mes(fatura.periodo_inicio, cancelamento)) }
+    CancelamentoService.call(contrato: self)
   end
 
   def alterar_forma_pagamento
     faturas.a_vencer.nao_registradas.each(&:destroy)
-    renovar
-  end
-
-  def fracao_de_mes(periodo_inicio, periodo_fim)
-    fim = if (periodo_fim.end_of_month == periodo_fim) && (periodo_fim.day != periodo_inicio.day)
-            periodo_fim + 1.day
-          else
-            periodo_fim
-          end
-    dias_no_mes = fim - (fim - 1.month)
-    dias_no_periodo = if (periodo_fim.end_of_month == periodo_fim) && (periodo_fim.day != periodo_inicio.day) && (periodo_fim.month != periodo_inicio.month)
-                        (periodo_fim - periodo_inicio.end_of_month).to_f
-                      else
-                        (periodo_fim - periodo_inicio).to_f
-                      end
-    dias_no_periodo / dias_no_mes
-  end
-
-  def proximo_mes(data)
-    proximo = data + 1.month
-    proximo = proximo.change(day: [dia_vencimento, proximo.end_of_month.day].min)
-    if (proximo - data).between?(2, 10)
-      proximo += 1.month
-      proximo = proximo.change(day: [dia_vencimento, proximo.end_of_month.day].min)
-    end
-    proximo
+    Contratos::RenovarService.new(contrato: self).call
   end
 end

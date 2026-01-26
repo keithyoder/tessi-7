@@ -9,35 +9,44 @@ ul.nav.nav-pills
   #contrato.tab-pane.active.show.fade[role="tabpanel" aria-labelledby="contrato-tab"]
     .card
       .card-header
-        .row
+        .row.align-items-center
           .col-sm
             h3
-              => link_to(@contrato.pessoa, class: "btn btn-sm btn-outline-dark") do
+              = link_to(@contrato.pessoa, class: "btn btn-sm btn-outline-dark") do
                 i.bi.bi-backspace[aria-hidden="true"]
               - if can? :update, @contrato
                 = link_to(edit_contrato_path, class: "btn btn-sm btn-outline-dark") do
                   i.bi.bi-pencil-fill[aria-hidden="true"]
               = @contrato.pessoa.nome
-          .d-print-none.col-sm-3[align="right"]
-            - if @contrato.recorrencia_id.present?
-              - if @contrato.recorrencia_id[0..1] == 'RR'
-                => link_to(contrato_pix_automatico_index_path(@contrato), class: "btn btn-sm btn-outline-dark") do
+          .col-sm-auto.d-print-none
+            .d-flex.gap-2
+              - if @contrato.recorrencia_id.present?
+                - if @contrato.recorrencia_id[0..1] == 'RR'
+                  = link_to contrato_pix_automatico_index_path(@contrato), class: "btn btn-sm btn-outline-dark" do
+                    i.fa.fa-bank.fa-lg[aria-hidden="true"]
+                    |  Pix Automático 
+                - else 
+                  = link_to "https://app.sejaefi.com.br/receber/gestao-de-cobrancas/assinaturas/#{@contrato.recorrencia_id}",
+                            class: "btn btn-sm btn-outline-dark",
+                            target: "_blank" do
+                    i.fa.fa-bank.fa-lg[aria-hidden="true"]
+                    |  Assinatura 
+              - else
+                = link_to boletos_contrato_path(format: :pdf),
+                          class: "btn btn-sm btn-outline-dark",
+                          target: "_blank" do
                   i.fa.fa-bank.fa-lg[aria-hidden="true"]
-                  |  Pix Automático 
-              - else 
-                => link_to("https://app.sejaefi.com.br/receber/gestao-de-cobrancas/assinaturas/#{@contrato.recorrencia_id}", class: "btn btn-sm btn-outline-dark", target: "_blank") do
+                  |  Boletos 
+              - if @contrato.documentos.blank? && can?(:create, ContratoTermo)
+                = button_to contrato_termo_path(@contrato),
+                            method: :post,
+                            class: "btn btn-sm btn-outline-dark" do
                   i.fa.fa-bank.fa-lg[aria-hidden="true"]
-                  |  Assinatura 
-            - else
-              => link_to(boletos_contrato_path(format: :pdf), class: "btn btn-sm btn-outline-dark", target: "_blank") do
-                i.fa.fa-bank.fa-lg[aria-hidden="true"]
-                |  Boletos 
-            - if @contrato.documentos.blank? && can?(:autentique, @contrato)
-              => link_to(autentique_contrato_path(@contrato), class: "btn btn-sm btn-outline-dark") do
-                i.fa.fa-bank.fa-lg[aria-hidden="true"]
-                |  Assinar 
-            = link_to(termo_contrato_url(@contrato, format: :pdf), class: "btn btn-sm btn-outline-dark", target: "_blank") do
-              i.bi.bi-printer-fill[aria-hidden="true"]
+                  |  Assinar
+              = link_to contrato_termo_url(@contrato, format: :pdf),
+                        class: "btn btn-sm btn-outline-dark",
+                        target: "_blank" do
+                i.bi.bi-printer-fill[aria-hidden="true"]
       .card-body
         .row.row-cols-1.row-cols-sm-2.row-cols-md-3.row-cols-lg-4.g-4.pt-2
           = render 'shared/field_card', {campo: "Pessoa", valor: @contrato.pessoa.nome, link: @contrato.pessoa}

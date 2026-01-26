@@ -1,6 +1,7 @@
 html
   head title="Print" 
-    = wicked_pdf_stylesheet_link_tag "contratos"
+    style
+      = inline_pdf_css("contratos.css")
     meta charset="utf-8"
   body
     header

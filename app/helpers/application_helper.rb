@@ -58,4 +58,8 @@ module ApplicationHelper
   def botao_salvar
     '<button name="button" type="submit" class="btn btn-primary"><i aria-hidden="true" class="bi bi-save"></i> Salvar </button>'.html_safe
   end
+
+  def inline_pdf_css(name)
+    Rails.root.join('app/assets/stylesheets', name).read
+  end
 end

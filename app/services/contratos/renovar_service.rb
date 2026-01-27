@@ -53,6 +53,8 @@ module Contratos
               'Contrato deve ter prazo em meses'
       end
       raise ArgumentError, 'Contrato deve ter pagamento_perfil' if contrato.pagamento_perfil.blank?
+
+      raise ArgumentError, 'Contrato não pode ser cancelado' if contrato.cancelamento.present?
     end
 
     def inicio_proximo_periodo

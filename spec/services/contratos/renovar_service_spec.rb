@@ -18,13 +18,29 @@ RSpec.describe Contratos::RenovarService do
       valor_instalacao: 400.0,
       primeiro_vencimento: Date.new(2026, 2, 10),
       dia_vencimento: 10,
-      pagamento_perfil: any_pagamento_perfil
+      pagamento_perfil: any_pagamento_perfil,
+      cancelamento: nil
     )
   end
 
   before { travel_to Date.new(2026, 1, 10) }
 
   describe '#call' do
+    context 'quando o contrato está cancelado' do
+      before do
+        # rubocop:disable Rails/SkipsModelValidations
+        # Usa update_columns para evitar callbacks que processariam o cancelamento
+        contrato.update_columns(cancelamento: Date.new(2025, 12, 31))
+        # rubocop:enable Rails/SkipsModelValidations
+      end
+
+      it 'levanta erro quando o contrato é cancelado' do
+        expect do
+          described_class.new(contrato: contrato, meses_por_fatura: 1).call
+        end.to raise_error(ArgumentError)
+      end
+    end
+
     context 'quando não há faturas existentes' do
       before { contrato.faturas.destroy_all }
 
@@ -85,6 +101,11 @@ RSpec.describe Contratos::RenovarService do
         described_class.new(contrato: contrato).call
 
         expect(spy_service).not_to have_received(:call)
+      end
+
+      it 'retorna nil' do
+        result = described_class.new(contrato: contrato).call
+        expect(result).to be_nil
       end
     end
 

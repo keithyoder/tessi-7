@@ -72,7 +72,9 @@ module Contratos
         .registradas
         .em_aberto
         .where(periodo_inicio: data_cancelamento..)
-        .update_all(cancelamento: Time.current) # rubocop:disable Rails/SkipsModelValidations
+        .find_each do |fatura|
+          fatura.update!(cancelamento: Time.current)
+        end
     end
 
     # Ajusta o valor da fatura referente ao período em que

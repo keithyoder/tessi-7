@@ -38,8 +38,8 @@ class Contrato < ApplicationRecord
   belongs_to :pessoa
   belongs_to :plano
   belongs_to :pagamento_perfil
-  has_many :faturas, dependent: :delete_all
-  has_many :conexoes
+  has_many :faturas, dependent: :restrict_with_error
+  has_many :conexoes, dependent: :restrict_with_error
   has_many :excecoes, dependent: :delete_all
 
   # --------------------
@@ -61,7 +61,7 @@ class Contrato < ApplicationRecord
         conexoes: { bloqueado: false },
         faturas: { liquidacao: nil, cancelamento: nil }
       )
-      .where('faturas.vencimento < ?', 15.days.ago)
+      .where(faturas: { vencimento: ...15.days.ago })
       .distinct
   }
 
@@ -80,7 +80,7 @@ class Contrato < ApplicationRecord
   scope :cancelaveis, lambda {
     joins(:pessoa, :faturas, :plano)
       .where(faturas: { liquidacao: nil, cancelamento: nil })
-      .where('faturas.vencimento < ?', 1.day.ago)
+      .where(faturas: { vencimento: ...1.day.ago })
       .group('contratos.id, pessoas.id, planos.id')
       .having('COUNT(faturas.*) > 4')
       .ativos
@@ -110,8 +110,8 @@ class Contrato < ApplicationRecord
   # CALLBACKS
   # --------------------
   after_create :gerar_faturas_iniciais
-  after_save :after_save
   before_destroy :verificar_exclusao, prepend: true
+  after_save :after_save
 
   # --------------------
   # MÉTODOS PÚBLICOS
@@ -126,7 +126,7 @@ class Contrato < ApplicationRecord
   end
 
   def pix_automatico
-    return unless recorrencia_id.present?
+    return if recorrencia_id.blank?
 
     Efi::PixAutomatico.new(self)
   end
@@ -195,8 +195,8 @@ class Contrato < ApplicationRecord
     require 'autentique'
 
     documento = Autentique::Client.query(
-      Autentique::resgatar_documento,
-      variables: { "id": id }
+      Autentique.resgatar_documento,
+      variables: { id: id }
     ).original_hash['data']['document']
     documentos_array = documentos.presence || []
     update(
@@ -260,7 +260,10 @@ class Contrato < ApplicationRecord
   end
 
   def verificar_cancelamento
-    CancelamentoService.call(contrato: self)
+    Contratos::CancelamentoService.call(
+      contrato: self,
+      data_cancelamento: cancelamento
+    )
   end
 
   def alterar_forma_pagamento

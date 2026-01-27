@@ -53,7 +53,7 @@ module Contratos
     #
     def remover_faturas_futuras_nao_registradas
       contrato.faturas
-        .nao_pagas
+        .em_aberto
         .nao_registradas
         .where(periodo_inicio: data_cancelamento..)
         .destroy_all
@@ -70,27 +70,31 @@ module Contratos
     def cancelar_faturas_futuras_registradas
       contrato.faturas
         .registradas
-        .nao_pagas
+        .em_aberto
         .where(periodo_inicio: data_cancelamento..)
-        .update_all(cancelamento: Time.current)
+        .update_all(cancelamento: Time.current) # rubocop:disable Rails/SkipsModelValidations
     end
 
     # Ajusta o valor da fatura referente ao período em que
     # o cancelamento ocorreu.
     #
+    # SEMÂNTICA DO CANCELAMENTO:
+    # - data_cancelamento representa o primeiro dia SEM serviço
+    # - Exemplo: cancelamento em 25/01 → último dia de serviço foi 24/01
+    # - Cálculo: de periodo_inicio até (data_cancelamento - 1 dia)
+    #
     # Exemplo:
     # - Período da fatura: 10/01 a 09/02
     # - Cancelamento em: 25/01
-    #
-    # O valor será ajustado proporcionalmente ao período utilizado
-    # (10/01 até 25/01).
+    # - Dias cobrados: 10/01 a 24/01 (15 dias)
     #
     def ajustar_faturas_parciais
       faturas_parciais.each do |fatura|
-        fracao_utilizada = Faturas::PeriodoUtilizado.call(
-          inicio: fatura.periodo_inicio,
-          fim: data_cancelamento
-        )
+        # Calcula dias utilizados considerando o período real da fatura
+        dias_no_periodo = (fatura.periodo_fim - fatura.periodo_inicio).to_i + 1
+        dias_utilizados = (data_cancelamento - fatura.periodo_inicio).to_i
+
+        fracao_utilizada = [dias_utilizados.to_d / dias_no_periodo, 1.to_d].min
 
         fatura.update!(
           valor: (fatura.valor_original * fracao_utilizada).round(2)
@@ -104,7 +108,7 @@ module Contratos
     #
     def faturas_parciais
       contrato.faturas
-        .nao_pagas
+        .em_aberto
         .nao_registradas
         .where('? BETWEEN periodo_inicio AND periodo_fim', data_cancelamento)
     end

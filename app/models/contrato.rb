@@ -260,6 +260,8 @@ class Contrato < ApplicationRecord
   end
 
   def verificar_cancelamento
+    return if cancelamento.blank?
+
     Contratos::CancelamentoService.call(
       contrato: self,
       data_cancelamento: cancelamento

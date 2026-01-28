@@ -1,0 +1,43 @@
+.container-fluid.mt-4
+  .row
+    .col-md-12
+      .card
+        .card-header
+          h4.mb-0 NFCom - Seleção de Competência
+        .card-body
+          p.text-muted Selecione o mês/ano para visualizar as notas fiscais emitidas
+
+          .row.mt-4
+            - if @competencias_com_count.any?
+              .col-md-8.mx-auto
+                .list-group
+                  - @competencias_com_count.each do |competencia, count|
+                    = link_to competencia_nfcom_notas_path(competencia.strftime('%Y-%m')), class: 'list-group-item list-group-item-action d-flex justify-content-between align-items-center' do
+                      span
+                        i.fas.fa-calendar-alt.me-2
+                        = I18n.l(competencia, format: '%B de %Y').capitalize
+                      span.badge.bg-primary.rounded-pill
+                        = count
+                        |  #{count == 1 ? 'nota' : 'notas'}
+            - else
+              .col-md-12
+                .alert.alert-info.text-center
+                  i.fas.fa-info-circle.me-2
+                  | Nenhuma nota fiscal emitida nos últimos 12 meses
+
+          .row.mt-4
+            .col-md-8.mx-auto
+              .card.bg-light
+                .card-body
+                  h6.card-title Busca por Competência Específica
+                  = form_with url: '#', method: :get, local: true, class: 'row g-3' do |f|
+                    .col-md-8
+                      = month_field_tag :mes, nil, class: 'form-control', placeholder: 'Selecione mês/ano'
+                    .col-md-4
+                      button.btn.btn-primary.w-100 type="submit" onclick="event.preventDefault(); window.location.href = '/nfcom_notas/competencia/' + document.querySelector('#mes').value"
+                        i.fas.fa-search.me-2
+                        | Buscar
+
+  .row.mt-3
+    .col-md-12.text-center
+      = link_to 'Voltar', :back, class: 'btn btn-secondary'

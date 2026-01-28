@@ -89,8 +89,9 @@ Rails.application.routes.draw do # rubocop:disable Metrics/BlockLength
   resources :nf21s do
     get 'competencia/:mes', action: :competencia, as: :competencia, on: :collection
   end
-  resources :nfcom_notas, only: [:show]
-
+  resources :nfcom_notas, only: %i[show index] do
+    get 'competencia/:mes', action: :competencia, as: :competencia, on: :collection
+  end
   # Support and Service Orders
   resources :atendimentos do
     patch :encerrar, on: :member

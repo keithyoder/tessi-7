@@ -1,0 +1,154 @@
+.container-fluid.mt-4
+  .row
+    .col-md-12
+      .card
+        .card-header.d-flex.justify-content-between.align-items-center
+          h4.mb-0
+            | NFCom - Competência 
+            = I18n.l(@competencia, format: '%B de %Y').capitalize
+          - unless request.format.pdf?
+            .btn-group.no-print role="group"
+              = link_to competencia_nfcom_notas_path(@mes, format: :pdf, q: params[:q]), class: 'btn btn-danger', target: '_blank' do
+                i.fas.fa-file-pdf.me-2
+                | Exportar PDF
+              = link_to competencia_nfcom_notas_path(@mes, format: :zip, q: params[:q]), class: 'btn btn-success' do
+                i.fas.fa-file-archive.me-2
+                | Baixar XMLs
+
+        .card-body
+          / Formulário de busca Ransack
+          - unless request.format.pdf?
+            .card.bg-light.mb-3.no-print
+              .card-header.d-flex.justify-content-between.align-items-center
+                h6.mb-0
+                  i.fas.fa-filter.me-2
+                  | Filtros de Busca
+                button.btn.btn-sm.btn-link type="button" data-bs-toggle="collapse" data-bs-target="#searchForm"
+                  i.fas.fa-chevron-down
+              .collapse.show id="searchForm"
+                .card-body
+                  = search_form_for @q, url: competencia_nfcom_notas_path(@mes), method: :get, html: { class: 'row g-3' } do |f|
+                    .col-md-3
+                      = f.label :fatura_contrato_pessoa_nome_cont, 'Cliente', class: 'form-label'
+                      = f.search_field :fatura_contrato_pessoa_nome_cont, class: 'form-control', placeholder: 'Nome do cliente'
+                    
+                    .col-md-2
+                      = f.label :numero_eq, 'Número', class: 'form-label'
+                      = f.number_field :numero_eq, class: 'form-control', placeholder: 'Número'
+                    
+                    .col-md-2
+                      = f.label :serie_eq, 'Série', class: 'form-label'
+                      = f.number_field :serie_eq, class: 'form-control', placeholder: 'Série'
+                    
+                    .col-md-2
+                      = f.label :status_eq, 'Status', class: 'form-label'
+                      = f.select :status_eq, options_for_select([['Todas', nil], ['Autorizada', 'authorized'], ['Pendente', 'pending'], ['Rejeitada', 'rejected'], ['Cancelada', 'cancelled']], params.dig(:q, :status_eq)), {}, class: 'form-select'
+                    
+                    .col-md-12.d-flex.gap-2
+                      = f.submit 'Buscar', class: 'btn btn-primary'
+                      = link_to 'Limpar Filtros', competencia_nfcom_notas_path(@mes), class: 'btn btn-secondary'
+                      - if params[:q].present?
+                        span.badge.bg-info.align-self-center.ms-2
+                          | Filtros ativos
+
+          - if @notas.any?
+            / Estatísticas gerais (todas as notas filtradas, não apenas da página atual)
+            - total_count = @notas.respond_to?(:total_count) ? @notas.total_count : @notas.size
+            - authorized_count = @total_stats['authorized'] || 0
+            - pending_count = @total_stats['pending'] || 0
+            - rejected_count = @total_stats['rejected'] || 0
+            - cancelled_count = @total_stats['cancelled'] || 0
+
+            .alert.alert-info.mb-3
+              .row
+                .col-md-3
+                  strong Total de notas: 
+                  = total_count
+                .col-md-3
+                  strong Autorizadas: 
+                  span.text-success= authorized_count
+                .col-md-3
+                  strong Pendentes: 
+                  span.text-warning= pending_count
+                .col-md-3
+                  strong Rejeitadas: 
+                  span.text-danger= rejected_count
+
+            / Informação de paginação
+            - if @notas.offset_value.present?
+              .d-flex.justify-content-between.align-items-center.mb-3
+                div
+                  | Mostrando 
+                  strong= @notas.offset_value + 1
+                  |  a 
+                  strong= [@notas.offset_value + @notas.size, total_count].min
+                  |  de 
+                  strong= total_count
+                  |  notas
+                = paginate @notas, params: { q: params[:q] }
+
+            .table-responsive
+              table.table.table-striped.table-hover.table-sm
+                thead.table-dark
+                  tr
+                    th.text-center 
+                      = sort_link(@q, :serie, 'Série', {}, { class: 'text-white text-decoration-none' })
+                    th.text-center 
+                      = sort_link(@q, :numero, 'Número', {}, { class: 'text-white text-decoration-none' })
+                    th 
+                      = sort_link(@q, :fatura_contrato_pessoa_nome, 'Cliente', {}, { class: 'text-white text-decoration-none' })
+                    th.text-center 
+                      = sort_link(@q, :status, 'Status', {}, { class: 'text-white text-decoration-none' })
+                    th.text-center 
+                      = sort_link(@q, :valor_total, 'Valor Total', {}, { class: 'text-white text-decoration-none' })
+                    th.text-center 
+                      = sort_link(@q, :created_at, 'Emissão', {}, { class: 'text-white text-decoration-none' })
+                    th.text-center Ações
+                tbody
+                  - total_pagina = 0
+                  - @notas.each do |nota|
+                    - total_pagina += nota.valor_total.to_f
+                    tr
+                      td.text-center= nota.serie
+                      td.text-center= nota.numero
+                      td= nota.fatura.contrato.pessoa.nome
+                      td.text-center
+                        - case nota.status
+                        - when 'authorized'
+                          span.badge.bg-success Autorizada
+                        - when 'pending'
+                          span.badge.bg-warning.text-dark Pendente
+                        - when 'rejected'
+                          span.badge.bg-danger Rejeitada
+                        - when 'cancelled'
+                          span.badge.bg-secondary Cancelada
+                      td.text-end= number_to_currency(nota.valor_total)
+                      td.text-center= I18n.l(nota.created_at.to_date) if nota.created_at
+                      td.text-center
+                        .btn-group.btn-group-sm role="group"
+                          = link_to nfcom_nota_path(nota, format: :pdf), class: 'btn btn-outline-danger', title: 'Ver PDF', target: '_blank' do
+                            i.fas.fa-file-pdf
+                          = link_to nfcom_nota_path(nota, format: :xml), class: 'btn btn-outline-success', title: 'Baixar XML' do
+                            i.fas.fa-file-code
+                          = link_to fatura_path(nota.fatura), class: 'btn btn-outline-primary', title: 'Ver Fatura' do
+                            i.fas.fa-file-invoice
+                tfoot.table-light
+                  tr
+                    th.text-end colspan="4" Total da página:
+                    th.text-end= number_to_currency(total_pagina)
+                    th colspan="3"
+
+          - else
+            .alert.alert-warning.text-center
+              i.fas.fa-exclamation-triangle.me-2
+              - if params[:q].present?
+                | Nenhuma nota fiscal encontrada com os filtros aplicados.
+                br
+                = link_to 'Limpar filtros e ver todas', competencia_nfcom_notas_path(@mes), class: 'btn btn-sm btn-primary mt-2'
+              - else
+                | Nenhuma nota fiscal encontrada para esta competência
+
+  - unless request.format.pdf?
+    .row.mt-3
+      .col-md-12.text-center
+        = link_to 'Voltar', nfcom_notas_path, class: 'btn btn-secondary'

@@ -35,6 +35,8 @@
 #  recorrencia_id          :string
 #
 class Contrato < ApplicationRecord
+  include Ransackable
+
   belongs_to :pessoa
   belongs_to :plano
   belongs_to :pagamento_perfil
@@ -105,6 +107,9 @@ class Contrato < ApplicationRecord
       .having('COUNT(conexoes.*) = 0')
       .ativos
   }
+
+  RANSACK_ATTRIBUTES = %w[dia_vencimento].freeze
+  RANSACK_ASSOCIATIONS = %w[pessoa].freeze
 
   # --------------------
   # CALLBACKS
@@ -224,14 +229,6 @@ class Contrato < ApplicationRecord
         "#{pessoa.endereco} - #{pessoa.logradouro.bairro.nome_cidade_uf}"
       end
     end
-  end
-
-  def self.ransackable_attributes(_auth_object = nil)
-    %w[dia_vencimento pessoas_nome plano_nome]
-  end
-
-  def self.ransackable_associations(_auth_object = nil)
-    ['pessoas']
   end
 
   # --------------------

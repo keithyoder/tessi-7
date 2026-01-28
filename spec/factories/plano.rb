@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :plano do
-    nome        { 'Plano Default' }
+    sequence(:nome) { |n| "Plano Default #{n}" }
     mensalidade { 100.0 }
     download    { 100 }  # in Mbps
     upload      { 50 }   # in Mbps

@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :estado do
-    nome { 'São Paulo' }
-    sigla { 'SP' }
+    sequence(:nome) { |n| "Estado #{n}" }
+    sequence(:sigla) { |n| "E#{n}" }
   end
 end

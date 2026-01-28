@@ -8,7 +8,7 @@ FactoryBot.define do
 
     trait :fisica do
       tipo { 'Pessoa Física' }
-      cpf { '12345678900' }
+      sequence(:cpf) { |n| (100_000_000_00 + n).to_s }
       email { 'fisica@example.com' }
     end
 

@@ -72,7 +72,7 @@ RSpec.describe Faturas::AtualizarValorService, type: :service do
         expect(fatura.periodo_inicio).to eq(Date.current)
         expect(fatura.periodo_fim).to eq(Date.current + 1.month)
         expect(fatura.vencimento).to eq(10.days.from_now.to_date)
-        expect(fatura.parcela).to eq(1)
+        expect(fatura.parcela).to eq(13)
         expect(fatura.nossonumero).to eq('10001')
         expect(fatura.pagamento_perfil).to eq(pagamento_perfil)
       end

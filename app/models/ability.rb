@@ -26,6 +26,7 @@ class Ability
   # Common permissions for all users with a role
   def general_permissions(user)
     can :read, :all
+    cannot :read, NfcomNota
     can :suspenso, Conexao
     can %i[boletos renovar], Contrato
     can %i[update liquidacao boleto], Fatura
@@ -75,5 +76,6 @@ class Ability
     can %i[destroy pendencias trocado assinar], Contrato
     can :create, ContratoTermo
     can :remessa, PagamentoPerfil
+    can %i[read index competencia], NfcomNota
   end
 end

@@ -93,11 +93,11 @@ class NfcomNota < ApplicationRecord
     update!(status: 'cancelled')
   end
 
-  def consulta_url
-    chave = chave_acesso
-    return nil unless chave && chave.length == 44
+  def self.ransackable_attributes(_auth_object = nil)
+    %w[numero serie status chave_acesso competencia created_at valor_total]
+  end
 
-    tp_amb = Nfcom.configuration.homologacao? ? 2 : 1
-    "https://dfe-portal.svrs.rs.gov.br/nfcom/qrcode?chNFCom=#{chave}&tpAmb=#{tp_amb}"
+  def self.ransackable_associations(_auth_object = nil)
+    %w[fatura]
   end
 end

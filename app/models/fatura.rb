@@ -357,6 +357,14 @@ class Fatura < ApplicationRecord # rubocop:disable Metrics/ClassLength
     Fatura.where(liquidacao: [inicio..fim], meio_liquidacao: meio).sum(:valor_liquidacao)
   end
 
+  def self.ransackable_attributes(_auth_object = nil)
+    %w[id vencimento valor liquidacao nossonumero]
+  end
+
+  def self.ransackable_associations(_auth_object = nil)
+    %w[contrato pessoa]
+  end
+
   private
 
   def criar_cobranca

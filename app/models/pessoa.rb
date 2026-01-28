@@ -65,7 +65,7 @@ class Pessoa < ApplicationRecord
   validates :cnpj, uniqueness: true, allow_blank: true
 
   RANSACK_ATTRIBUTES = %w[cnpj cpf email nome telefone1 telefone2].freeze
-  RANSACK_ASSOCIATIONS = %w[].freeze
+  RANSACK_ASSOCIATIONS = %w[logradouro bairro cidade estado contratos conexoes].freeze
 
   def endereco
     "#{logradouro.nome}, #{numero} #{complemento}"
@@ -88,7 +88,7 @@ class Pessoa < ApplicationRecord
   end
 
   def rg_ie
-    rg.present? ? rg : ie
+    rg.presence || ie
   end
 
   def assinante?
@@ -106,14 +106,14 @@ class Pessoa < ApplicationRecord
   def telefone1_valido?
     return if telefone1.present? && Phonelib.valid?(telefone1)
 
-    errors.add :telefone1, "inválido"
+    errors.add :telefone1, 'inválido'
   end
 
   def telefone2_valido?
     return if telefone2.blank?
     return if Phonelib.valid?(telefone2)
 
-    errors.add :telefone2, "inválido"
+    errors.add :telefone2, 'inválido'
   end
 
   def telefone1=(value)

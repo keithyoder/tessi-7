@@ -6,6 +6,7 @@ require 'spec_helper'
 require_relative '../config/environment'
 require 'rspec/rails'
 require 'geocoder'
+require 'faker'
 
 # Safety check: never run specs in production
 abort('The Rails environment is running in production mode!') if Rails.env.production?

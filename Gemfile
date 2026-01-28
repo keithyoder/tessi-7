@@ -63,6 +63,7 @@ gem 'snmp'
 # Brazilian ecosystem / Finance
 # ------------------------------------------------------------
 gem 'autentique', git: 'https://github.com/keithyoder/autentique-ruby.git'
+# gem 'autentique', path: '../autentique-ruby/'
 gem 'barby'
 gem 'brcobranca', git: 'https://github.com/kivanio/brcobranca.git', ref: '246c1ea'
 gem 'cpf_cnpj'
@@ -135,6 +136,7 @@ group :development, :test do
   gem 'dotenv-rails'
 
   gem 'debug', platforms: %i[mri mingw x64_mingw]
+  gem 'faker', '~> 3.0'
 
   gem 'rubocop', require: false
   gem 'rubocop-capybara', require: false

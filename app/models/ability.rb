@@ -71,7 +71,12 @@ class Ability
   def financeiro_n2_permissions
     can :update, Cidade
     can :destroy, Conexao
-    can %i[update liquidacao estornar cancelar gerar_nf], Fatura
+    can %i[update liquidacao estornar cancelar], Fatura
+
+    can :emitir_nfcom, Fatura do |fatura|
+      fatura.pode_gerar_nf?
+    end
+
     can %i[create update], [Retorno, Contrato]
     can %i[destroy pendencias trocado assinar], Contrato
     can :create, ContratoTermo

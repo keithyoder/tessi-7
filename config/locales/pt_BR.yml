@@ -260,6 +260,12 @@ pt-BR:
   estados:
     update:
       notice: "Estado atualizado com sucesso."
+  faturas:
+    nfcom:
+      create:
+        success: "NFCom emitida com sucesso"
+        already_emitted: "NFCom já emitida"
+        error: "Erro ao emitir NFCom"
   fibra_caixas:
     create:
       notice: "Caixa de fibra criada com sucesso."

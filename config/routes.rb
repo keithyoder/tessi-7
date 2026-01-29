@@ -76,7 +76,7 @@ Rails.application.routes.draw do # rubocop:disable Metrics/BlockLength
     get :boleto, on: :member
     get :estornar, on: :member
     get :cancelar, on: :member
-    get :gerar_nf, on: :member
+    resource :nfcom, only: [:create], module: :faturas
   end
   resources :liquidacoes
 

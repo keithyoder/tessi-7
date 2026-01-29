@@ -45,7 +45,9 @@ class Ability
   def admin_permissions
     can :manage, :all
     cannot %i[destroy create], Estado
-    # can :encerrar, Atendimento, fechamento: nil
+    cannot :emitir_nfcom, Fatura do |fatura|
+      !fatura.gerar_nota?
+    end
   end
 
   # Level 1 technician

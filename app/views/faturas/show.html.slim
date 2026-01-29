@@ -71,7 +71,7 @@
           i.fas.fa-window-close aria-hidden="true" 
           | &nbsp Cancelar
     '
-    - if can?(:gerar_nf, @fatura)
+    - if can?(:emitir_nfcom, @fatura)
       = button_to fatura_nfcom_path(@fatura),
                   method: :post,
                   class: "btn btn-success",

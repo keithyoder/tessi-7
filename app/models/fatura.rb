@@ -69,7 +69,7 @@ class Fatura < ApplicationRecord # rubocop:disable Metrics/ClassLength
   belongs_to :registro, class_name: :Retorno, optional: true
   belongs_to :baixa, class_name: :Retorno, optional: true
   belongs_to :registro_webhook, class_name: :WebhookEvento, foreign_key: :registro_id, optional: true
-  has_many :nfcom_notas
+  has_many :nfcom_notas, dependent: :restrict_with_error
   has_one :pessoa, through: :contrato
   has_one :logradouro, through: :pessoa
   has_one :bairro, through: :logradouro
@@ -233,9 +233,13 @@ class Fatura < ApplicationRecord # rubocop:disable Metrics/ClassLength
 
   def gerar_nota?
     return false if nf21.present?
-    return mes_referencia(liquidacao) == mes_referencia(Time.zone.today) if liquidacao.present?
+    return false if nfcom_notas.authorized.exists?
 
-    mes_referencia(vencimento) == mes_referencia(Time.zone.today)
+    if liquidacao.present?
+      mes_referencia(liquidacao) == mes_referencia(Time.zone.today)
+    else
+      mes_referencia(vencimento) == mes_referencia(Time.zone.today)
+    end
   end
 
   def nosso_numero_remessa

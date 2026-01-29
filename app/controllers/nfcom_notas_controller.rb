@@ -64,7 +64,14 @@ class NfcomNotasController < ApplicationController
   private
 
   def permit_search_params
-    params[:q] = params[:q].permit! if params[:q].present?
+    return if params[:q].blank?
+
+    params[:q] = params[:q].permit(
+      :fatura_contrato_pessoa_nome_cont,
+      :numero_eq,
+      :serie_eq,
+      :status_eq
+    )
   end
 
   def total_stats_for(scope)

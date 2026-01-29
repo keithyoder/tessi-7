@@ -184,7 +184,7 @@ class Contrato < ApplicationRecord
     CSV.generate(headers: true) do |csv|
       csv << headers
 
-      all.each do |contrato|
+      find_each do |contrato|
         csv << [
           contrato.id,
           contrato.pessoa.nome,

@@ -74,7 +74,7 @@ class Ability
     can :update, Cidade
     can :destroy, Conexao
     can %i[update liquidacao estornar cancelar], Fatura
-    can :emitir_nfcom, Fatura, &:gerar_nf?
+    can :emitir_nfcom, Fatura, &:gerar_nota?
     can %i[create update], [Retorno, Contrato]
     can %i[destroy pendencias trocado assinar], Contrato
     can :create, ContratoTermo

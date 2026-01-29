@@ -62,4 +62,6 @@ ActiveSupport::Inflector.inflections do |inflect| # rubocop:disable Metrics/Bloc
   # Irregulares
   inflect.irregular 'país', 'países'
   inflect.irregular 'user', 'users'
+  # inflect.acronym 'NFCom'
+  inflect.irregular 'nfcom', 'nfcom'
 end

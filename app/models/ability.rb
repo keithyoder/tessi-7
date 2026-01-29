@@ -4,7 +4,7 @@ class Ability
   include CanCan::Ability
 
   def initialize(user)
-    return unless user.present?
+    return if user.blank?
 
     general_permissions(user) if user.role?
 
@@ -72,11 +72,7 @@ class Ability
     can :update, Cidade
     can :destroy, Conexao
     can %i[update liquidacao estornar cancelar], Fatura
-
-    can :emitir_nfcom, Fatura do |fatura|
-      fatura.pode_gerar_nf?
-    end
-
+    can :emitir_nfcom, Fatura, &:pode_gerar_nf?
     can %i[create update], [Retorno, Contrato]
     can %i[destroy pendencias trocado assinar], Contrato
     can :create, ContratoTermo

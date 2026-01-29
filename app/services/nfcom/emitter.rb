@@ -2,7 +2,11 @@
 
 module Nfcom
   class Emitter
-    PUBLIC_KEYWORDS = ['fundo municipal'].freeze
+    PUBLIC_KEYWORDS = [
+      '⁠camara municipal',
+      'comdica',
+      'fundo municipal'
+    ].freeze
 
     def initialize(client: Nfcom::Client.new)
       @client = client

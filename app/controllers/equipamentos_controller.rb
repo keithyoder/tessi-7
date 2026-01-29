@@ -2,72 +2,45 @@
 
 class EquipamentosController < ApplicationController
   load_and_authorize_resource
-  before_action :set_equipamento, only: %i[show edit update destroy]
 
-  # GET /equipamentos or /equipamentos.json
   def index
-    @q = Equipamento.order(:fabricante, :modelo).ransack(params[:q])
-    @equipamentos = @q.result.page params[:page]
-    respond_to(&:html)
+    @q = Equipamento
+      .accessible_by(current_ability)
+      .order(:fabricante, :modelo)
+      .ransack(params[:q])
+
+    @equipamentos = @q.result.page(params[:page])
   end
 
-  # GET /equipamentos/1 or /equipamentos/1.json
   def show; end
-
-  # GET /equipamentos/new
-  def new
-    @equipamento = Equipamento.new
-  end
-
-  # GET /equipamentos/1/edit
+  def new; end
   def edit; end
 
-  # POST /equipamentos or /equipamentos.json
   def create
-    @equipamento = Equipamento.new(equipamento_params)
-
-    respond_to do |format|
-      if @equipamento.save
-        format.html { redirect_to @equipamento, notice: 'Equipamento was successfully created.' }
-        format.json { render :show, status: :created, location: @equipamento }
-      else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @equipamento.errors, status: :unprocessable_entity }
-      end
+    if @equipamento.save
+      redirect_to @equipamento, notice: t('.notice')
+    else
+      render :new, status: :unprocessable_content
     end
   end
 
-  # PATCH/PUT /equipamentos/1 or /equipamentos/1.json
   def update
-    respond_to do |format|
-      if @equipamento.update(equipamento_params)
-        format.html { redirect_to @equipamento, notice: 'Equipamento was successfully updated.' }
-        format.json { render :show, status: :ok, location: @equipamento }
-      else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @equipamento.errors, status: :unprocessable_entity }
-      end
+    if @equipamento.update(equipamento_params)
+      redirect_to @equipamento, notice: t('.notice')
+    else
+      render :edit, status: :unprocessable_content
     end
   end
 
-  # DELETE /equipamentos/1 or /equipamentos/1.json
   def destroy
     @equipamento.destroy
-    respond_to do |format|
-      format.html { redirect_to equipamentos_url, notice: 'Equipamento was successfully destroyed.' }
-      format.json { head :no_content }
-    end
+    redirect_to equipamentos_url, notice: t('.notice')
   end
 
   private
 
-  # Use callbacks to share common setup or constraints between actions.
-  def set_equipamento
-    @equipamento = Equipamento.find(params[:id])
-  end
-
-  # Only allow a list of trusted parameters through.
   def equipamento_params
-    params.require(:equipamento).permit(:fabricante, :modelo, :tipo, :imagem)
+    params.require(:equipamento)
+      .permit(:fabricante, :modelo, :tipo, :imagem)
   end
 end

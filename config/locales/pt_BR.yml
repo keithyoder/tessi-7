@@ -250,9 +250,65 @@ pt-BR:
     termos:
       create:
         notice: "Termo de adesão enviado com sucesso."
+  equipamentos:
+    create:
+      notice: "Equipamento criado com sucesso."
+    update:
+      notice: "Equipamento atualizado com sucesso."
+    destroy:
+      notice: "Equipamento removido com sucesso."
   estados:
     update:
       notice: "Estado atualizado com sucesso."
+  fibra_caixas:
+    create:
+      notice: "Caixa de fibra criada com sucesso."
+    update:
+      notice: "Caixa de fibra atualizada com sucesso."
+    destroy:
+      notice: "Caixa de fibra removida com sucesso."
+  fibra_redes:
+    create:
+      notice: "Rede de fibra criada com sucesso."
+    update:
+      notice: "Rede de fibra atualizada com sucesso."
+    destroy:
+      notice: "Rede de fibra removida com sucesso."
+  ip_redes:
+    create:
+      notice: "Rede IP criada com sucesso."
+    update:
+      notice: "Rede IP atualizada com sucesso."
+    destroy:
+      notice: "Rede IP removida com sucesso."
+  logradouros:
+    create:
+      notice: "Logradouro criado com sucesso."
+    update:
+      notice: "Logradouro atualizado com sucesso."
+    destroy:
+      notice: "Logradouro removido com sucesso."
+  pagamento_perfis:
+    create:
+      notice: "Perfil de pagamento criado com sucesso."
+    update:
+      notice: "Perfil de pagamento atualizado com sucesso."
+    destroy:
+      notice: "Perfil de pagamento removido com sucesso."
+  planos:
+    create:
+      notice: "Plano criado com sucesso."
+    update:
+      notice: "Plano atualizado com sucesso."
+    destroy:
+      notice: "Plano removido com sucesso."
+  retornos:
+    create:
+      notice: "Retorno criado com sucesso."
+    update:
+      notice: "Retorno processado com sucesso."
+    destroy:
+      notice: "Retorno removido com sucesso."
   bairros:
     create:
       notice: "Bairro criado com sucesso."

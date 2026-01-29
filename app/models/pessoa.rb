@@ -92,7 +92,7 @@ class Pessoa < ApplicationRecord
   end
 
   def assinante?
-    conexoes.count.positive?
+    conexoes.any?
   end
 
   def cpf_valido?

@@ -2,80 +2,55 @@
 
 class RetornosController < ApplicationController
   load_and_authorize_resource
-  before_action :set_retorno, only: %i[show edit update destroy]
 
   # GET /retornos
-  # GET /retornos.json
   def index
-    @q = Retorno.joins(:pagamento_perfil).where.not(pagamento_perfis: {banco: 364}).ransack(params[:q])
-    @q.sorts = 'data desc'
-    @retornos = @q.result.page params[:page]
+    @q = Retorno.joins(:pagamento_perfil)
+      .where.not(pagamento_perfis: { banco: 364 })
+      .accessible_by(current_ability)
+      .ransack(params[:q])
+
+    @q.sorts = 'data desc' if @q.sorts.empty?
+    @retornos = @q.result.page(params[:page])
   end
 
   # GET /retornos/1
-  # GET /retornos/1.json
   def show
     @faturas = Fatura.where(pagamento_perfil: @retorno.pagamento_perfil)
-    @linhas = @retorno.carregar_arquivo
+    @linhas  = @retorno.carregar_arquivo
   end
 
   # GET /retornos/new
-  def new
-    @retorno = Retorno.new
-  end
+  def new; end
 
   # GET /retornos/1/edit
   def edit; end
 
   # POST /retornos
-  # POST /retornos.json
   def create
-    @retorno = Retorno.new(retorno_params)
-
-    respond_to do |format|
-      if @retorno.save
-        format.html { redirect_to @retorno, notice: 'Retorno was successfully created.' }
-        format.json { render :show, status: :created, location: @retorno }
-      else
-        format.html { render :new }
-        format.json { render json: @retorno.errors, status: :unprocessable_entity }
-      end
+    if @retorno.save
+      redirect_to @retorno, notice: t('.notice')
+    else
+      render :new, status: :unprocessable_content
     end
   end
 
   # PATCH/PUT /retornos/1
-  # PATCH/PUT /retornos/1.json
   def update
     @retorno.processar
-    respond_to do |format|
-      format.html { redirect_to @retorno, notice: 'Retorno was successfully updated.' }
-      format.json { render :show, status: :ok, location: @retorno }
-    end
+    redirect_to @retorno, notice: t('.notice')
   rescue StandardError => e
-    respond_to do |format|
-      format.html { redirect_to @retorno, notice: e.message }
-      format.json { render :show, status: :ok, location: @retorno }
-    end
+    redirect_to @retorno, alert: e.message
   end
 
   # DELETE /retornos/1
-  # DELETE /retornos/1.json
   def destroy
     @retorno.destroy
-    respond_to do |format|
-      format.html { redirect_to retornos_url, notice: 'Retorno was successfully destroyed.' }
-      format.json { head :no_content }
-    end
+    redirect_to retornos_url, notice: t('.notice')
   end
 
   private
 
-  # Use callbacks to share common setup or constraints between actions.
-  def set_retorno
-    @retorno = Retorno.find(params[:id])
-  end
-
-  # Only allow a list of trusted parameters through.
   def retorno_params
     params.require(:retorno).permit(:pagamento_perfil_id, :data, :sequencia, :arquivo)
   end

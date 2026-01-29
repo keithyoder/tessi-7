@@ -11,10 +11,10 @@
 #  updated_at :datetime         not null
 #
 class Classificacao < ApplicationRecord
-  has_many :os
-  has_many :atendimentos
+  has_many :os, dependent: :restrict_with_error
+  has_many :atendimentos, dependent: :restrict_with_error
 
-  enum tipo: {
+  enum :tipo, {
     Instalação: 1,
     Reparo: 2,
     Transferência: 3,

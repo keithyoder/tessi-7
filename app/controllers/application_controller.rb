@@ -21,11 +21,11 @@ class ApplicationController < ActionController::Base
 
     Rails.logger.info '=' * 80
     Rails.logger.info "CSRF DEBUG - Controller: #{controller_name}##{action_name}"
+    Rails.logger.info "Secret key (first 20): #{Rails.application.secret_key_base&.[](0..19) || 'MISSING!'}"
+    Rails.logger.info "Master key (first 10): #{Rails.application.credentials.config&.[](0..9) || 'MISSING!'}"
     Rails.logger.info "Session ID: #{session.id}"
     Rails.logger.info "Session CSRF Token: #{session[:_csrf_token]}"
-    Rails.logger.info "Form Authenticity Token: #{form_authenticity_token}"
-    Rails.logger.info "Params Token: #{params[:authenticity_token]}"
-    Rails.logger.info "Request Format: #{request.format}"
+    Rails.logger.info "Request.ssl?: #{request.ssl?}"
     Rails.logger.info '=' * 80
   end
 end

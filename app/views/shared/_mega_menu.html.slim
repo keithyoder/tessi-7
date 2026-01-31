@@ -9,21 +9,20 @@ nav.navbar.navbar-expand-lg.navbar-light.bg-white.shadow-sm.sticky-top
       = image_tag("logo-cores.svg", height: "32", class: "me-2")
       span.d-none.d-md-inline.text-dark Tessi Telecom
     
-    / Mobile hamburger toggle
-    button.navbar-toggler type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
-      span.navbar-toggler-icon
-    
-    / Main navigation
+    / Main navigation with hamburger on right
     .collapse.navbar-collapse#mainNavbar
-      ul.navbar-nav.me-auto.mb-2.mb-lg-0
+      / Empty spacer to push menu to right
+      .me-auto
+      
+      ul.navbar-nav
         / MEGA MENU - All sections in one dropdown
         li.nav-item.dropdown.position-static
           a.nav-link.dropdown-toggle.text-dark.fw-semibold href="#" data-bs-toggle="dropdown" data-bs-auto-close="outside"
             i.bi.bi-grid-3x3-gap.me-1
             | Menu
-            =badge_if_positive(atendimentos_abertos, extra_classes: "ms-2")
+            = badge_if_positive(atendimentos_abertos, extra_classes: "ms-2")
         
-          .dropdown-menu.mega-menu.w-100.border-0.shadow-lg
+          .dropdown-menu.mega-menu.w-100.border-0.shadow-lg.dropdown-menu-end
             .container-fluid
               .row.g-4.p-4
                 / Column 1: Assinantes & Atendimentos
@@ -127,7 +126,7 @@ nav.navbar.navbar-expand-lg.navbar-light.bg-white.shadow-sm.sticky-top
                         i.bi.bi-sort-numeric-down.me-2
                         | Redes IP
                 
-                / Column 4: Configurações
+                / Column 4: Configurações & Conta
                 .col-lg-3
                   h6.text-uppercase.fw-bold.mb-3.text-secondary
                     i.bi.bi-gear.me-2
@@ -153,16 +152,21 @@ nav.navbar.navbar-expand-lg.navbar-light.bg-white.shadow-sm.sticky-top
                       = link_to equipamentos_path, class: "dropdown-item rounded" do
                         i.bi.bi-router.me-2
                         | Equipamentos
-      
-      / Right side - User menu only
-      ul.navbar-nav.ms-auto
-        / User dropdown
-        li.nav-item.dropdown
-          a.nav-link.dropdown-toggle.text-dark.d-flex.align-items-center href="#" data-bs-toggle="dropdown"
-            i.bi.bi-person-circle.me-2.fs-3
-            span.d-none.d-md-inline= current_user.email || "Usuário"
-          ul.dropdown-menu.dropdown-menu-end
-            li
-              = button_to destroy_user_session_path, method: :delete, class: "dropdown-item border-0 bg-transparent w-100 text-start" do
-                i.bi.bi-box-arrow-right.me-2
-                | Desconectar
+                  
+                  / User section at bottom of this column
+                  h6.text-uppercase.fw-bold.mb-3.mt-4.text-dark
+                    i.bi.bi-person-circle.me-2
+                    | Conta
+                  ul.list-unstyled
+                    li.mb-2
+                      .dropdown-item.rounded.text-muted.small
+                        i.bi.bi-envelope.me-2
+                        = current_user.email
+                    li
+                      = button_to destroy_user_session_path, method: :delete, class: "dropdown-item rounded border-0 bg-transparent w-100 text-start text-danger", data: { turbo: "false" } do
+                        i.bi.bi-box-arrow-right.me-2
+                        | Desconectar
+    
+    / Mobile hamburger toggle (now on the right)
+    button.navbar-toggler type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar"
+      span.navbar-toggler-icon

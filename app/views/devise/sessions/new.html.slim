@@ -7,19 +7,20 @@
             style: "max-height: 60px;",
             alt: "Company logo"
 
-        / h3 Login
-
       .card-body
-        = form_with model: resource, url: session_path(resource_name), local: true do |f|
+        = form_with model: resource, url: session_path(resource_name), data: { turbo: false } do |f|
           .form-inputs
-            = f.email_field :email, autofocus: true, autocomplete: "email", class: "form-control"
-            = f.password_field :password, autocomplete: "current-password", class: "form-control"
+            .mb-3
+              = f.label :email, class: "form-label"
+              = f.email_field :email, autofocus: true, autocomplete: "email", class: "form-control"
+            
+            .mb-3
+              = f.label :password, class: "form-label"
+              = f.password_field :password, autocomplete: "current-password", class: "form-control"
           
             - if devise_mapping.rememberable?
-              = f.check_box :remember_me
-              = f.label :remember_me, "Lembrar senha"
+              .mb-3.form-check
+                = f.check_box :remember_me, class: "form-check-input"
+                = f.label :remember_me, "Lembrar senha", class: "form-check-label"
 
           = f.submit "Entrar", class: "btn btn-primary w-100"
-
-        / .text-center.mt-3
-        /   = render "devise/shared/links"

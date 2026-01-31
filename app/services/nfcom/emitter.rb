@@ -3,7 +3,7 @@
 module Nfcom
   class Emitter
     PUBLIC_KEYWORDS = [
-      '⁠camara municipal',
+      'camara municipal',
       'comdica',
       'fundo municipal'
     ].freeze
@@ -203,9 +203,14 @@ module Nfcom
       info = []
 
       if fatura.contrato.endereco_instalacao_diferente?
-        info << 'Endereço de Instalação:'
-        fatura.contrato.enderecos.each do |endereco|
-          info << "  #{endereco}"
+        enderecos = fatura.contrato.enderecos
+
+        # Only add if 3 or fewer addresses
+        if enderecos.count <= 3
+          info << 'Endereço de Instalação:'
+          enderecos.each do |endereco|
+            info << "  #{endereco}"
+          end
         end
       end
 

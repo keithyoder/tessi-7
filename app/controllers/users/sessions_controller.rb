@@ -1,29 +1,18 @@
 # frozen_string_literal: true
 
-class Users::SessionsController < Devise::SessionsController
-  # POST /users/sign_in
-  def create
-    super do |resource|
+module Users
+  class SessionsController < Devise::SessionsController
+    # Let Devise handle the create action naturally
+    # The data: { turbo: false } in the form will ensure standard HTTP redirects work
+
+    # DELETE /users/sign_out
+    def destroy
+      signed_out = (Devise.sign_out_all_scopes ? sign_out : sign_out(resource_name))
+      set_flash_message! :notice, :signed_out if signed_out
+
       respond_to do |format|
-        format.html { redirect_to after_sign_in_path_for(resource) }
-        format.turbo_stream { redirect_to after_sign_in_path_for(resource), status: :see_other }
+        format.html { redirect_to after_sign_out_path_for(resource_name), status: :see_other }
       end
     end
-  end
-
-  # DELETE /users/sign_out
-  def destroy
-    signed_out = (Devise.sign_out_all_scopes ? sign_out : sign_out(resource_name))
-    set_flash_message! :notice, :signed_out if signed_out
-    
-    respond_to do |format|
-      format.html { redirect_to after_sign_out_path_for(resource_name), status: :see_other }
-    end
-  end
-
-  protected
-
-  def auth_options
-    { scope: resource_name, recall: "#{controller_path}#new" }
   end
 end

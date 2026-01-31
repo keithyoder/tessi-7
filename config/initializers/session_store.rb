@@ -2,6 +2,8 @@
 
 Rails.application.config.session_store :cookie_store,
                                        key: '_tessi_telecom_session',
-                                       secure: Rails.env.production?, # Only secure in production
+                                       domain: :all, # Changed from explicit domain
+                                       secure: true,
                                        same_site: :lax,
-                                       httponly: true
+                                       httponly: true,
+                                       expire_after: 14.days

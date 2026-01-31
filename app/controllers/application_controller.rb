@@ -22,10 +22,11 @@ class ApplicationController < ActionController::Base
     Rails.logger.info '=' * 80
     Rails.logger.info "CSRF DEBUG - Controller: #{controller_name}##{action_name}"
     Rails.logger.info "Secret key (first 20): #{Rails.application.secret_key_base&.[](0..19) || 'MISSING!'}"
-    Rails.logger.info "Master key (first 10): #{Rails.application.credentials.config&.[](0..9) || 'MISSING!'}"
     Rails.logger.info "Session ID: #{session.id}"
     Rails.logger.info "Session CSRF Token: #{session[:_csrf_token]}"
     Rails.logger.info "Request.ssl?: #{request.ssl?}"
+    Rails.logger.info "Cookie value: #{cookies.encrypted[Rails.application.config.session_options[:key]]&.[](0..50)}"
+    Rails.logger.info "Session enabled?: #{request.session_options}"
     Rails.logger.info '=' * 80
   end
 end

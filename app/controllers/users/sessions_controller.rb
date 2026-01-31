@@ -2,8 +2,13 @@
 
 module Users
   class SessionsController < Devise::SessionsController
-    # Let Devise handle the create action naturally
-    # The data: { turbo: false } in the form will ensure standard HTTP redirects work
+    def new
+      # Force write something to session
+      session[:test] = 'hello'
+      Rails.logger.info "Session test value: #{session[:test]}"
+      Rails.logger.info "Session ID after write: #{session.id}"
+      super
+    end
 
     # DELETE /users/sign_out
     def destroy

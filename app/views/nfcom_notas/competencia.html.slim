@@ -8,11 +8,11 @@
             = I18n.l(@competencia, format: '%B de %Y').capitalize
           - unless request.format.pdf?
             .btn-group.no-print role="group"
-              = link_to competencia_nfcom_notas_path(@mes, format: :pdf, q: params[:q]), class: 'btn btn-danger', target: '_blank' do
-                i.bi.bi-file-earmark-pdf.me-2
-                | Exportar PDF
-              = link_to competencia_nfcom_notas_path(@mes, format: :zip, q: params[:q]), class: 'btn btn-success' do
-                i.bi.bi-file-zip.me-2
+              = link_to competencia_nfcom_notas_path(@mes, format: :csv, q: params[:q]), class: 'btn btn-success' do
+                i.bi.bi-file-earmark-spreadsheet.me-2
+                | Exportar CSV
+              = link_to competencia_nfcom_notas_path(@mes, format: :zip, q: params[:q]), class: 'btn btn-primary' do
+                i.bi.bi-file-earmark-zip.me-2
                 | Baixar XMLs
 
         .card-body

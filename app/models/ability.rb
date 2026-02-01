@@ -48,6 +48,9 @@ class Ability
     cannot :emitir_nfcom, Fatura do |fatura|
       !fatura.gerar_nota?
     end
+    cannot :encerrar, Atendimento do |atendimento|
+      atendimento.fechamento.present?
+    end
   end
 
   # Level 1 technician

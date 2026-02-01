@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class NfcomNotasController < ApplicationController
+class NfcomNotasController < ApplicationController # rubocop:disable Metrics/ClassLength
   before_action :set_nfcom_nota, only: [:show]
   before_action :permit_search_params, only: [:competencia]
   load_and_authorize_resource
@@ -48,10 +48,12 @@ class NfcomNotasController < ApplicationController
         @total_stats = total_stats_for(notas_filtradas)
       end
 
-      format.pdf do
+      format.csv do
         @notas = notas_filtradas
-        @total_stats = total_stats_for(notas_filtradas)
-        render_competencia_pdf
+        send_data generate_csv(@notas),
+                  filename: "nfcom_competencia_#{@mes}.csv",
+                  type: 'text/csv',
+                  disposition: 'attachment'
       end
 
       format.zip do
@@ -74,7 +76,7 @@ class NfcomNotasController < ApplicationController
   end
 
   # POST /nfcom_notas/gerar_lote
-  def gerar_lote
+  def gerar_lote # rubocop:disable Metrics/AbcSize
     authorize! :gerar_lote, NfcomNota
 
     data_inicio = Date.parse(params[:data_inicio])
@@ -122,16 +124,24 @@ class NfcomNotasController < ApplicationController
       .count
   end
 
-  def render_competencia_pdf
-    render pdf: "nfcom_competencia_#{@mes}",
-           template: 'nfcom_notas/competencia',
-           layout: 'print',
-           formats: [:html],
-           encoding: 'UTF-8',
-           zoom: 1.0,
-           margin: { top: 10, bottom: 10, left: 10, right: 10 },
-           page_size: 'A4',
-           orientation: 'Landscape'
+  def generate_csv(notas)
+    require 'csv'
+
+    CSV.generate(headers: true) do |csv|
+      csv << ['Série', 'Número', 'Cliente', 'Status', 'Valor Total', 'Emissão', 'Chave de Acesso']
+
+      notas.each do |nota|
+        csv << [
+          nota.serie,
+          nota.numero,
+          nota.fatura.contrato.pessoa.nome,
+          I18n.t("nfcom_nota.statuses.#{nota.status}", count: 1),
+          nota.valor_total,
+          nota.created_at ? I18n.l(nota.created_at.to_date) : '',
+          nota.chave_acesso || ''
+        ]
+      end
+    end
   end
 
   def send_zip_xmls

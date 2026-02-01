@@ -73,6 +73,35 @@ class NfcomNotasController < ApplicationController
     handle_standard_error(e)
   end
 
+  # POST /nfcom_notas/gerar_lote
+  def gerar_lote
+    authorize! :gerar_lote, NfcomNota
+
+    data_inicio = Date.parse(params[:data_inicio])
+    data_fim = Date.parse(params[:data_fim])
+
+    if data_inicio > data_fim
+      flash[:error] = I18n.t('nfcom_notas.batch.invalid_date_range')
+      redirect_to nfcom_notas_path
+      return
+    end
+
+    # Enqueue the job
+    GerarNotasJob.perform_later(data_inicio, data_fim)
+
+    flash[:notice] = I18n.t('nfcom_notas.batch.job_enqueued',
+                            inicio: I18n.l(data_inicio),
+                            fim: I18n.l(data_fim))
+    redirect_to nfcom_notas_path
+  rescue ArgumentError
+    flash[:error] = I18n.t('nfcom_notas.batch.invalid_dates')
+    redirect_to nfcom_notas_path
+  rescue StandardError => e
+    Rails.logger.error("Erro ao enfileirar GerarNotasJob: #{e.message}")
+    flash[:error] = I18n.t('nfcom_notas.batch.job_failed')
+    redirect_to nfcom_notas_path
+  end
+
   private
 
   def permit_search_params

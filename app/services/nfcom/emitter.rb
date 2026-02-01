@@ -56,19 +56,11 @@ module Nfcom
     private
 
     def criar_registro(fatura)
-      competencia_date = fatura.liquidacao || fatura.vencimento
-
-      # Ensure unpaid faturas are in the current month
-      if fatura.valor_liquidacao.blank? &&
-         (competencia_date.month != Date.current.month || competencia_date.year != Date.current.year)
-        raise 'Não é possível emitir NF para Faturas não pagas fora do mês corrente'
-      end
-
       NfcomNota.create!(
         fatura: fatura,
         serie: 1,
         numero: NfcomNota.proximo_numero(1),
-        competencia: Date.parse("#{competencia_date.strftime('%Y-%m')}-01"),
+        competencia: Date.current.beginning_of_month,
         valor_total: fatura.base_calculo_icms,
         status: 'pending'
       )
@@ -175,10 +167,8 @@ module Nfcom
     end
 
     def build_fatura(fatura)
-      competencia_date = fatura.liquidacao || fatura.vencimento
-
       Nfcom::Models::Fatura.new(
-        competencia: competencia_date.strftime('%Y-%m'),
+        competencia: Date.current.strftime('%Y-%m'),
         data_vencimento: fatura.vencimento,
         valor_fatura: fatura.base_calculo_icms,
         codigo_barras: fatura.codigo_de_barras,

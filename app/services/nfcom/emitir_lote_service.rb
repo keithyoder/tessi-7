@@ -3,8 +3,8 @@
 module Nfcom
   # Serviço para emitir NFCom em lote para faturas liquidadas em um período
   #
-  # @param data_inicio [Date] data inicial do período (deve estar no mês atual)
-  # @param data_fim [Date] data final do período (deve estar no mês atual)
+  # @param data_inicio [Date] data inicial do período
+  # @param data_fim [Date] data final do período
   #
   # Uso:
   #   resultado = Nfcom::EmitirLoteService.call(
@@ -16,6 +16,9 @@ module Nfcom
   #   puts "Erros: #{resultado[:error_count]}"
   #
   class EmitirLoteService
+    # Número de dias antes do início do mês atual permitidos
+    DIAS_RETROATIVOS_PERMITIDOS = 5
+
     def self.call(data_inicio:, data_fim:)
       new(data_inicio, data_fim).call
     end
@@ -56,16 +59,19 @@ module Nfcom
     def validate_dates!
       raise ArgumentError, 'data_inicio não pode ser posterior a data_fim' if data_inicio > data_fim
 
-      mes_atual = Date.current.all_month
+      # Permite datas até DIAS_RETROATIVOS_PERMITIDOS antes do início do mês atual
+      earliest_allowed = Date.current.beginning_of_month - DIAS_RETROATIVOS_PERMITIDOS.days
 
-      unless mes_atual.cover?(data_inicio)
+      if data_inicio < earliest_allowed
         raise ArgumentError,
-              "data_inicio (#{data_inicio}) deve estar no mês atual (#{mes_atual.first} - #{mes_atual.last})"
+              "data_inicio (#{data_inicio}) não pode ser anterior a #{I18n.l(earliest_allowed)}"
       end
 
-      return if mes_atual.cover?(data_fim)
+      # Não permite datas no futuro
+      return unless data_fim > Date.current
 
-      raise ArgumentError, "data_fim (#{data_fim}) deve estar no mês atual (#{mes_atual.first} - #{mes_atual.last})"
+      raise ArgumentError,
+            "data_fim (#{data_fim}) não pode ser posterior à data atual (#{I18n.l(Date.current)})"
     end
 
     def buscar_faturas

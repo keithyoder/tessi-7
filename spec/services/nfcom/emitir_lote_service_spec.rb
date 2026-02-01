@@ -3,17 +3,11 @@
 require 'rails_helper'
 
 RSpec.describe Nfcom::EmitirLoteService, type: :service do
-  let!(:pagamento_perfil) { any_pagamento_perfil }
   let!(:contrato) do
     build(
       :contrato,
       adesao: Date.new(2026, 1, 10),
-      prazo_meses: 12,
-      pagamento_perfil: pagamento_perfil,
       primeiro_vencimento: Date.new(2026, 2, 10),
-      dia_vencimento: 10,
-      pessoa: any_pessoa_fisica,
-      plano: any_plano,
       emite_nf: true
     ).tap do |c|
       allow(c).to receive(:gerar_faturas_iniciais)
@@ -29,7 +23,6 @@ RSpec.describe Nfcom::EmitirLoteService, type: :service do
       liquidacao: Date.new(2026, 1, 15),
       valor: 100.00,
       valor_liquidacao: 100.00,
-      pagamento_perfil: pagamento_perfil,
       nossonumero: '10001',
       parcela: 1,
       periodo_inicio: Date.new(2026, 1, 1),
@@ -59,7 +52,7 @@ RSpec.describe Nfcom::EmitirLoteService, type: :service do
 
         resultado = described_class.call(
           data_inicio: Date.new(2026, 1, 1),
-          data_fim: Date.new(2026, 1, 31)
+          data_fim: Date.new(2026, 1, 23)
         )
 
         expect(resultado[:success_count]).to eq(1)
@@ -72,7 +65,7 @@ RSpec.describe Nfcom::EmitirLoteService, type: :service do
 
         resultado = described_class.call(
           data_inicio: Date.new(2026, 1, 1),
-          data_fim: Date.new(2026, 1, 31)
+          data_fim: Date.new(2026, 1, 23)
         )
 
         expect(resultado).to have_key(:success_count)
@@ -86,7 +79,7 @@ RSpec.describe Nfcom::EmitirLoteService, type: :service do
 
         resultado = described_class.call(
           data_inicio: Date.new(2026, 1, 1),
-          data_fim: Date.new(2026, 1, 31)
+          data_fim: Date.new(2026, 1, 23)
         )
 
         expect(resultado[:faturas_processadas].first).to include(
@@ -106,7 +99,6 @@ RSpec.describe Nfcom::EmitirLoteService, type: :service do
           liquidacao: Date.new(2026, 1, 16),
           valor: 100.00,
           valor_liquidacao: 100.00,
-          pagamento_perfil: pagamento_perfil,
           nossonumero: '10002',
           parcela: 2,
           periodo_inicio: Date.new(2026, 1, 1),
@@ -120,7 +112,7 @@ RSpec.describe Nfcom::EmitirLoteService, type: :service do
 
         resultado = described_class.call(
           data_inicio: Date.new(2026, 1, 1),
-          data_fim: Date.new(2026, 1, 31)
+          data_fim: Date.new(2026, 1, 23)
         )
 
         expect(resultado[:success_count]).to eq(2)
@@ -144,7 +136,7 @@ RSpec.describe Nfcom::EmitirLoteService, type: :service do
 
         resultado = described_class.call(
           data_inicio: Date.new(2026, 1, 1),
-          data_fim: Date.new(2026, 1, 31)
+          data_fim: Date.new(2026, 1, 23)
         )
 
         expect(resultado[:success_count]).to eq(0)
@@ -162,7 +154,7 @@ RSpec.describe Nfcom::EmitirLoteService, type: :service do
 
         resultado = described_class.call(
           data_inicio: Date.new(2026, 1, 1),
-          data_fim: Date.new(2026, 1, 31)
+          data_fim: Date.new(2026, 1, 23)
         )
 
         expect(resultado[:error_count]).to eq(1)
@@ -174,7 +166,7 @@ RSpec.describe Nfcom::EmitirLoteService, type: :service do
 
         resultado = described_class.call(
           data_inicio: Date.new(2026, 1, 1),
-          data_fim: Date.new(2026, 1, 31)
+          data_fim: Date.new(2026, 1, 23)
         )
 
         expect(resultado[:error_count]).to eq(1)
@@ -191,7 +183,6 @@ RSpec.describe Nfcom::EmitirLoteService, type: :service do
           liquidacao: Date.new(2026, 1, 16),
           valor: 100.00,
           valor_liquidacao: 100.00,
-          pagamento_perfil: pagamento_perfil,
           nossonumero: '10002',
           parcela: 2,
           periodo_inicio: Date.new(2026, 1, 1),
@@ -216,7 +207,7 @@ RSpec.describe Nfcom::EmitirLoteService, type: :service do
 
         resultado = described_class.call(
           data_inicio: Date.new(2026, 1, 1),
-          data_fim: Date.new(2026, 1, 31)
+          data_fim: Date.new(2026, 1, 23)
         )
 
         expect(resultado[:success_count]).to eq(1)
@@ -228,37 +219,51 @@ RSpec.describe Nfcom::EmitirLoteService, type: :service do
       it 'rejeita data_inicio posterior a data_fim' do
         expect do
           described_class.call(
-            data_inicio: Date.new(2026, 1, 31),
+            data_inicio: Date.new(2026, 1, 23),
             data_fim: Date.new(2026, 1, 1)
           )
         end.to raise_error(ArgumentError, 'data_inicio não pode ser posterior a data_fim')
       end
 
-      it 'rejeita data_inicio fora do mês atual' do
+      it 'rejeita data_inicio muito antiga (mais de 5 dias antes do início do mês)' do
+        # Current date: 2026-01-23
+        # Start of month: 2026-01-01
+        # Earliest allowed: 2025-12-27 (5 days before start of month)
         expect do
           described_class.call(
-            data_inicio: Date.new(2025, 12, 1),
-            data_fim: Date.new(2026, 1, 31)
+            data_inicio: Date.new(2025, 12, 26), # 6 days before start of month
+            data_fim: Date.new(2026, 1, 23)
           )
-        end.to raise_error(ArgumentError, /data_inicio .* deve estar no mês atual/)
+        end.to raise_error(ArgumentError, /data_inicio .* não pode ser anterior a/)
       end
 
-      it 'rejeita data_fim fora do mês atual' do
+      it 'aceita data_inicio 5 dias antes do início do mês' do
+        allow(emitter).to receive(:emitir).and_return(nfcom_record_autorizada)
+
+        expect do
+          described_class.call(
+            data_inicio: Date.new(2025, 12, 27), # Exactly 5 days before Jan 1
+            data_fim: Date.new(2026, 1, 23)
+          )
+        end.not_to raise_error
+      end
+
+      it 'rejeita data_fim no futuro' do
         expect do
           described_class.call(
             data_inicio: Date.new(2026, 1, 1),
-            data_fim: Date.new(2026, 2, 15)
+            data_fim: Date.new(2026, 1, 24) # Tomorrow
           )
-        end.to raise_error(ArgumentError, /data_fim .* deve estar no mês atual/)
+        end.to raise_error(ArgumentError, /data_fim .* não pode ser posterior à data atual/)
       end
 
-      it 'aceita datas válidas no mês atual' do
+      it 'aceita data_fim igual à data atual' do
         allow(emitter).to receive(:emitir).and_return(nfcom_record_autorizada)
 
         expect do
           described_class.call(
             data_inicio: Date.new(2026, 1, 1),
-            data_fim: Date.new(2026, 1, 31)
+            data_fim: Date.new(2026, 1, 23) # Today
           )
         end.not_to raise_error
       end
@@ -270,6 +275,17 @@ RSpec.describe Nfcom::EmitirLoteService, type: :service do
           described_class.call(
             data_inicio: Date.new(2026, 1, 15),
             data_fim: Date.new(2026, 1, 20)
+          )
+        end.not_to raise_error
+      end
+
+      it 'aceita período que atravessa a virada do mês (dentro do limite)' do
+        allow(emitter).to receive(:emitir).and_return(nfcom_record_autorizada)
+
+        expect do
+          described_class.call(
+            data_inicio: Date.new(2025, 12, 28), # 4 days before Jan 1
+            data_fim: Date.new(2026, 1, 15)
           )
         end.not_to raise_error
       end

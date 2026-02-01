@@ -9,45 +9,47 @@
 
           .row.mt-4
             - if @competencias_com_count.any?
-              .col-md-10.mx-auto
-                  .list-group
-                    - @competencias_com_count.each do |competencia, count|
-                      = link_to competencia_nfcom_notas_path(competencia.strftime('%Y-%m')), class: 'list-group-item list-group-item-action' do
-                        .d-flex.justify-content-between.align-items-center
-                          .d-flex.align-items-center
-                            i.fas.fa-calendar-alt.me-3.text-primary
-                            div
-                              .fw-bold
-                                = I18n.l(competencia, format: '%B de %Y').capitalize
-                          .d-flex.gap-3.align-items-center
-                            - if @status_counts_by_competencia[[competencia, 'authorized']].to_i > 0
-                              span.badge.bg-success
-                                = @status_counts_by_competencia[[competencia, 'authorized']]
-                                |  #{I18n.t('nfcom_nota.statuses.authorized', count: @status_counts_by_competencia[[competencia, 'authorized']])}
-                            - if @status_counts_by_competencia[[competencia, 'pending']].to_i > 0
-                              span.badge.bg-warning.text-dark
-                                = @status_counts_by_competencia[[competencia, 'pending']]
-                                |  #{I18n.t('nfcom_nota.statuses.pending', count: @status_counts_by_competencia[[competencia, 'pending']])}
-                            - if @status_counts_by_competencia[[competencia, 'rejected']].to_i > 0
-                              span.badge.bg-danger
-                                = @status_counts_by_competencia[[competencia, 'rejected']]
-                                |  #{I18n.t('nfcom_nota.statuses.rejected', count: @status_counts_by_competencia[[competencia, 'rejected']])}
-                            - if @status_counts_by_competencia[[competencia, 'cancelled']].to_i > 0
-                              span.badge.bg-secondary
-                                = @status_counts_by_competencia[[competencia, 'cancelled']]
-                                |  #{I18n.t('nfcom_nota.statuses.cancelled', count: @status_counts_by_competencia[[competencia, 'cancelled']])}
-                            - if @authorized_values_by_competencia[competencia].to_f > 0
-                              span.badge.bg-primary.fs-6
-                                i.fas.fa-dollar-sign.me-1
-                                = number_to_currency(@authorized_values_by_competencia[competencia])
+              .col-md-12
+                .list-group
+                  - @competencias_com_count.each do |competencia, count|
+                    = link_to competencia_nfcom_notas_path(competencia.strftime('%Y-%m')), class: 'list-group-item list-group-item-action' do
+                      .d-flex.justify-content-between.align-items-center
+                        .d-flex.align-items-center
+                          i.bi.bi-calendar-event.me-3.text-primary
+                          div
+                            .fw-bold
+                              = I18n.l(competencia, format: '%B de %Y').capitalize
+                        .d-flex.gap-3.align-items-center
+                          - if @status_counts_by_competencia[[competencia, 'authorized']].to_i > 0
+                            span.badge.bg-success
+                              = @status_counts_by_competencia[[competencia, 'authorized']]
+                              |  #{I18n.t('nfcom_nota.statuses.authorized', count: @status_counts_by_competencia[[competencia, 'authorized']])}
+                          - if @status_counts_by_competencia[[competencia, 'pending']].to_i > 0
+                            span.badge.bg-warning.text-dark
+                              = @status_counts_by_competencia[[competencia, 'pending']]
+                              |  #{I18n.t('nfcom_nota.statuses.pending', count: @status_counts_by_competencia[[competencia, 'pending']])}
+                          - if @status_counts_by_competencia[[competencia, 'rejected']].to_i > 0
+                            span.badge.bg-danger
+                              = @status_counts_by_competencia[[competencia, 'rejected']]
+                              |  #{I18n.t('nfcom_nota.statuses.rejected', count: @status_counts_by_competencia[[competencia, 'rejected']])}
+                          - if @status_counts_by_competencia[[competencia, 'cancelled']].to_i > 0
+                            span.badge.bg-secondary
+                              = @status_counts_by_competencia[[competencia, 'cancelled']]
+                              |  #{I18n.t('nfcom_nota.statuses.cancelled', count: @status_counts_by_competencia[[competencia, 'cancelled']])}
+                          - if @authorized_values_by_competencia[competencia].to_f > 0
+                            span.badge.bg-primary.fs-6
+                              i.bi.bi-currency-dollar.me-1
+                              = number_to_currency(@authorized_values_by_competencia[competencia])
             - else
               .col-md-12
                 .alert.alert-info.text-center
-                  i.fas.fa-info-circle.me-2
+                  i.bi.bi-info-circle.me-2
                   | Nenhuma nota fiscal emitida nos últimos 12 meses
 
+          / Side-by-side: Busca and Gerar Lote
           .row.mt-4
-            .col-md-8.mx-auto
+            / Left - Busca por Competência Específica
+            .col-md-6
               .card.bg-light
                 .card-body
                   h6.card-title Busca por Competência Específica
@@ -56,8 +58,45 @@
                       = month_field_tag :mes, nil, class: 'form-control', placeholder: 'Selecione mês/ano'
                     .col-md-4
                       button.btn.btn-primary.w-100 type="submit" onclick="event.preventDefault(); window.location.href = '/nfcom_notas/competencia/' + document.querySelector('#mes').value"
-                        i.fas.fa-search.me-2
+                        i.bi.bi-search.me-2
                         | Buscar
+
+            / Right - Gerar Lote (Admin Only)
+            - if can? :gerar_lote, NfcomNota
+              .col-md-6
+                .card.border-primary
+                  .card-header.bg-primary.text-white.d-flex.justify-content-between.align-items-center
+                    h6.mb-0
+                      i.bi.bi-file-earmark-plus.me-2
+                      | Gerar Notas em Lote
+                    button.btn.btn-sm.btn-light type="button" data-bs-toggle="collapse" data-bs-target="#gerarLoteForm"
+                      i.bi.bi-chevron-down
+                  .collapse id="gerarLoteForm"
+                    .card-body
+                      .alert.alert-info.small
+                        i.bi.bi-info-circle.me-2
+                        | Gerar notas para faturas pagas no período selecionado.
+
+                      = form_with url: gerar_lote_nfcom_notas_path, method: :post, local: true do |f|
+                        .mb-3
+                          = f.label :data_inicio, 'Data de Início', class: 'form-label'
+                          = f.date_field :data_inicio, 
+                                        class: 'form-control', 
+                                        required: true,
+                                        value: Date.current.beginning_of_month,
+                                        max: Date.current
+
+                        .mb-3
+                          = f.label :data_fim, 'Data de Fim', class: 'form-label'
+                          = f.date_field :data_fim, 
+                                        class: 'form-control', 
+                                        required: true,
+                                        value: Date.current,
+                                        max: Date.current
+
+                        = f.submit 'Gerar Notas em Lote', 
+                                  class: 'btn btn-primary w-100',
+                                  data: { confirm: 'Tem certeza que deseja iniciar a geração de notas em lote?' }
 
   .row.mt-3
     .col-md-12.text-center

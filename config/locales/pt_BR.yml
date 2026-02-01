@@ -312,6 +312,11 @@ pt-BR:
       errors:
         pdf_generation_failed: "Erro ao gerar PDF da nota"
         not_authorized: "Nota ainda não foi autorizada pela SEFAZ"
+      batch:
+        invalid_date_range: "A data de início não pode ser posterior à data de fim"
+        invalid_dates: "Datas inválidas fornecidas"
+        job_enqueued: "Job de geração de notas enfileirado com sucesso para o período de %{inicio} a %{fim}"
+        job_failed: "Erro ao enfileirar o job de geração de notas"
   pagamento_perfis:
     create:
       notice: "Perfil de pagamento criado com sucesso."

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # app/views/nfcom_notas/show.pdf.prawn
 
 require 'prawn/measurement_extensions'
@@ -9,9 +10,9 @@ prawn_document(page_size: 'A4', margin: [5.mm, 5.mm, 5.mm, 5.mm]) do |pdf|
 
   # Setup fonts
   pdf.font_families.update('OpenSans' => {
-    normal: Rails.root / 'app/assets/fonts/OpenSans-Regular.ttf',
-    bold: Rails.root / 'app/assets/fonts/OpenSans-ExtraBold.ttf'
-  })
+                             normal: Rails.root / 'app/assets/fonts/OpenSans-Regular.ttf',
+                             bold: Rails.root / 'app/assets/fonts/OpenSans-ExtraBold.ttf'
+                           })
   pdf.font 'OpenSans'
 
   # Parse XML
@@ -47,20 +48,18 @@ prawn_document(page_size: 'A4', margin: [5.mm, 5.mm, 5.mm, 5.mm]) do |pdf|
   y_pos = pdf.cursor
 
   logo_path = Rails.root / 'app' / 'assets' / 'images' / 'logo-cores.svg'
-  if File.exist?(logo_path)
-    pdf.svg IO.read(logo_path), at: [2.mm, y_pos], width: 50.mm
-  end
+  pdf.svg File.read(logo_path), at: [2.mm, y_pos], width: 50.mm if File.exist?(logo_path)
 
   # ==================== HEADER ====================
   # pdf.fill_color 'CCCCCC'
   # pdf.fill_rectangle [0, y_pos], 200.mm, 10.mm
   pdf.fill_color '000000'
   pdf.text_box 'NOTA FISCAL DE SERVIÇO DE COMUNICAÇÃO',
-              at: [55.mm, y_pos - 10.mm],  # shift title right to leave room for logo
-              size: 16,
-              style: :bold,
-              align: :center,
-              width: 141.mm  # adjusted width to fit title + logo
+               at: [55.mm, y_pos - 10.mm], # shift title right to leave room for logo
+               size: 16,
+               style: :bold,
+               align: :center,
+               width: 141.mm # adjusted width to fit title + logo
   y_pos -= 25.mm
 
   # ==================== EMITTER & DOCUMENT INFO ====================
@@ -76,8 +75,8 @@ prawn_document(page_size: 'A4', margin: [5.mm, 5.mm, 5.mm, 5.mm]) do |pdf|
   endereco += " - #{emit_info[:complemento]}" if emit_info[:complemento].present?
   endereco += " - #{emit_info[:bairro]}" if emit_info[:bairro].present?
   pdf.text_box endereco, at: [2.mm, y_pos - 21.mm], size: 10, width: 120.mm
-  pdf.text_box "#{emit_info[:municipio]}/#{emit_info[:uf]} - CEP: #{format_cep(emit_info[:cep])}", 
-             at: [2.mm, y_pos - 26.mm], size: 10
+  pdf.text_box "#{emit_info[:municipio]}/#{emit_info[:uf]} - CEP: #{format_cep(emit_info[:cep])}",
+               at: [2.mm, y_pos - 26.mm], size: 10
 
   # Document info (right)
   pdf.stroke_vertical_line y_pos, y_pos - 30.mm, at: 130.mm
@@ -118,7 +117,7 @@ prawn_document(page_size: 'A4', margin: [5.mm, 5.mm, 5.mm, 5.mm]) do |pdf|
   end
 
   pdf.text_box 'Consulte a autenticidade deste documento através do QR Code ou da chave de acesso no site da SEFAZ',
-                at: [30.mm, y_pos - 24.mm], size: 8
+               at: [30.mm, y_pos - 24.mm], size: 8
 
   y_pos -= 33.mm
 
@@ -184,7 +183,7 @@ prawn_document(page_size: 'A4', margin: [5.mm, 5.mm, 5.mm, 5.mm]) do |pdf|
     end
 
     if cod_barras.present?
-      pdf.text_box "Código de Barras:", at: [2.mm, y_pos - 13.mm], size: 10
+      pdf.text_box 'Código de Barras:', at: [2.mm, y_pos - 13.mm], size: 10
       pdf.text_box format_barcode(cod_barras), at: [2.mm, y_pos - 18.mm], size: 8, width: 195.mm
     end
 
@@ -206,7 +205,7 @@ prawn_document(page_size: 'A4', margin: [5.mm, 5.mm, 5.mm, 5.mm]) do |pdf|
     t.columns(5..8).align = :right
   end
 
-  #pdf.move_down 4.mm
+  # pdf.move_down 4.mm
 
   # ==================== TOTALS ====================
   totals_data = build_totals_table_data(total, ns)
@@ -234,6 +233,7 @@ prawn_document(page_size: 'A4', margin: [5.mm, 5.mm, 5.mm, 5.mm]) do |pdf|
         pdf.move_down 2.mm
         inf_cpl_nodes.each do |node|
           next if node.text.blank?
+
           pdf.text node.text, size: 10, indent_paragraphs: 0.mm, overflow: :shrink_to_fit
           pdf.move_down 2.mm
         end

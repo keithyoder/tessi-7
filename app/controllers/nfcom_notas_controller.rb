@@ -7,11 +7,26 @@ class NfcomNotasController < ApplicationController
 
   # GET /nfcom_notas
   def index
+    competencia_range = (12.months.ago.beginning_of_month..)
+
     @competencias_com_count = NfcomNota
       .where(competencia: 12.months.ago.beginning_of_month..)
       .group(:competencia)
       .order(competencia: :desc)
       .count
+
+    # Status counts per competência
+    @status_counts_by_competencia = NfcomNota
+      .where(competencia: competencia_range)
+      .group(:competencia, :status)
+      .count
+
+    # Total authorized value per competência
+    @authorized_values_by_competencia = NfcomNota
+      .where(competencia: competencia_range)
+      .authorized
+      .group(:competencia)
+      .sum(:valor_total)
   end
 
   # GET /nfcom_notas/competencia/:mes
@@ -53,12 +68,9 @@ class NfcomNotasController < ApplicationController
       format.html { redirect_to nfcom_nota_path(@nfcom_nota, format: :pdf) }
     end
   rescue Nfcom::Errors::XmlError => e
-    flash[:error] = e.message
-    redirect_to fatura_path(@nfcom_nota.fatura)
+    handle_xml_error(e)
   rescue StandardError => e
-    Rails.logger.error("Erro ao gerar DANFE-COM: #{e.message}\n#{e.backtrace.join("\n")}")
-    flash[:error] = 'Erro ao gerar PDF da nota'
-    redirect_to fatura_path(@nfcom_nota.fatura)
+    handle_standard_error(e)
   end
 
   private
@@ -122,9 +134,24 @@ class NfcomNotasController < ApplicationController
                 type: 'application/xml',
                 disposition: 'attachment'
     else
-      flash[:error] = 'Nota ainda não foi autorizada pela SEFAZ'
+      flash[:error] = I18n.t('nfcom_notas.errors.not_authorized')
       redirect_to fatura_path(@nfcom_nota.fatura)
     end
+  end
+
+  def handle_xml_error(error)
+    flash[:error] = error.message
+    redirect_to fatura_path(@nfcom_nota.fatura)
+  end
+
+  def handle_standard_error(error)
+    log_error(error)
+    flash[:error] = I18n.t('nfcom_notas.errors.pdf_generation_failed')
+    redirect_to fatura_path(@nfcom_nota.fatura)
+  end
+
+  def log_error(error)
+    Rails.logger.error("Erro ao gerar DANFE-COM: #{error.message}\n#{error.backtrace.join("\n")}")
   end
 
   def set_nfcom_nota

@@ -9,16 +9,37 @@
 
           .row.mt-4
             - if @competencias_com_count.any?
-              .col-md-8.mx-auto
-                .list-group
-                  - @competencias_com_count.each do |competencia, count|
-                    = link_to competencia_nfcom_notas_path(competencia.strftime('%Y-%m')), class: 'list-group-item list-group-item-action d-flex justify-content-between align-items-center' do
-                      span
-                        i.fas.fa-calendar-alt.me-2
-                        = I18n.l(competencia, format: '%B de %Y').capitalize
-                      span.badge.bg-primary.rounded-pill
-                        = count
-                        |  #{count == 1 ? 'nota' : 'notas'}
+              .col-md-10.mx-auto
+                  .list-group
+                    - @competencias_com_count.each do |competencia, count|
+                      = link_to competencia_nfcom_notas_path(competencia.strftime('%Y-%m')), class: 'list-group-item list-group-item-action' do
+                        .d-flex.justify-content-between.align-items-center
+                          .d-flex.align-items-center
+                            i.fas.fa-calendar-alt.me-3.text-primary
+                            div
+                              .fw-bold
+                                = I18n.l(competencia, format: '%B de %Y').capitalize
+                          .d-flex.gap-3.align-items-center
+                            - if @status_counts_by_competencia[[competencia, 'authorized']].to_i > 0
+                              span.badge.bg-success
+                                = @status_counts_by_competencia[[competencia, 'authorized']]
+                                |  #{I18n.t('nfcom_nota.statuses.authorized', count: @status_counts_by_competencia[[competencia, 'authorized']])}
+                            - if @status_counts_by_competencia[[competencia, 'pending']].to_i > 0
+                              span.badge.bg-warning.text-dark
+                                = @status_counts_by_competencia[[competencia, 'pending']]
+                                |  #{I18n.t('nfcom_nota.statuses.pending', count: @status_counts_by_competencia[[competencia, 'pending']])}
+                            - if @status_counts_by_competencia[[competencia, 'rejected']].to_i > 0
+                              span.badge.bg-danger
+                                = @status_counts_by_competencia[[competencia, 'rejected']]
+                                |  #{I18n.t('nfcom_nota.statuses.rejected', count: @status_counts_by_competencia[[competencia, 'rejected']])}
+                            - if @status_counts_by_competencia[[competencia, 'cancelled']].to_i > 0
+                              span.badge.bg-secondary
+                                = @status_counts_by_competencia[[competencia, 'cancelled']]
+                                |  #{I18n.t('nfcom_nota.statuses.cancelled', count: @status_counts_by_competencia[[competencia, 'cancelled']])}
+                            - if @authorized_values_by_competencia[competencia].to_f > 0
+                              span.badge.bg-primary.fs-6
+                                i.fas.fa-dollar-sign.me-1
+                                = number_to_currency(@authorized_values_by_competencia[competencia])
             - else
               .col-md-12
                 .alert.alert-info.text-center

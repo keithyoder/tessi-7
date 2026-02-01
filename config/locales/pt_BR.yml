@@ -294,6 +294,24 @@ pt-BR:
       notice: "Logradouro atualizado com sucesso."
     destroy:
       notice: "Logradouro removido com sucesso."
+  nfcom_nota:
+    statuses:
+      pending:
+        one: "pendente"
+        other: "pendentes"
+      authorized:
+        one: "autorizada"
+        other: "autorizadas"
+      rejected:
+        one: "rejeitada"
+        other: "rejeitadas"
+      cancelled:
+        one: "cancelada"
+        other: "canceladas"
+  nfcom_notas:
+      errors:
+        pdf_generation_failed: "Erro ao gerar PDF da nota"
+        not_authorized: "Nota ainda não foi autorizada pela SEFAZ"
   pagamento_perfis:
     create:
       notice: "Perfil de pagamento criado com sucesso."

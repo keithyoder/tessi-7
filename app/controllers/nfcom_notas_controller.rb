@@ -87,7 +87,7 @@ class NfcomNotasController < ApplicationController
     end
 
     # Enqueue the job
-    GerarNotasJob.perform_later(data_inicio, data_fim)
+    GerarNotasJob.perform_later(data_inicio: data_inicio, data_fim: data_fim)
 
     flash[:notice] = I18n.t('nfcom_notas.batch.job_enqueued',
                             inicio: I18n.l(data_inicio),

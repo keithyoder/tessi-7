@@ -114,4 +114,28 @@ Rails.application.routes.draw do # rubocop:disable Metrics/BlockLength
 
   # Webhooks
   post '/webhooks/:token' => 'webhook_eventos#create'
+
+  namespace :faturamento do
+    # Ano - Year view
+    get 'ano(/:ano)', to: 'ano#index', as: :ano, defaults: { ano: nil }
+
+    # Mes - Month view (main operational view)
+    get 'mes/:ano/:mes', to: 'mes#index', as: :mes, constraints: { mes: /[1-9]|1[0-2]/ }
+
+    # Dia - Day detail view
+    get 'dia/:data', to: 'dia#index', as: :dia, constraints: { data: /\d{4}-\d{2}-\d{2}/ }
+
+    # Root of faturamento - redirect to current month
+    root to: redirect { |_params, request|
+      date = Date.current
+      "/faturamento/mes/#{date.year}/#{date.month}"
+    }
+  end
+
+  # Optional: Shortcut from application root
+  # Uncomment if you want /faturamento to be easily accessible
+  get 'faturamento', to: redirect { |_params, request|
+    date = Date.current
+    "/faturamento/mes/#{date.year}/#{date.month}"
+  }
 end

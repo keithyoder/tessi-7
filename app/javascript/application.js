@@ -12,7 +12,10 @@ import { createPopper } from '@popperjs/core';
 import * as bootstrap from "bootstrap"
 window.bootstrap = bootstrap
 
-import "chartkick/chart.js"
+import { Chart, registerables } from 'chart.js';
+Chart.register(...registerables);
+window.Chart = Chart;
+
 
 import "./faturas"
 import "./fibra_caixas"

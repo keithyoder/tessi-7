@@ -88,7 +88,7 @@ gem 'wkhtmltopdf-binary'
 # ------------------------------------------------------------
 # UI helpers / Utilities
 # ------------------------------------------------------------
-gem 'chartkick'
+# gem 'chartkick'
 gem 'geocoder'
 gem 'image_processing'
 gem 'kaminari', git: 'https://github.com/keithyoder/kaminari'

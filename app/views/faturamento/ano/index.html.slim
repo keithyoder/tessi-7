@@ -1,0 +1,125 @@
+.faturamento-ano-view
+  / Header
+  .card.mb-4
+    .card-header
+      .d-flex.justify-content-between.align-items-center
+        h3.mb-0 = "Faturamento - Ano #{@ano}"
+        .btn-group
+          - if @ano > 2020
+            = link_to "← #{@ano - 1}", faturamento_ano_path(@ano - 1), class: 'btn btn-outline-secondary btn-sm'
+          - if @ano < Date.current.year
+            = link_to "#{@ano + 1} →", faturamento_ano_path(@ano + 1), class: 'btn btn-outline-secondary btn-sm'
+    .card-body
+      nav aria-label="breadcrumb"
+        ol.breadcrumb
+          li.breadcrumb-item.active aria-current="page"
+            = "Ano #{@ano}"
+
+  / Cards de Estatísticas
+  .row.mb-4
+    .col-md-3.mb-3
+      .card.stat-card.h-100
+        .card-body
+          h6.text-muted.text-uppercase.mb-2 Total Recebido
+          h3.mb-1 = number_to_currency(@estatisticas[:resumo][:total_recebido] || 0)
+          small.text-muted 
+            = "#{@estatisticas[:resumo][:total_faturas] || 0} faturas em #{@estatisticas[:resumo][:meses_processados]} meses"
+    
+    .col-md-3.mb-3
+      .card.stat-card.h-100
+        .card-body
+          h6.text-muted.text-uppercase.mb-2 Média Mensal
+          h3.mb-1 = number_to_currency(@estatisticas[:resumo][:media_mensal] || 0)
+          small.text-muted Média por mês no período
+    
+    .col-md-3.mb-3
+      - diff = @estatisticas[:resumo][:diferenca] || 0.0
+      - border_class = diff >= 0 ? 'border-success' : 'border-danger'
+      .card.stat-card class=border_class class="h-100"
+        .card-body
+          h6.text-muted.text-uppercase.mb-2 vs. Média Histórica
+          - text_class = diff >= 0 ? 'text-success' : 'text-danger'
+          - arrow = diff >= 0 ? '↑' : '↓'
+          h3.mb-1 class=text_class
+            = number_to_currency(diff.abs)
+            = " #{arrow}"
+          - percentual = @estatisticas[:resumo][:percentual_diferenca] || 0.0
+          small class=text_class
+            = number_to_percentage(percentual.abs, precision: 2)
+            = diff >= 0 ? ' acima' : ' abaixo'
+    
+    .col-md-3.mb-3
+      - if @estatisticas[:ano_anterior].present?
+        - ano_ant = @estatisticas[:ano_anterior]
+        - diff_ant = ano_ant[:diferenca]
+        - border_class_ant = diff_ant >= 0 ? 'border-success' : 'border-danger'
+        .card.stat-card class=border_class_ant class="h-100"
+          .card-body
+            h6.text-muted.text-uppercase.mb-2 = "vs. #{ano_ant[:ano]}"
+            - text_class_ant = diff_ant >= 0 ? 'text-success' : 'text-danger'
+            - arrow_ant = diff_ant >= 0 ? '↑' : '↓'
+            h3.mb-1 class=text_class_ant
+              = number_to_currency(diff_ant.abs)
+              = " #{arrow_ant}"
+            small class=text_class_ant
+              = number_to_percentage(ano_ant[:percentual].abs, precision: 2)
+              = diff_ant >= 0 ? ' crescimento' : ' queda'
+      - else
+        .card.stat-card.border-info.h-100
+          .card-body
+            h6.text-muted.text-uppercase.mb-2 Ano Base
+            h3.mb-1.text-info Primeiro ano
+            small.text-muted Sem comparação anterior
+
+  / Gráfico
+  .card.mb-4
+    .card-body
+      h5.card-title Faturamento Mensal vs. Média Histórica
+      div(
+        data-controller="faturamento-chart"
+        data-faturamento-chart-data-value=@chart_data.to_json
+        style="position: relative; height: 400px;"
+      )
+        canvas
+  
+  / Tabela
+  .card
+    .card-header
+      h5.mb-0 Detalhamento Mensal
+    .card-body
+      .table-responsive
+        table.table.table-striped.table-hover.faturamento-table
+          thead.thead-light
+            tr
+              th.text-center Mês
+              th.text-center Faturas
+              th.text-right Faturamento
+              th.text-right Média Histórica
+              th.text-right.diferenca-col Diferença
+          tbody
+            - @estatisticas[:meses].each do |mes_data|
+              - diff = mes_data[:diferenca] || 0.0
+              - diff_class = diff >= 0 ? 'text-success' : 'text-danger'
+              tr.clickable-row data-href=faturamento_mes_path(@ano, mes_data[:mes])
+                td.text-center
+                  = link_to mes_data[:nome_mes], faturamento_mes_path(@ano, mes_data[:mes])
+                td.text-center = number_with_delimiter(mes_data[:total_faturas] || 0)
+                td.text-right
+                  strong = number_to_currency(mes_data[:total_recebido] || 0)
+                td.text-right = number_to_currency(mes_data[:total_esperado] || 0)
+                td.text-right.diferenca-col class=diff_class
+                  strong = number_to_currency(diff.abs, precision: 2)
+                  br
+                  small
+                    - perc = mes_data[:percentual_diferenca] || 0.0
+                    = "(#{number_to_percentage(perc.abs, precision: 2)})"
+
+/ Tornar linhas da tabela clicáveis
+javascript:
+  document.querySelectorAll('.clickable-row').forEach(row => {
+    row.addEventListener('click', function(e) {
+      if (e.target.tagName !== 'A') {
+        window.location = this.dataset.href;
+      }
+    });
+  });

@@ -1,0 +1,182 @@
+/* ============================================
+   Faturamento Module Styles
+   For Faturamento::MesController and related views
+   ============================================ */
+
+/* Main container */
+.faturamento-mes-view {
+  margin-bottom: 2rem;
+}
+
+/* Statistics Cards */
+.faturamento-mes-view .stat-card {
+  border-radius: 8px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.faturamento-mes-view .stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.faturamento-mes-view .stat-card h6 {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.5rem;
+  color: #6c757d;
+}
+
+.faturamento-mes-view .stat-card h3 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+  line-height: 1.2;
+}
+
+.faturamento-mes-view .stat-card small {
+  font-size: 0.875rem;
+  color: #6c757d;
+  display: block;
+}
+
+.faturamento-mes-view .stat-card.border-success {
+  border-left: 4px solid #28a745;
+}
+
+.faturamento-mes-view .stat-card.border-danger {
+  border-left: 4px solid #dc3545;
+}
+
+.faturamento-mes-view .stat-card.border-info {
+  border-left: 4px solid #17a2b8;
+}
+
+/* Table Styles */
+.faturamento-mes-view .faturamento-table {
+  font-size: 0.9rem;
+}
+
+.faturamento-mes-view .faturamento-table thead th {
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid #dee2e6;
+  background-color: #f8f9fa;
+  padding: 0.75rem;
+  vertical-align: middle;
+}
+
+.faturamento-mes-view .faturamento-table tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+.faturamento-mes-view .faturamento-table tbody tr.clickable-row {
+  cursor: pointer;
+}
+
+.faturamento-mes-view .faturamento-table tbody tr.clickable-row:hover {
+  background-color: #f8f9fa;
+}
+
+.faturamento-mes-view .faturamento-table tbody td {
+  padding: 0.75rem;
+  vertical-align: middle;
+}
+
+.faturamento-mes-view .faturamento-table .diferenca-col {
+  background-color: #f8f9fa;
+  font-weight: 600;
+}
+
+/* Chart Container */
+.faturamento-mes-view .chart-container {
+  min-height: 400px;
+  padding: 1rem 0;
+}
+
+/* Breadcrumb */
+.faturamento-mes-view nav.breadcrumb,
+.faturamento-mes-view nav[aria-label="breadcrumb"] .breadcrumb {
+  background-color: transparent;
+  padding: 0.5rem 0;
+  margin-bottom: 1rem;
+}
+
+.faturamento-mes-view .breadcrumb-item + .breadcrumb-item::before {
+  content: ">";
+  padding: 0 0.5rem;
+  color: #6c757d;
+}
+
+/* Month Navigation */
+.faturamento-mes-view .btn-group {
+  display: inline-flex;
+  gap: 0.5rem;
+}
+
+/* Utility Classes - ensure they work */
+.faturamento-mes-view .text-success,
+.text-success {
+  color: #28a745 !important;
+}
+
+.faturamento-mes-view .text-danger,
+.text-danger {
+  color: #dc3545 !important;
+}
+
+.faturamento-mes-view .text-info,
+.text-info {
+  color: #17a2b8 !important;
+}
+
+.faturamento-mes-view .text-muted {
+  color: #6c757d !important;
+}
+
+/* Card Headers */
+.faturamento-mes-view .card-header {
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #dee2e6;
+  padding: 1rem 1.25rem;
+}
+
+.faturamento-mes-view .card-header h3,
+.faturamento-mes-view .card-header h5 {
+  margin: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .faturamento-mes-view .stat-card h3 {
+    font-size: 1.5rem;
+  }
+  
+  .faturamento-mes-view .stat-card h6 {
+    font-size: 0.7rem;
+  }
+  
+  .faturamento-mes-view .faturamento-table {
+    font-size: 0.85rem;
+  }
+  
+  .faturamento-mes-view .chart-container {
+    min-height: 300px;
+  }
+}
+
+/* Print styles */
+@media print {
+  .faturamento-mes-view .btn-group,
+  .faturamento-mes-view nav.breadcrumb {
+    display: none;
+  }
+  
+  .faturamento-mes-view .stat-card {
+    box-shadow: none;
+    border: 1px solid #dee2e6;
+  }
+}

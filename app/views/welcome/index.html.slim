@@ -32,10 +32,22 @@
   .card
     .card-header
       |  Tecnologia 
-    .card-body.text-center
-      = pie_chart Conexao.joins(:ponto).group(:tecnologia).count.map {|k,v| [Ponto.tecnologias.key(k), v] }.to_h
+    .card-body
+      - tecnologia_data = Conexao.joins(:ponto).group(:tecnologia).count.transform_keys { |k| Ponto.tecnologias.key(k) }
+      div(
+        data-controller="pie-chart"
+        data-pie-chart-data-value=tecnologia_data.to_json
+        style="position: relative; height: 200px;"
+      )
+        canvas
   .card
     .card-header
       |  Cidades 
-    .card-body.text-center
-      = pie_chart Conexao.ativo.joins(:cidade).group("cidades.nome").order(count: :desc).limit(5).count
+    .card-body
+      - cidades_data = Conexao.ativo.joins(:cidade).group("cidades.nome").order(count: :desc).limit(5).count
+      div(
+        data-controller="pie-chart"
+        data-pie-chart-data-value=cidades_data.to_json
+        style="position: relative; height: 200px;"
+      )
+        canvas

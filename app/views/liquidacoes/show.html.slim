@@ -1,22 +1,48 @@
 .card
-  = render '/shared/table_header', {object: @liquidacoes, titulo: "Liquidações "+l(params[:id].to_date) }
+  = render '/shared/table_header', {object: @liquidacoes, titulo: "Liquidações #{l(params[:id].to_date)}" }
   .card-body
+    / Resumo do dia
+    .row.mb-3
+      .col-md-4
+        .card.bg-light
+          .card-body
+            h6.card-title Total do Dia
+            h4.mb-0= number_to_currency(@liquidacoes.sum(:valor_liquidacao))
+            small.text-muted= "#{@liquidacoes.total_count} pagamentos"
+      .col-md-4
+        .card.bg-light
+          .card-body
+            h6.card-title Ticket Médio
+            h4.mb-0
+              - if @liquidacoes.any?
+                = number_to_currency(@liquidacoes.sum(:valor_liquidacao) / @liquidacoes.total_count)
+              - else
+                | R$ 0,00
+            small.text-muted por pagamento
+
+    / Filtro por forma de pagamento (opcional)
+    - unless params[:meio].present?
+      .mb-3
+        = link_to "Ver apenas Dinheiro", liquidacao_path(params[:id], meio: "Dinheiro"), class: "btn btn-sm btn-outline-success"
+        = " "
+        = link_to "Ver apenas Cartão", liquidacao_path(params[:id], meio: "CartaoCredito"), class: "btn btn-sm btn-outline-primary"
+        = " "
+        = link_to "Ver apenas Retorno Bancário", liquidacao_path(params[:id], meio: "RetornoBancario"), class: "btn btn-sm btn-outline-info"
+    - else
+      .mb-3
+        = link_to "← Ver todos os meios de pagamento", liquidacao_path(params[:id]), class: "btn btn-sm btn-outline-secondary"
+
+    / Tabela de liquidações
     .table-responsive
-      table.table.table-striped
+      table.table.table-striped.table-hover
         thead
           tr
-            th
-              | Assinante
-            th
-              | Contrato
-            th
-              | Parcela
-            th
-              | Forma de Pagamento
-            th
-              | Valor
-            th
-              | Vencimento
+            th Assinante
+            th Contrato
+            th Parcela
+            th Forma de Pagamento
+            th.text-right Valor
+            th.text-center Vencimento
         tbody
           - @liquidacoes.each do |liquidacao|
             tr
@@ -27,9 +53,22 @@
               td
                 = link_to liquidacao.parcela, liquidacao
               td
-                = liquidacao.meio_liquidacao
-              td
+                - case liquidacao.meio_liquidacao
+                - when 'Dinheiro'
+                  span.badge.badge-success= liquidacao.meio_liquidacao
+                - when 'CartaoCredito'
+                  span.badge.badge-primary= "Cartão de Crédito"
+                - when 'RetornoBancario'
+                  span.badge.badge-info= "Retorno Bancário"
+                - when 'Cheque'
+                  span.badge.badge-warning= liquidacao.meio_liquidacao
+                - else
+                  span.badge.badge-secondary= liquidacao.meio_liquidacao || "Não informado"
+              td.text-right
                 = number_to_currency(liquidacao.valor_liquidacao)
-              td
+              td.text-center
                 = l(liquidacao.vencimento)
+      
+    / Paginação
+    .d-flex.justify-content-center.mt-3
       = paginate @liquidacoes

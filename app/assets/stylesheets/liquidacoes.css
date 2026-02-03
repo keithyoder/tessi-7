@@ -1,0 +1,205 @@
+/* Liquidações Navigation Styles */
+
+/* View selector buttons */
+.liquidacoes-view-selector {
+  margin-bottom: 1.5rem;
+}
+
+.liquidacoes-view-selector .btn-group {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.liquidacoes-view-selector .btn-primary.active {
+  font-weight: 600;
+}
+
+/* Period selectors */
+.liquidacoes-period-selector select {
+  border: 1px solid #ced4da;
+  transition: all 0.2s;
+}
+
+.liquidacoes-period-selector select:hover {
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+}
+
+.liquidacoes-period-selector select:focus {
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+}
+
+/* Quick links */
+.liquidacoes-quick-links .btn {
+  margin-left: 0.25rem;
+}
+
+.liquidacoes-quick-links .btn:first-child {
+  margin-left: 0;
+}
+
+/* Statistics cards */
+.liquidacao-stat-card {
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid rgba(0,0,0,0.125);
+}
+
+.liquidacao-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.liquidacao-stat-card .card-title {
+  font-size: 0.875rem;
+  color: #6c757d;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.liquidacao-stat-card h4 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.liquidacao-stat-card small {
+  font-size: 0.75rem;
+  color: #6c757d;
+}
+
+/* Performance card */
+.liquidacao-performance-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.liquidacao-performance-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+  animation: pulse 3s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+/* Breadcrumb customization */
+.liquidacao-breadcrumb {
+  background-color: #f8f9fa;
+  border-radius: 0.25rem;
+  padding: 0.75rem 1rem;
+}
+
+.liquidacao-breadcrumb .breadcrumb {
+  margin-bottom: 0;
+  background-color: transparent;
+}
+
+/* Chart container */
+.liquidacao-chart-container {
+  background: white;
+  border-radius: 0.25rem;
+  padding: 1rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  margin-bottom: 1.5rem;
+}
+
+/* Chart heights */
+.chart-height-sm {
+  height: 250px;
+}
+
+.chart-height-md {
+  height: 350px;
+}
+
+.chart-height-lg {
+  height: 450px;
+}
+
+/* Table enhancements */
+.liquidacao-table-container {
+  background: white;
+  border-radius: 0.25rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.liquidacao-table thead th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.875rem;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.liquidacao-table tbody tr {
+  transition: background-color 0.15s;
+}
+
+.liquidacao-table tbody tr:hover {
+  background-color: #f8f9fa;
+  cursor: pointer;
+}
+
+/* Pagination */
+.liquidacao-pagination {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .liquidacoes-view-selector .btn-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .liquidacoes-view-selector .btn-group,
+  .liquidacoes-period-selector,
+  .liquidacoes-quick-links {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+  
+  .liquidacao-stat-card {
+    margin-bottom: 1rem;
+  }
+  
+  .liquidacoes-period-selector select {
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* Alert customization */
+.liquidacao-projection-alert {
+  border-left: 4px solid #17a2b8;
+  background-color: #d1ecf1;
+  border-color: #bee5eb;
+}
+
+.liquidacao-projection-alert strong {
+  color: #0c5460;
+}
+
+/* Print styles */
+@media print {
+  .liquidacoes-view-selector,
+  .liquidacao-breadcrumb,
+  .liquidacao-pagination {
+    display: none;
+  }
+  
+  .liquidacao-stat-card {
+    page-break-inside: avoid;
+  }
+}

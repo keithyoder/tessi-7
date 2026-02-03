@@ -1,39 +1,193 @@
 .card
   = render '/shared/table_header', {object: @liquidacoes, titulo: "Liquidações"}
   .card-body
-    = column_chart @chart
-    .table-responsive
-      table.table.table-striped
-        thead
-          tr
-            - if params.key?(:mes)
-              th
-                | Mês
-            - elsif params.key?(:ano)
-              th
-                | Ano
+    / Navegação entre visualizações
+    .row.mb-4.liquidacoes-view-selector
+      .col-12
+        .btn-toolbar.justify-content-between role="toolbar"
+          / Seletor de visualização
+          .btn-group role="group"
+            - if params[:mes].present?
+              = link_to "← Visão Diária", liquidacoes_path, class: "btn btn-outline-secondary"
+              = link_to "Visão Mensal", liquidacoes_path(ano: @ano, mes: params[:mes]), class: "btn btn-primary active"
+              = link_to "Visão Anual →", liquidacoes_path(ano: @ano), class: "btn btn-outline-secondary"
+            - elsif params[:ano].present? && !params[:mes].present?
+              = link_to "← Visão Diária", liquidacoes_path, class: "btn btn-outline-secondary"
+              = link_to "Visão Mensal", liquidacoes_path(ano: Date.current.year, mes: Date.current.month), class: "btn btn-outline-secondary"
+              = link_to "Visão Anual", liquidacoes_path(ano: Date.current.year), class: "btn btn-primary active"
             - else
-              th
-                | Data
-            th.text-center
-              | Pagamentos
-            th.text-right
-              | Valor Total
-        tbody
-          - @liquidacoes.each do |liquidacao|
+              = link_to "Visão Diária", liquidacoes_path, class: "btn btn-primary active"
+              = link_to "Visão Mensal →", liquidacoes_path(ano: Date.current.year, mes: Date.current.month), class: "btn btn-outline-secondary"
+              = link_to "Visão Anual →", liquidacoes_path(ano: Date.current.year), class: "btn btn-outline-secondary"
+
+          / Seletores contextuais
+          - if params[:mes].present?
+            / Seletor de mês e ano para visão mensal
+            .btn-group.liquidacoes-period-selector role="group"
+              .input-group
+                select.form-control#mes_select onchange="window.location.href = this.value" style="max-width: 150px;"
+                  - 12.times do |i|
+                    - mes_num = i + 1
+                    - selected = params[:mes].to_i == mes_num
+                    option value=liquidacoes_path(ano: @ano, mes: mes_num) selected=selected
+                      = Date::MONTHNAMES[mes_num]
+                select.form-control#ano_select onchange="window.location.href = this.value" style="max-width: 100px;"
+                  - anos_disponiveis = ((Date.current.year - 5)..Date.current.year).to_a.reverse
+                  - anos_disponiveis.each do |ano|
+                    - selected = @ano == ano
+                    option value=liquidacoes_path(ano: ano, mes: params[:mes]) selected=selected
+                      = ano
+
+          - elsif params[:ano].present? && !params[:mes].present?
+            / Seletor de ano para visão anual
+            .btn-group.liquidacoes-period-selector role="group"
+              select.form-control#ano_anual_select onchange="window.location.href = this.value" style="max-width: 150px;"
+                option value=liquidacoes_path(ano: Date.current.year) Todos os anos
+                - anos_disponiveis = ((Date.current.year - 5)..Date.current.year).to_a.reverse
+                - anos_disponiveis.each do |ano|
+                  option value=liquidacoes_path(ano: ano)
+                    = ano
+          
+          - else
+            / Quick links para períodos comuns na visão diária
+            .btn-group.liquidacoes-quick-links role="group"
+              = link_to "Mês Atual", liquidacoes_path(ano: Date.current.year, mes: Date.current.month), class: "btn btn-sm btn-outline-info", title: "Ver detalhes do mês atual"
+              = link_to "Mês Passado", liquidacoes_path(ano: 1.month.ago.year, mes: 1.month.ago.month), class: "btn btn-sm btn-outline-info", title: "Ver detalhes do mês passado"
+              = link_to "Este Ano", liquidacoes_path(ano: Date.current.year), class: "btn btn-sm btn-outline-info", title: "Ver visão anual"
+
+    / Breadcrumb de navegação
+    - if params[:mes].present? || params[:ano].present?
+      .liquidacao-breadcrumb.mb-4
+        nav aria-label="breadcrumb"
+          ol.breadcrumb
+            li.breadcrumb-item
+              = link_to "Liquidações", liquidacoes_path
+            - if params[:ano].present? && !params[:mes].present?
+              li.breadcrumb-item.active aria-current="page"
+                | Visão Anual
+            - elsif params[:mes].present?
+              li.breadcrumb-item
+                = link_to "Ano #{@ano}", liquidacoes_path(ano: @ano)
+              li.breadcrumb-item.active aria-current="page"
+                = Date::MONTHNAMES[params[:mes].to_i]
+    / Estatísticas resumidas
+    - if @statistics.present?
+      .row.mb-4
+        - if params.key?(:mes)
+          / Estatísticas mensais com comparação
+          .col-md-3.col-sm-6.mb-3
+            .card.bg-light.liquidacao-stat-card
+              .card-body
+                h6.card-title Total Recebido (Dias 1-#{@statistics[:dias_decorridos]})
+                h4.mb-0= number_to_currency(@statistics[:total_mes])
+                small.text-muted= "#{@statistics[:total_pagamentos_mes]} pagamentos"
+          .col-md-3.col-sm-6.mb-3
+            .card.bg-light.liquidacao-stat-card
+              .card-body
+                h6.card-title Média Histórica Acumulada
+                h4.mb-0= number_to_currency(@statistics[:media_historica_acumulada])
+                small.text-muted= "Esperado até dia #{@statistics[:dias_decorridos]}"
+          .col-md-3.col-sm-6.mb-3
+            .card.bg-light.liquidacao-stat-card
+              .card-body
+                h6.card-title Diferença em Valor
+                h4.mb-0= number_to_currency(@statistics[:diferenca_valor])
+                small.text-muted
+                  = @statistics[:diferenca_valor] >= 0 ? 'a mais que o esperado' : 'a menos que o esperado'
+          .col-md-3.col-sm-6.mb-3
+            .card class=(@statistics[:performance] == :acima ? 'bg-success' : 'bg-warning') class="liquidacao-stat-card liquidacao-performance-card" style="color: white;"
+              .card-body
+                h6.card-title style="color: white;" Performance
+                h4.mb-0
+                  = number_to_percentage(@statistics[:diferenca_percentual].abs, precision: 1)
+                  = " "
+                  = @statistics[:performance] == :acima ? '↑' : '↓'
+                small style="color: rgba(255,255,255,0.9);"
+                  = @statistics[:performance] == :acima ? 'acima' : 'abaixo'
+                  |  da média histórica
+          .col-12
+            .alert.alert-info.liquidacao-projection-alert
+              strong Projeção para o mês completo:
+              = " #{number_to_currency(@statistics[:projecao_mes])} "
+              small
+                | (baseado na média histórica de cada dia do mês)
+        
+        - elsif params.key?(:ano) && !params.key?(:mes)
+          / Estatísticas anuais
+          .col-md-4.mb-3
+            .card.bg-light.liquidacao-stat-card
+              .card-body
+                h6.card-title Total do Ano
+                h4.mb-0= number_to_currency(@statistics[:total_ano])
+                small.text-muted= "#{@statistics[:total_pagamentos_ano]} pagamentos"
+          .col-md-4.mb-3
+            .card.bg-light.liquidacao-stat-card
+              .card-body
+                h6.card-title Média Mensal
+                h4.mb-0= number_to_currency(@statistics[:media_mensal])
+                small.text-muted até o mês atual
+        
+        - else
+          / Estatísticas dos últimos 30 dias
+          .col-md-3.col-sm-6.mb-3
+            .card.bg-light.liquidacao-stat-card
+              .card-body
+                h6.card-title Últimos 30 Dias
+                h4.mb-0= number_to_currency(@statistics[:total_recebido])
+                small.text-muted= "#{@statistics[:total_pagamentos]} pagamentos"
+          .col-md-3.col-sm-6.mb-3
+            .card.bg-light.liquidacao-stat-card
+              .card-body
+                h6.card-title Média Diária
+                h4.mb-0= number_to_currency(@statistics[:media_diaria])
+                small.text-muted por dia
+          .col-md-3.col-sm-6.mb-3
+            .card.bg-light.liquidacao-stat-card
+              .card-body
+                h6.card-title Dias com Pagamento
+                h4.mb-0= @statistics[:dias_com_pagamento]
+                small.text-muted de 30 dias
+
+    / Gráfico
+    - if @chart.present?
+      .liquidacao-chart-container
+        = column_chart @chart, prefix: "R$ ", thousands: ".", decimal: ","
+
+    / Tabela de dados
+    .liquidacao-table-container
+      .table-responsive
+        table.table.table-striped.liquidacao-table
+          thead
             tr
               - if params.key?(:mes)
-                td
-                  = link_to Date::MONTHNAMES[liquidacao.mes], liquidacao_path(liquidacao.mes)
+                th Mês
               - elsif params.key?(:ano)
-                td
-                  = link_to liquidacao.ano, liquidacoes_path(ano: liquidacao.ano, mes: 1)
+                th Ano
               - else
-                td
-                  = link_to l(liquidacao.data.to_date), liquidacao_path(liquidacao.data)
-              td.text-center
-                = number_with_delimiter(liquidacao.liquidacoes)
-              td.text-right
-                = number_to_currency(liquidacao.valor)
-      - #paginate @liquidacoes
-.card
+                th Data
+              th.text-center Pagamentos
+              th.text-right Valor Total
+          tbody
+            - @liquidacoes.each do |liquidacao|
+              tr
+                - if params.key?(:mes)
+                  / Na visão mensal, liquidacao.mes é o número do mês (1-12)
+                  / Link vai para a liquidação daquele mês específico (primeiro dia do mês)
+                  td
+                    = link_to Date::MONTHNAMES[liquidacao.mes], liquidacao_path(Date.new(@ano, liquidacao.mes, 1))
+                - elsif params.key?(:ano) && !params.key?(:mes)
+                  / Na visão anual, link vai para a visão mensal daquele ano
+                  td
+                    = link_to liquidacao.ano, liquidacoes_path(ano: liquidacao.ano, mes: Date.current.month)
+                - else
+                  / Na visão diária, link vai para aquele dia específico
+                  td
+                    = link_to l(liquidacao.data.to_date), liquidacao_path(liquidacao.data)
+                td.text-center
+                  = number_with_delimiter(liquidacao.liquidacoes)
+                td.text-right
+                  = number_to_currency(liquidacao.valor)
+      
+    / Paginação
+    .liquidacao-pagination
+      = paginate @liquidacoes

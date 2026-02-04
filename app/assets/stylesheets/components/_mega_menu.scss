@@ -69,3 +69,46 @@
   background-color: #e9ecef;
   padding-left: 1rem;
 }
+
+/* app/assets/stylesheets/navigation.css */
+
+/* Mega menu - use position-static on parent to allow full width dropdown */
+.dropdown.position-static .mega-menu {
+  left: 0;
+  right: 0;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Mobile offcanvas */
+.offcanvas {
+  width: 320px !important;
+}
+
+@media (min-width: 576px) {
+  .offcanvas {
+    width: 380px !important;
+  }
+}
+
+/* Hover effects */
+.hover-bg-light:hover {
+  background-color: #f8f9fa;
+}
+
+/* Accordion styling */
+.accordion-button:not(.collapsed) {
+  background-color: #f8f9fa;
+  color: inherit;
+}
+
+.accordion-button:focus {
+  box-shadow: none;
+  border-color: transparent;
+}
+
+/* Ensure mega menu closes properly on link click */
+.dropdown-menu.mega-menu .dropdown-item:active {
+  background-color: #e9ecef;
+}

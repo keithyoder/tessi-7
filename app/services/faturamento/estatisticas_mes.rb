@@ -61,7 +61,7 @@ module Faturamento
         # Usa dados pré-carregados (sem fazer query!)
         dia_data = faturamento_por_dia[dia]
         quantidade = dia_data&.quantidade || 0
-        valor_dia = dia_data&.total&.to_f || 0.0
+        valor_dia = dia_data&.total.to_f
 
         media_historica_dia = medias_historicas[dia] || 0
 
@@ -117,7 +117,7 @@ module Faturamento
       projecao = ultimo_dia[:acumulado_real]
 
       # Adiciona médias históricas para os dias restantes
-      ((ultimo_dia[:dia] + 1)..fim_mes.day).each do |dia|
+      ((ultimo_dia[:dia] + 1)..31).each do |dia|
         projecao += medias_historicas[dia] || 0
       end
 

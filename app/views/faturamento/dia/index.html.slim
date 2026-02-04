@@ -1,0 +1,125 @@
+.faturamento-dia-view
+  / Header
+  .card.mb-4
+    .card-header
+      .d-flex.justify-content-between.align-items-center
+        h3.mb-0 = "Faturamento - #{I18n.l(@data, format: :long)}"
+        .btn-group
+          - if @estatisticas[:navegacao][:dia_anterior]
+            = link_to "← Dia Anterior", faturamento_dia_path(@estatisticas[:navegacao][:dia_anterior]), class: 'btn btn-outline-secondary btn-sm'
+          - if @estatisticas[:navegacao][:dia_seguinte]
+            = link_to "Próximo Dia →", faturamento_dia_path(@estatisticas[:navegacao][:dia_seguinte]), class: 'btn btn-outline-secondary btn-sm'
+    .card-body
+      nav aria-label="breadcrumb"
+        ol.breadcrumb.mb-0
+          li.breadcrumb-item
+            = link_to "Ano #{@ano}", faturamento_ano_path(@ano)
+          li.breadcrumb-item
+            = link_to "#{Date::MONTHNAMES[@mes]} #{@ano}", faturamento_mes_path(@ano, @mes)
+          li.breadcrumb-item.active aria-current="page"
+            = "Dia #{@data.day}"
+
+  / Cards de Estatísticas
+  .row.mb-4
+    .col-md-3.mb-3
+      .card.stat-card.h-100
+        .card-body
+          h6.text-muted.text-uppercase.mb-2 Total Recebido
+          h3.mb-1 = number_to_currency(@estatisticas[:resumo][:total_recebido])
+          small.text-muted 
+            = "#{@estatisticas[:resumo][:total_faturas]} faturas"
+    
+    .col-md-3.mb-3
+      .card.stat-card.h-100
+        .card-body
+          h6.text-muted.text-uppercase.mb-2 Ticket Médio
+          h3.mb-1 = number_to_currency(@estatisticas[:resumo][:ticket_medio])
+          small.text-muted Por fatura
+    
+    .col-md-3.mb-3
+      - diff = @estatisticas[:comparacao][:diferenca]
+      - border_class = diff >= 0 ? 'border-success' : 'border-danger'
+      .card.stat-card class=border_class class="h-100"
+        .card-body
+          h6.text-muted.text-uppercase.mb-2 vs. Média Histórica
+          - text_class = diff >= 0 ? 'text-success' : 'text-danger'
+          - arrow = diff >= 0 ? '↑' : '↓'
+          h3.mb-1 class=text_class
+            = number_to_currency(diff.abs)
+            = " #{arrow}"
+          - percentual = @estatisticas[:comparacao][:percentual]
+          small class=text_class
+            = number_to_percentage(percentual.abs, precision: 2)
+            = diff >= 0 ? ' acima' : ' abaixo'
+    
+    .col-md-3.mb-3
+      .card.stat-card.border-info.h-100
+        .card-body
+          h6.text-muted.text-uppercase.mb-2 Média Histórica
+          h3.mb-1 = number_to_currency(@estatisticas[:comparacao][:media_historica])
+          small.text-muted Para este dia do mês
+
+  / Detalhamento por Meio de Pagamento (se houver múltiplos)
+  - if @estatisticas[:resumo][:por_meio].size > 1
+    .card.mb-4
+      .card-body
+        h5.card-title Breakdown por Meio de Pagamento
+        .row
+          - @estatisticas[:resumo][:por_meio].each do |meio, valor|
+            .col-md-3.mb-2
+              strong = meio
+              br
+              = number_to_currency(valor)
+
+  / Tabela de Faturas
+  .card
+    .card-header.d-flex.justify-content-between.align-items-center
+      h5.mb-0 Faturas do Dia
+    .card-body
+      - if @faturas.any?
+        .table-responsive
+          table.table.table-striped.table-hover.faturamento-table
+            thead.thead-light
+              tr
+                th.text-center Contrato
+                th Cliente
+                th Plano
+                th.text-center Parcela
+                th.text-right Valor
+                th.text-center Forma de Pagamento
+            tbody
+              - @faturas.each do |fatura|
+                tr
+                  td.text-center
+                    = link_to fatura.contrato_id, contrato_path(fatura.contrato)
+                  td
+                    = link_to fatura.contrato.pessoa.nome, pessoa_path(fatura.contrato.pessoa)
+                  td = fatura.contrato.plano.nome
+                  td.text-center = link_to(fatura.parcela, fatura)
+                  td.text-right
+                    strong = number_to_currency(fatura.valor_liquidacao || fatura.valor)
+                  td.text-center
+                    - if fatura.meio_liquidacao
+                      span.badge.bg-info.text-dark = fatura.meio_liquidacao.humanize
+                    - else
+                      span.badge.bg-secondary.text-white Não informado
+        
+        / Paginação
+        - if @faturas.total_pages > 1
+          .mt-3.d-flex.justify-content-center
+            = paginate @faturas
+      - else
+        .alert.alert-info.text-center
+          | Nenhuma fatura encontrada para este dia.
+
+/ JavaScript para fazer as linhas clicáveis
+javascript:
+  document.querySelectorAll('.faturamento-table tbody tr').forEach(row => {
+    row.style.cursor = 'pointer';
+    row.addEventListener('click', function(e) {
+      if (e.target.tagName !== 'A' && e.target.tagName !== 'BUTTON') {
+        const link = this.querySelector('td:last-child a');
+        if (link) window.location = link.href;
+      }
+    });
+  });

@@ -20,7 +20,7 @@
       .card.stat-card.h-100
         .card-body
           h6.text-muted.text-uppercase.mb-2 Total Recebido
-          h3.mb-1 = number_to_currency(@estatisticas[:resumo][:total_mes])
+          h3.mb-1 = number_to_currency(@estatisticas[:resumo][:total_recebido])
           small.text-muted 
             = "#{@estatisticas[:resumo][:total_faturas]} faturas em #{@estatisticas[:dias].length} dias"
     
@@ -32,7 +32,7 @@
           small.text-muted Baseado nos últimos 12 meses
     
     .col-md-3.mb-3
-      - diff = @estatisticas[:resumo][:diferenca_valor]
+      - diff = @estatisticas[:resumo][:diferenca]
       - border_class = diff >= 0 ? 'border-success' : 'border-danger'
       .card.stat-card class=border_class class="h-100"
         .card-body

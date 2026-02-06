@@ -94,6 +94,7 @@
               th.text-center Mês
               th.text-center Faturas
               th.text-right Faturamento
+              th.text-right Ticket Médio
               th.text-right Média Histórica
               th.text-right.diferenca-col Diferença
           tbody
@@ -106,6 +107,7 @@
                 td.text-center = number_with_delimiter(mes_data[:total_faturas] || 0)
                 td.text-right
                   strong = number_to_currency(mes_data[:total_recebido] || 0)
+                td.text-right = number_to_currency(mes_data[:ticket_medio] || 0)
                 td.text-right = number_to_currency(mes_data[:total_esperado] || 0)
                 td.text-right.diferenca-col class=diff_class
                   strong = number_to_currency(diff.abs, precision: 2)

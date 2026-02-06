@@ -27,6 +27,7 @@ class Ability
   def general_permissions(user)
     can :read, :all
     cannot :read, NfcomNota
+    cannot :read, :faturamento
     can :suspenso, Conexao
     can %i[boletos renovar], Contrato
     can %i[update liquidacao boleto], Fatura
@@ -78,6 +79,7 @@ class Ability
     can :destroy, Conexao
     can %i[update liquidacao estornar cancelar], Fatura
     can :emitir_nfcom, Fatura, &:gerar_nota?
+    can :read, :faturamento
     can %i[create update], [Retorno, Contrato]
     can %i[destroy pendencias trocado assinar], Contrato
     can :create, ContratoTermo

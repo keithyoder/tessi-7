@@ -75,7 +75,6 @@ module Faturamento
         .group(:meio_liquidacao)
         .reorder(nil)
         .sum(:valor_liquidacao)
-        .transform_keys { |k| Fatura.meio_liquidacoes.key(k) || 'Desconhecido' }
     end
 
     # Carrega dados histÃ³ricos agrupados por ano e mÃªs
@@ -122,7 +121,6 @@ module Faturamento
         .group('pessoas.tipo')
         .reorder(nil)
         .count
-        .transform_keys { |tipo| Pessoa.tipos.key(tipo) || 'Desconhecido' }
     end
 
     # Carrega breakdown por perfil de pagamento

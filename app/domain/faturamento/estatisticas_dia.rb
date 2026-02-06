@@ -80,7 +80,7 @@ module Faturamento
 
       {
         dia_anterior: data - 1.day,
-        dia_seguinte: Periods.data_valida?(proximo_dia) ? proximo_dia : nil,
+        dia_seguinte: proximo_dia <= Periods.data_hoje ? proximo_dia : nil,
         mes_atual: { ano: ano, mes: mes }
       }
     end

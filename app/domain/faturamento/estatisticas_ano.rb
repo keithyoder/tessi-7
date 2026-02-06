@@ -31,6 +31,7 @@ module Faturamento
 
     def carregar_dados_batch
       # Usa query compartilhada para ano atual
+      # IMPORTANTE: ano_range usa data_limite (ontem), então apenas dias completos
       range = Periods.ano_range(ano)
       @dados_ano_atual = Queries.faturamento_por_mes(range.first, range.last)
 
@@ -56,6 +57,8 @@ module Faturamento
         data_mes = Date.new(ano, mes, 1)
         break if data_mes > Date.current.beginning_of_month
 
+        # Dados carregados através de data_limite (ontem)
+        # Para o mês atual, mostra total apenas de dias completos
         mes_data = @dados_ano_atual[mes]
         quantidade = mes_data&.quantidade || 0
         total = mes_data&.total.to_f
@@ -65,6 +68,7 @@ module Faturamento
 
         # Usa cálculo compartilhado
         comparacao = Calculations.calcular_comparacao(total, media_esperada)
+        ticket_medio = Calculations.calcular_ticket_medio(total, quantidade)
 
         meses << {
           mes: mes,
@@ -73,7 +77,8 @@ module Faturamento
           total_faturas: quantidade,
           total_esperado: media_esperada,
           diferenca: comparacao[:diferenca],
-          percentual_diferenca: comparacao[:percentual]
+          percentual_diferenca: comparacao[:percentual],
+          ticket_medio: ticket_medio
         }
       end
 
@@ -88,13 +93,16 @@ module Faturamento
       total_faturas = meses_data.sum { |m| m[:total_faturas] }
       meses_count = meses_data.length
 
+      # Calcula média mensal ponderada (projeta mês parcial)
+      media_mensal_ponderada = calcular_media_mensal_ponderada(meses_data)
+
       # Usa builder compartilhado
       Calculations.build_resumo(
         total_recebido: total_recebido,
         total_esperado: total_esperado,
         total_faturas: total_faturas,
         meses_processados: meses_count,
-        media_mensal: meses_count.positive? ? (total_recebido / meses_count) : 0.0
+        media_mensal: media_mensal_ponderada
       )
     end
 
@@ -151,7 +159,8 @@ module Faturamento
     end
 
     def calcular_total_parcial_mes(ano_alvo, mes)
-      dia_limite = Date.current.day
+      # Usa o último dia completo (ontem) para comparações justas
+      dia_limite = Periods.data_limite.day
       range = Periods.periodo_parcial_historico(ano_alvo, mes, dia_limite)
 
       # Usa query compartilhada
@@ -161,6 +170,56 @@ module Faturamento
 
     def calcular_total_parcial_ano_anterior(mes)
       calcular_total_parcial_mes(ano - 1, mes)
+    end
+
+    # ========================================================================
+    # Média mensal ponderada
+    # ========================================================================
+
+    # Calcula média mensal incluindo projeção do mês parcial
+    #
+    # Para meses completos: usa valor real
+    # Para mês atual parcial: projeta para mês completo baseado em dias
+    #
+    # Exemplo: Fevereiro com 5 dias completos de 28 total
+    #   Real: R$ 55,000 (5 dias)
+    #   Projeção: R$ 55,000 * (28/5) = R$ 308,000 (mês completo)
+    #
+    def calcular_media_mensal_ponderada(meses_data)
+      return 0.0 if meses_data.empty?
+
+      totais_projetados = meses_data.map do |mes_data|
+        if Periods.mes_atual?(ano, mes_data[:mes])
+          # Mês atual parcial - projeta para mês completo
+          projetar_mes_completo(mes_data)
+        else
+          # Mês completo - usa valor real
+          mes_data[:total_recebido]
+        end
+      end
+
+      totais_projetados.sum / totais_projetados.length
+    end
+
+    # Projeta um mês parcial para mês completo
+    #
+    # @param mes_data [Hash] dados do mês parcial
+    # @return [Float] valor projetado para mês completo
+    def projetar_mes_completo(mes_data)
+      mes = mes_data[:mes]
+      total_parcial = mes_data[:total_recebido]
+
+      # Dias completos até ontem
+      dias_completos = Periods.data_limite.day
+
+      # Total de dias no mês
+      dias_no_mes = Date.new(ano, mes, 1).end_of_month.day
+
+      # Se já está completo, retorna o valor real
+      return total_parcial if dias_completos >= dias_no_mes
+
+      # Projeta proporcionalmente: total_parcial * (dias_no_mes / dias_completos)
+      (total_parcial * dias_no_mes / dias_completos.to_f).round(2)
     end
   end
 end

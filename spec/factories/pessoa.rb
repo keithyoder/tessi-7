@@ -14,7 +14,7 @@ FactoryBot.define do
 
     trait :juridica do
       tipo { 'Pessoa Jurídica' }
-      cnpj { '12345678000199' }
+      sequence(:cnpj) { |n| (100_000_000_000_000 + n).to_s }
       email { 'juridica@example.com' }
     end
   end

@@ -4,22 +4,47 @@
 
 module Faturamento
   # Manipulação e validação de períodos de data
+  #
+  # IMPORTANTE: Duas datas de referência
+  # - data_limite (ontem): Para comparações históricas e totais mensais
+  # - data_hoje (hoje): Para visualização de dados diários atuais
+  #
+  # Use data_limite quando comparando com períodos históricos completos
+  # Use data_hoje quando mostrando dados do dia atual em andamento
   module Periods
     module_function
 
-    # Retorna o range de datas para um ano, limitado até hoje
+    # Retorna a data de hoje (dados em andamento, incompletos)
+    #
+    # Use para: visualização de dados diários atuais
+    #
+    # @return [Date]
+    def data_hoje
+      Date.current
+    end
+
+    # Retorna a data limite para comparações históricas (ontem)
+    #
+    # Use para: totais mensais, comparações históricas, projeções
+    #
+    # @return [Date]
+    def data_limite
+      Date.yesterday
+    end
+
+    # Retorna o range de datas para um ano, limitado até ontem
     #
     # @param ano [Integer]
     # @return [Range<Date>] range de datas
     def ano_range(ano)
       inicio = Date.new(ano, 1, 1)
       fim = Date.new(ano, 12, 31)
-      fim = [fim, Date.current].min
+      fim = [fim, data_limite].min
 
       inicio..fim
     end
 
-    # Retorna o range de datas para um mês, limitado até hoje
+    # Retorna o range de datas para um mês, limitado até ontem
     #
     # @param ano [Integer]
     # @param mes [Integer]
@@ -27,19 +52,19 @@ module Faturamento
     def mes_range(ano, mes)
       inicio = Date.new(ano, mes, 1)
       fim = inicio.end_of_month
-      fim = [fim, Date.current].min
+      fim = [fim, data_limite].min
 
       inicio..fim
     end
 
-    # Retorna o último dia disponível de um mês (hoje se for mês atual)
+    # Retorna o último dia disponível de um mês (ontem se for mês atual)
     #
     # @param ano [Integer]
     # @param mes [Integer]
     # @return [Date]
     def ultimo_dia_disponivel(ano, mes)
       fim_mes = Date.new(ano, mes, 1).end_of_month
-      [fim_mes, Date.current].min
+      [fim_mes, data_limite].min
     end
 
     # Verifica se um ano/mês é o mês atual
@@ -68,12 +93,12 @@ module Faturamento
       mes.between?(1, 12)
     end
 
-    # Valida se uma data não é futura
+    # Valida se uma data não é futura (deve ser ontem ou anterior)
     #
     # @param data [Date]
     # @return [Boolean]
     def data_valida?(data)
-      data <= Date.current
+      data <= data_limite
     end
 
     # Calcula número de meses completos entre duas datas

@@ -70,7 +70,7 @@ class Conexao < ApplicationRecord
   has_many :os, dependent: :nullify
   belongs_to :equipamento, optional: true
 
-  RANSACK_ATTRIBUTES = %w[usuario mac ip_s nome].freeze
+  RANSACK_ATTRIBUTES = %w[usuario mac ip_string nome].freeze
   RANSACK_ASSOCIATIONS = %w[pessoa].freeze
   ransacker :ip_string do
     Arel.sql('ip::text')

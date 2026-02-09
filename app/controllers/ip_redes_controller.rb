@@ -5,16 +5,23 @@ class IpRedesController < ApplicationController
 
   # GET /ip_redes
   def index
-    @q = IpRede
-      .accessible_by(current_ability)
-      .ransack(params[:q])
+    @q = IpRede.ransack(params[:q])
 
-    @q.sorts = ['rede'] if @q.sorts.empty?
-    @ip_redes = @q.result.page(params[:page])
+    @ip_redes = @q.result
+      .includes(:ponto)
+      .order(:rede)
+      .with_conexoes_count
+      .page(params[:page])
   end
 
   # GET /ip_redes/1
-  def show; end
+  def show
+    @ip_rede = IpRede.find(params[:id])
+    @conexoes = @ip_rede.ponto.conexoes
+      .rede_ip(@ip_rede.cidr)
+      .includes(:pessoa, :plano)
+      .order(:ip)
+  end
 
   # GET /ip_redes/new
   def new; end

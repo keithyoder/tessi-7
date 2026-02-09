@@ -62,4 +62,45 @@ module ApplicationHelper
   def inline_pdf_css(name)
     Rails.root.join('app/assets/stylesheets', name).read
   end
+
+  def edit_button(resource, options = {})
+    return unless can?(:update, resource)
+
+    css_class = options[:class] || 'btn btn-primary'
+    text = options[:text] || 'Editar'
+    icon = options[:icon] || 'bi-pencil'
+
+    link_to edit_polymorphic_path(resource), class: css_class do
+      concat content_tag(:i, '', class: "bi #{icon} me-1")
+      concat text
+    end
+  end
+
+  def back_button(path = :back, options = {})
+    css_class = options[:class] || 'btn btn-outline-secondary'
+    text = options[:text] || 'Voltar'
+    icon = options[:icon] || 'bi-arrow-left'
+
+    link_to path, class: css_class do
+      concat content_tag(:i, '', class: "bi #{icon} me-1")
+      concat text
+    end
+  end
+
+  def delete_button(resource, options = {})
+    return unless can?(:destroy, resource)
+
+    css_class = options[:class] || 'btn btn-danger'
+    text = options[:text] || 'Excluir'
+    icon = options[:icon] || 'bi-trash'
+    confirm_message = options[:confirm] || 'Tem certeza?'
+
+    link_to polymorphic_path(resource),
+            method: :delete,
+            data: { confirm: confirm_message },
+            class: css_class do
+      concat content_tag(:i, '', class: "bi #{icon} me-1")
+      concat text
+    end
+  end
 end

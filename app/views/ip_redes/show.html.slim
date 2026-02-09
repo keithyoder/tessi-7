@@ -1,11 +1,145 @@
-.row
-  .card.col-lg
-    = render 'shared/show_header', {object: @ip_rede, titulo: "Rede IP #{@ip_rede.cidr}"}
-    .card-body
-      .card-columns[style="column-count: 3"]
-        = link_to @ip_rede.ponto do
-          = render 'shared/field_card', {campo: "Ponto de Acesso", valor: @ip_rede.ponto.nome}
-        = render 'shared/field_card', {campo: "Rede", valor: @ip_rede.cidr}
-        = render 'shared/field_card', {campo: "Subnet", valor: @ip_rede.subnet}
-        = render 'shared/field_card', {campo: "Início", valor: rede_inicio(@ip_rede) }
-        = render 'shared/field_card', {campo: "Fim", valor: rede_fim(@ip_rede) }
+.container-fluid.py-4
+  / Header with breadcrumb
+  .row.mb-3
+    .col-12
+      nav[aria-label="breadcrumb"]
+        ol.breadcrumb
+          li.breadcrumb-item = link_to 'Redes IP', ip_redes_path
+          li.breadcrumb-item.active[aria-current="page"] = @ip_rede.cidr
+
+  / Main header
+  .row.mb-4
+    .col-lg-8
+      h2.mb-1
+        i.bi.bi-diagram-3.me-2
+        = @ip_rede.cidr
+      p.text-muted.mb-0
+        | Rede configurada no ponto 
+        = link_to @ip_rede.ponto.nome, @ip_rede.ponto, class: 'fw-medium'
+    .col-lg-4.text-lg-end
+      = back_button(ip_redes_path)
+      = edit_button(@ip_rede)
+
+  / Network details and stats
+  .row.g-4.mb-4
+    / Network Information
+    .col-lg-8
+      .card.border-0.shadow-sm
+        .card-body.p-4
+          h5.card-title.mb-4
+            i.bi.bi-info-circle.me-2
+            | Detalhes da Rede
+          
+          .row.g-4
+            .col-md-4
+              label.text-muted.small.mb-1 Endereço CIDR
+              .fw-semibold.fs-5
+                code.text-primary = @ip_rede.cidr
+            
+            .col-md-4
+              label.text-muted.small.mb-1 Máscara de Sub-rede
+              .fw-semibold.fs-5
+                code = @ip_rede.rede&.netmask
+            
+            .col-md-4
+              label.text-muted.small.mb-1 Total de IPs
+              .fw-semibold.fs-5 = @ip_rede.quantidade_ips
+            
+            .col-md-12
+              label.text-muted.small.mb-1 Faixa de IPs Disponíveis
+              .fw-semibold
+                code = "#{@ip_rede.rede.to_range.first.to_s} — #{@ip_rede.rede.to_range.last.to_s}"
+
+    / Usage Statistics
+    .col-lg-4
+      .card.border-0.shadow-sm.bg-primary.text-white
+        .card-body.p-3
+          h6.mb-3
+            i.bi.bi-pie-chart.me-2
+            | Utilização
+          
+          .d-flex.align-items-center.justify-content-between.mb-3
+            div
+              .h3.mb-0.fw-bold = @conexoes.size
+              small.opacity-75 IPs em uso
+            div.text-end
+              .h3.mb-0.fw-bold = @ip_rede.quantidade_ips
+              small.opacity-75 Total
+          
+          .progress.bg-white.bg-opacity-25[style="height: 6px"]
+            .progress-bar.bg-white[
+              role="progressbar"
+              style="width: #{(@conexoes.size.to_f / @ip_rede.quantidade_ips * 100).round(2)}%"
+              aria-valuenow="#{@conexoes.size}"
+              aria-valuemin="0"
+              aria-valuemax="#{@ip_rede.quantidade_ips}"
+            ]
+          
+          .text-center.mt-3
+            .h4.mb-0 = "#{(@conexoes.size.to_f / @ip_rede.quantidade_ips * 100).round(1)}%"
+
+  / Connections table
+  .row
+    .col-12
+      .card.border-0.shadow-sm
+        .card-header.bg-white.border-bottom.py-3
+          .d-flex.justify-content-between.align-items-center
+            div
+              h5.mb-0
+                i.bi.bi-ethernet.me-2
+                | Conexões Ativas
+              small.text-muted = "#{@conexoes.size} #{'conexão'.pluralize(@conexoes.size)} nesta rede"
+
+        - if @conexoes.any?
+          .table-responsive
+            table.table.table-hover.align-middle.mb-0
+              thead.bg-light
+                tr
+                  th.px-4 Endereço IP
+                  th Cliente
+                  th Plano
+                  th MAC Address
+                  th.text-center Status
+                  th.text-end.pe-4 Ações
+              tbody
+                - @conexoes.each do |conexao|
+                  tr
+                    td.px-4
+                      code.fs-6.fw-semibold.text-primary = conexao.ip
+                    td
+                      = link_to conexao.pessoa, class: 'text-decoration-none' do
+                        .fw-medium = conexao.pessoa.nome
+                    td
+                      span.badge.bg-info.bg-opacity-10.text-info.border.border-info
+                        = conexao.plano.nome
+                    td
+                      - if conexao.mac.present?
+                        code.small.text-muted = conexao.mac
+                      - else
+                        span.text-muted.small —
+                    td.text-center
+                      - if conexao.bloqueado
+                        span.badge.bg-danger
+                          i.bi.bi-x-circle.me-1
+                          | Bloqueado
+                      - elsif conexao.inadimplente
+                        span.badge.bg-warning
+                          i.bi.bi-exclamation-triangle.me-1
+                          | Inadimplente
+                      - else
+                        span.badge.bg-success
+                          i.bi.bi-check-circle.me-1
+                          | Ativo
+                    td.text-end.pe-4
+                      .btn-group.btn-group-sm[role="group"]
+                        = link_to conexao, class: 'btn btn-outline-primary', title: 'Ver detalhes' do
+                          i.bi.bi-eye
+                        - if can? :update, conexao
+                          = link_to edit_conexao_path(conexao), class: 'btn btn-outline-secondary', title: 'Editar' do
+                            i.bi.bi-pencil
+        - else
+          .card-body.text-center.py-5
+            .mb-4
+              i.bi.bi-inbox.display-1.text-muted.opacity-50
+            h5.text-muted.mb-2 Nenhuma conexão configurada
+            p.text-muted.mb-4 Esta rede ainda não possui conexões ativas.

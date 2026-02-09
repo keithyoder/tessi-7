@@ -13,5 +13,5 @@
             tr
               td= link_to rede.ponto.nome, rede.ponto
               td= link_to rede.cidr, edit_ip_rede_path(rede)
-              td= "#{rede.conexoes.count}/#{rede.ips_quantidade}"
+              td= "#{rede.conexoes_count}/#{rede.quantidade_ips}"
   = paginate @ip_redes

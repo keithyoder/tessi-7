@@ -23,6 +23,14 @@ class IpRede < ApplicationRecord
   scope :ipv4, -> { where('family(rede) = 4') }
   scope :ipv6, -> { where('family(rede) = 6') }
 
+  scope :with_conexoes_count, lambda {
+    joins(<<~SQL.squish)
+      LEFT JOIN conexoes ON conexoes.ip << ip_redes.rede
+    SQL
+      .group('ip_redes.id')
+      .select('ip_redes.*, COUNT(conexoes.id)::integer as conexoes_count')
+  }
+
   validate :nao_sobrepor_faixas
 
   # Atributos pesquisáveis via Ransack
@@ -53,13 +61,15 @@ class IpRede < ApplicationRecord
   # Para IPv4: exclui endereços de rede e broadcast
   # Para IPv6: inclui todos os endereços
   def quantidade_ips
-    return 0 if rede.blank?
+    return @quantidade_ips if defined?(@quantidade_ips)
 
-    if familia == 'IPv6'
-      2**(128 - prefixo)
-    else
-      (2**(32 - prefixo)) - 2
-    end
+    @quantidade_ips = if rede.blank?
+                        0
+                      elsif familia == 'IPv6'
+                        2**(128 - prefixo)
+                      else
+                        (2**(32 - prefixo)) - 2
+                      end
   end
 
   def familia

@@ -23,13 +23,9 @@
               = link_to @ponto.servidor.nome, @ponto.servidor, class: "text-decoration-none"
           
           .d-flex.gap-2.mt-3.mt-md-0
-            = link_to edit_ponto_path(@ponto), class: "btn btn-outline-primary" do
-              i.bi.bi-pencil
-              = " Editar"
-            - if can? :destroy, @ponto
-              = link_to @ponto, method: :delete, data: { confirm: 'Tem certeza?' }, class: "btn btn-outline-danger" do
-                i.bi.bi-trash
-                = " Excluir"
+            = back_button(pontos_path)
+            = edit_button(@ponto)
+            = delete_button(@ponto)
 
 / Quick Stats
 .row.g-3.mb-4
@@ -88,7 +84,7 @@ ul.nav.nav-tabs.mb-4 role="tablist"
       role="tab"
     ]
       i.bi.bi-geo-alt.me-2
-      | Localização
+      | Mapa
   
   li.nav-item role="presentation"
     button.nav-link[
@@ -108,10 +104,3 @@ ul.nav.nav-tabs.mb-4 role="tablist"
   = render 'pontos/tabs/network', ponto: @ponto
   = render 'pontos/tabs/map', ponto: @ponto
   = render 'pontos/tabs/conexoes', ponto: @ponto
-
-/ Back Button
-.row.mt-4
-  .col-12
-    = link_to pontos_path, class: "btn btn-outline-secondary" do
-      i.bi.bi-arrow-left.me-2
-      | Voltar para Lista

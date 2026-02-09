@@ -7,38 +7,48 @@ class MapsController < ApplicationController
   def ponto
     @ponto = Ponto.find(params[:id])
 
-    # Build markers array
     markers = []
-    # markers = [{
-    #   lat: @ponto.latitude,
-    #   lng: @ponto.longitude,
-    #   title: @ponto.nome,
-    #   icon: 'ponto',
-    #   popup: ponto_popup_html(@ponto)
-    # }]
 
     # Add conexões markers if requested
     if params[:show_conexoes]
-      @ponto.conexoes.georeferenciadas.includes(:pessoa).find_each do |conexao|
+      conexoes = @ponto.conexoes.georeferenciadas.includes(:pessoa).to_a
+
+      # Batch load connection status to avoid N+1 queries
+      status_map = Conexao.status_conexoes(conexoes)
+
+      conexoes.each do |conexao|
+        icon_data = determine_icon(conexao, status_map)
+
         markers << {
           lat: conexao.latitude,
           lng: conexao.longitude,
           title: conexao.pessoa.nome,
-          icon: conexao.bloqueado? ? 'bloqueado' : 'conexao',
-          popup: conexao_popup_html(conexao)
+          icon: icon_data[:icon],
+          color: icon_data[:color],
+          popup: conexao_popup_html(conexao, status_map[conexao.id])
         }
       end
     end
 
     render partial: 'maps/viewer', locals: {
-      latitude: @ponto.conexoes.georeferenciadas.first.latitude,
-      longitude: @ponto.conexoes.georeferenciadas.first.longitude,
+      latitude: @ponto.conexoes.georeferenciadas.first&.latitude || @ponto.latitude,
+      longitude: @ponto.conexoes.georeferenciadas.first&.longitude || @ponto.longitude,
       zoom: params[:show_conexoes] ? 15 : 18,
       markers: markers
     }
   end
 
   private
+
+  def determine_icon(conexao, status_map)
+    if conexao.bloqueado?
+      { icon: 'bloqueado', color: '#ffc107' } # Yellow
+    elsif status_map[conexao.id]
+      { icon: 'conectado', color: '#28a745' } # Green
+    else
+      { icon: 'desconectado', color: '#dc3545' } # Red
+    end
+  end
 
   def ponto_popup_html(ponto)
     <<~HTML
@@ -50,12 +60,20 @@ class MapsController < ApplicationController
     HTML
   end
 
-  def conexao_popup_html(conexao)
+  def conexao_popup_html(conexao, conectado)
+    status_icon, status_text, status_color = if conexao.bloqueado?
+                                               ['🟡', 'Bloqueado', '#ffc107']
+                                             elsif conectado
+                                               ['🟢', 'Conectado', '#28a745']
+                                             else
+                                               ['🔴', 'Desconectado', '#dc3545']
+                                             end
+
     <<~HTML
       <strong>#{conexao.pessoa.nome}</strong><br>
       IP: #{conexao.ip}<br>
       MAC: #{conexao.mac}<br>
-      Status: #{conexao.bloqueado? ? '🔴 Bloqueado' : '🟢 Ativo'}<br>
+      <span style="color: #{status_color}">Status: #{status_icon} #{status_text}</span><br>
       <a href="#{conexao_path(conexao)}" class="btn btn-sm btn-primary mt-2">Ver Detalhes</a>
     HTML
   end

@@ -101,6 +101,7 @@ export default class extends Controller {
     }
 
     console.log("Adding", this.markersValue.length, "markers")
+    console.log("Markers data:", this.markersValue)
     const bounds = []
 
     this.markersValue.forEach(marker => {
@@ -112,22 +113,40 @@ export default class extends Controller {
         return
       }
 
-      const m = L.marker([lat, lng], {
-        title: marker.title
-      }).addTo(this.map)
+      console.log("Marker:", marker.title, "Color:", marker.color, "Icon:", marker.icon)
+
+      let m
+
+      // Use colored circle markers if color is provided
+      if (marker.color) {
+        m = L.circleMarker([lat, lng], {
+          radius: 10,
+          fillColor: marker.color,
+          color: '#fff',
+          weight: 3,
+          opacity: 1,
+          fillOpacity: 0.9,
+          title: marker.title
+        }).addTo(this.map)
+      } else {
+        // Fallback to regular marker
+        m = L.marker([lat, lng], {
+          title: marker.title
+        }).addTo(this.map)
+
+        // Custom icon for different marker types (old behavior)
+        if (marker.icon) {
+          const icon = L.divIcon({
+            className: 'custom-marker',
+            html: `<div class="marker-${marker.icon}">${marker.label || ''}</div>`,
+            iconSize: [30, 30]
+          })
+          m.setIcon(icon)
+        }
+      }
 
       if (marker.popup) {
         m.bindPopup(marker.popup)
-      }
-
-      // Custom icon for different marker types
-      if (marker.icon) {
-        const icon = L.divIcon({
-          className: 'custom-marker',
-          html: `<div class="marker-${marker.icon}">${marker.label || ''}</div>`,
-          iconSize: [30, 30]
-        })
-        m.setIcon(icon)
       }
 
       bounds.push([lat, lng])

@@ -1,20 +1,8 @@
 #map.tab-pane.fade role="tabpanel"
   .card.border-0.shadow-sm
-    .card-header.bg-white.border-bottom
-      .d-flex.justify-content-between.align-items-center
-        h5.mb-0
-          i.bi.bi-geo-alt.me-2
-          | Localização do Ponto
-        .btn-group.btn-group-sm role="group"
-          = link_to "Ponto", map_ponto_path(ponto), 
-                    class: "btn btn-outline-primary #{'active' unless params[:show_conexoes]}",
-                    data: { turbo_frame: "ponto-map" }
-          = link_to "Com Conexões", map_ponto_path(ponto, show_conexoes: true), 
-                    class: "btn btn-outline-primary #{'active' if params[:show_conexoes]}",
-                    data: { turbo_frame: "ponto-map" }
     .card-body.p-0
       = turbo_frame_tag "ponto-map", 
-                        src: map_ponto_path(ponto),
+                        src: map_ponto_path(ponto, show_conexoes: true),
                         loading: :lazy do
         .text-center.p-5
           .spinner-border.text-primary role="status"

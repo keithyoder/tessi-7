@@ -9,7 +9,7 @@
           div
             .d-flex.align-items-center.gap-3.mb-2
               h2.mb-0 = @ponto.nome
-              - if @ponto.Radio?
+              - if @ponto.tecnologia_Radio?
                 span.badge.bg-primary.fs-6
                   i.bi.bi-broadcast
                   = " #{@ponto.tecnologia}"

@@ -14,27 +14,27 @@ L.Icon.Default.mergeOptions({
   shadowUrl
 })
 
+// Make Leaflet globally available for other controllers
+window.L = L
+
 export default class extends Controller {
   static values = {
     latitude: Number,
     longitude: Number,
     zoom: { type: Number, default: 18 },
-    markers: { type: Array, default: [] },
-    googleApiKey: String
+    markers: { type: Array, default: [] }
   }
 
   connect() {
     console.log("Map controller connected")
     console.log("Lat:", this.latitudeValue, "Lng:", this.longitudeValue)
     
-    // Wait for next frame to ensure DOM is ready
     requestAnimationFrame(() => {
       this.initializeMap()
     })
   }
 
   initializeMap() {
-    // Check if element has dimensions
     const rect = this.element.getBoundingClientRect()
     console.log("Element dimensions:", rect.width, rect.height)
     
@@ -43,7 +43,6 @@ export default class extends Controller {
       return
     }
 
-    // Google Maps tile layers
     const satellite = L.tileLayer(`https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}`, {
       attribution: '© Google',
       maxZoom: 20,
@@ -62,7 +61,6 @@ export default class extends Controller {
       subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
     })
 
-    // Initialize map
     try {
       this.map = L.map(this.element, {
         center: [this.latitudeValue, this.longitudeValue],
@@ -72,7 +70,6 @@ export default class extends Controller {
 
       console.log("Map initialized successfully")
 
-      // Add layer control
       L.control.layers({
         "Híbrido": hybrid,
         "Satélite": satellite,
@@ -81,10 +78,8 @@ export default class extends Controller {
         position: 'topright'
       }).addTo(this.map)
 
-      // Add markers
       this.addMarkers()
       
-      // Force map to recalculate size
       setTimeout(() => {
         this.map.invalidateSize()
       }, 100)
@@ -113,12 +108,26 @@ export default class extends Controller {
         return
       }
 
-      console.log("Marker:", marker.title, "Color:", marker.color, "Icon:", marker.icon)
+      console.log("Marker:", marker.title, "Color:", marker.color, "Draggable:", marker.draggable)
 
       let m
 
-      // Use colored circle markers if color is provided
-      if (marker.color) {
+      // If draggable, use regular marker with custom circular icon
+      // If not draggable, use circle marker
+      if (marker.draggable) {
+        // Create custom circular icon for draggable markers
+        const customIcon = this.createCircleIcon(marker.color || '#007bff')
+        
+        m = L.marker([lat, lng], {
+          icon: customIcon,
+          draggable: true,
+          title: marker.title
+        }).addTo(this.map)
+
+        // Handle drag events
+        this.makeDraggable(m, marker)
+      } else if (marker.color) {
+        // Non-draggable circle marker
         m = L.circleMarker([lat, lng], {
           radius: 10,
           fillColor: marker.color,
@@ -133,16 +142,6 @@ export default class extends Controller {
         m = L.marker([lat, lng], {
           title: marker.title
         }).addTo(this.map)
-
-        // Custom icon for different marker types (old behavior)
-        if (marker.icon) {
-          const icon = L.divIcon({
-            className: 'custom-marker',
-            html: `<div class="marker-${marker.icon}">${marker.label || ''}</div>`,
-            iconSize: [30, 30]
-          })
-          m.setIcon(icon)
-        }
       }
 
       if (marker.popup) {
@@ -156,6 +155,63 @@ export default class extends Controller {
     if (bounds.length > 1) {
       this.map.fitBounds(bounds, { padding: [50, 50] })
     }
+  }
+
+  createCircleIcon(color) {
+    // Create a circular icon using HTML/CSS instead of SVG
+    return L.divIcon({
+      className: 'draggable-circle-marker',
+      html: `<div class="circle-inner" style="background-color: ${color}"></div>`,
+      iconSize: [24, 24],
+      iconAnchor: [12, 12],
+      popupAnchor: [0, -12]
+    })
+  }
+
+  makeDraggable(marker, markerData) {
+    let originalOpacity
+
+    marker.on('dragstart', (e) => {
+      console.log("Drag started")
+      // Add dragging class for visual feedback
+      const element = e.target.getElement()
+      if (element) {
+        element.classList.add('dragging')
+      }
+    })
+
+    // marker.on('drag', (e) => {
+    //   const latlng = e.target.getLatLng()
+    //   console.log("Dragging to:", latlng.lat.toFixed(6), latlng.lng.toFixed(6))
+    // })
+
+    marker.on('dragend', (e) => {
+      const latlng = e.target.getLatLng()
+      console.log("Drag ended at:", latlng.lat.toFixed(6), latlng.lng.toFixed(6))
+      
+      // Remove dragging class
+      const element = e.target.getElement()
+      if (element) {
+        element.classList.remove('dragging')
+      }
+      
+      // Update popup if it exists
+      if (markerData.popup) {
+        const newPopup = `${markerData.title || 'Localização'}<br>Latitude: ${latlng.lat.toFixed(6)}<br>Longitude: ${latlng.lng.toFixed(6)}<br><em>Arraste para ajustar</em>`
+        marker.setPopupContent(newPopup)
+      }
+
+      // Dispatch custom event with new coordinates
+      const event = new CustomEvent('marker-moved', {
+        detail: {
+          lat: latlng.lat,
+          lng: latlng.lng,
+          markerId: markerData.id
+        },
+        bubbles: true
+      })
+      this.element.dispatchEvent(event)
+    })
   }
 
   disconnect() {

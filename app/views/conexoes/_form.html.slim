@@ -71,11 +71,23 @@
     .row data-controller="geolocation"
       .col-3
         = f.input :latitude,
-          input_html: { id: "conexao_latitude", data: { geolocation_target: "latitude" } }
+          input_html: { \
+            id: "conexao_latitude", \
+            data: { \
+              geolocation_target: "latitude", \
+              action: "input->geolocation#updateMap" \
+            } \
+          }
 
       .col-3
         = f.input :longitude,
-          input_html: { id: "conexao_longitude", data: { geolocation_target: "longitude" } }
+          input_html: { \
+            id: "conexao_longitude", \
+            data: { \
+              geolocation_target: "longitude", \
+              action: "input->geolocation#updateMap" \
+            } \
+          }
 
       .col-3
         = f.association :equipamento,
@@ -87,19 +99,51 @@
         = f.input :inadimplente
         = f.input :auto_bloqueio
 
-    .row
-      .col
-        #map_canvas data-controller="map" style="height: 400px;"
-                
+      .row
+        .col
+          - center_lat = @conexao.latitude&.to_f || @conexao.ponto&.latitude&.to_f || -8.3594
+          - center_lng = @conexao.longitude&.to_f || @conexao.ponto&.longitude&.to_f || -36.9608
+          - zoom_level = @conexao.latitude.present? ? 18 : 15
+          - markers = []
+          
+          - if @conexao.latitude.present? && @conexao.longitude.present?
+            - markers << { \
+                id: 'current', \
+                lat: @conexao.latitude.to_f, \
+                lng: @conexao.longitude.to_f, \
+                title: @conexao.pessoa&.nome || "Nova Conexão", \
+                color: '#007bff', \
+                draggable: true, \
+                popup: "#{@conexao.pessoa&.nome || 'Nova Conexão'}<br>Latitude: #{@conexao.latitude}<br>Longitude: #{@conexao.longitude}<br><em>Arraste para ajustar</em>" \
+              }
+          - elsif @conexao.ponto.present?
+            - @conexao.ponto.conexoes.georeferenciadas.limit(20).each do |nearby|
+              - markers << { \
+                  id: nearby.id, \
+                  lat: nearby.latitude.to_f, \
+                  lng: nearby.longitude.to_f, \
+                  title: nearby.pessoa.nome, \
+                  color: '#6c757d', \
+                  draggable: false, \
+                  popup: "#{nearby.pessoa.nome}<br>IP: #{nearby.ip}" \
+                }
+
+          .map-container[
+            data-controller="map"
+            data-map-latitude-value=center_lat
+            data-map-longitude-value=center_lng
+            data-map-zoom-value=zoom_level
+            data-map-markers-value=markers.to_json
+            data-geolocation-target="map"
+          ]
+                  
   .form-actions
     = button_tag type: "button",
       class: "btn btn-primary",
       data: { action: "click->geolocation#getLocation" } do
-      i.fa.fa-location_arrow aria-hidden="true"
+      i.fa.fa-location-arrow aria-hidden="true"
       |  GPS
 
     = button_tag class: "btn btn-primary" do
       i.fas.fa-save aria-hidden="true"
       |  Salvar
-
-= javascript_include_tag "https://maps.googleapis.com/maps/api/js?key=#{Rails.application.credentials.google_maps_api_key}&v=weekly", async: true, defer: true

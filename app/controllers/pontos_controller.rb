@@ -15,7 +15,7 @@ class PontosController < ApplicationController
     respond_to do |format|
       format.html
       format.csv do
-        send_data @pontos.except(:limit, :offset).to_csv, filename: "pontos-#{Date.today}.csv"
+        send_data @pontos.except(:limit, :offset).to_csv, filename: "pontos-#{Time.zone.today}.csv"
       end
     end
   end
@@ -30,7 +30,7 @@ class PontosController < ApplicationController
 
   # GET /pontos/1
   # GET /pontos/1.json
-  def show # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
+  def show
     @conexao_q = @ponto.conexoes.order(:ip).ransack(params[:conexao_q])
     @conexoes = @conexao_q.result.page params[:conexoes_page]
     @autenticacoes = @ponto.autenticacoes
@@ -67,7 +67,7 @@ class PontosController < ApplicationController
         format.json { render :show, status: :created, location: @ponto }
       else
         format.html { render :new }
-        format.json { render json: @ponto.errors, status: :unprocessable_entity }
+        format.json { render json: @ponto.errors, status: :unprocessable_content }
       end
     end
   end
@@ -81,7 +81,7 @@ class PontosController < ApplicationController
         format.json { render :show, status: :ok, location: @ponto }
       else
         format.html { render :edit }
-        format.json { render json: @ponto.errors, status: :unprocessable_entity }
+        format.json { render json: @ponto.errors, status: :unprocessable_content }
       end
     end
   end
@@ -100,7 +100,45 @@ class PontosController < ApplicationController
 
   # Use callbacks to share common setup or constraints between actions.
   def set_ponto
-    @ponto = Ponto.find(params[:id])
+    @ponto = Ponto.includes(
+      :servidor,
+      :redes,
+      :caixas,
+      :ip_redes,
+      conexoes: %i[pessoa plano]
+    ).find(params[:id])
+
+    # Group conexoes by IP range for efficient lookup
+    if @ponto.ip_redes.loaded? && @ponto.conexoes.loaded?
+      @conexoes_by_rede = group_conexoes_by_ip_rede(@ponto.ip_redes, @ponto.conexoes)
+    end
+
+    # Batch check connection status (prevents N+1 on rad_accts)
+    return unless @ponto.conexoes.loaded?
+
+    @conexoes_status = Conexao.status_conexoes(@ponto.conexoes)
+  end
+
+  def group_conexoes_by_ip_rede(ip_redes, conexoes)
+    ip_redes.each_with_object({}) do |rede, hash|
+      next unless rede.cidr
+
+      begin
+        cidr_range = IPAddr.new(rede.cidr)
+
+        hash[rede.id] = conexoes.select do |conexao|
+          next false unless conexao.ip
+
+          begin
+            cidr_range.include?(IPAddr.new(conexao.ip.to_s))
+          rescue IPAddr::InvalidAddressError
+            false
+          end
+        end
+      rescue IPAddr::InvalidAddressError
+        hash[rede.id] = []
+      end
+    end
   end
 
   # Never trust parameters from the scary internet, only allow the white list through.

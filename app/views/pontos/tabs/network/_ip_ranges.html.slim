@@ -1,0 +1,61 @@
+/ app/views/pontos/tabs/network/_ip_ranges.html.slim
+
+.card.border-0.shadow-sm
+  .card-header.bg-white.border-bottom
+    .d-flex.justify-content-between.align-items-center
+      h5.mb-0
+        i.bi.bi-hdd-network.me-2
+        = "Redes #{version}"
+      span.badge class="bg-#{color}" = redes.count
+  .card-body
+    - if redes.any?
+      .list-group.list-group-flush
+        - redes.each do |rede|
+          / Preload data to avoid multiple queries
+          - total_ips = rede.ips_quantidade
+          - conexoes = rede.conexoes.to_a  # Convert to array once
+          - used_ips = conexoes.count
+          - available_ips = total_ips - used_ips  # Simple subtraction instead of loading all IPs
+          - usage_percent = total_ips > 0 ? ((used_ips.to_f / total_ips) * 100).round(1) : 0
+          
+          .list-group-item.px-0.border-0.mb-3
+            .d-flex.justify-content-between.align-items-start.mb-2
+              div
+                .fw-bold class="text-#{color}" style="margin-bottom: 0.25rem"
+                  code.fs-6 = rede.cidr
+              .text-end
+                = link_to ip_rede_path(rede), class: "btn btn-sm btn-outline-#{color}" do
+                  i.bi.bi-box-arrow-up-right
+            
+            / Usage Bar
+            .mb-2
+              .d-flex.justify-content-between.align-items-center.mb-1
+                .small.text-muted Utilização
+                .small.fw-medium
+                  span class="text-#{color}" = used_ips
+                  span.text-muted  / 
+                  = total_ips
+                  span.text-muted.ms-1 = "(#{usage_percent}%)"
+              
+              .progress style="height: 8px;"
+                .progress-bar class="#{usage_percent > 80 ? 'bg-danger' : usage_percent > 60 ? 'bg-warning' : "bg-#{color}"}" role="progressbar" style="width: #{usage_percent}%"
+            
+            / Stats
+            .row.g-2.text-center.small
+              .col-4
+                .bg-light.rounded.p-2
+                  .text-muted.small Total
+                  .fw-bold = total_ips
+              .col-4
+                .bg-success.bg-opacity-10.rounded.p-2
+                  .text-success.small Livres
+                  .fw-bold.text-success = available_ips
+              .col-4 class="bg-#{color}-opacity-10"
+                .rounded.p-2
+                  .small class="text-#{color}" Em Uso
+                  .fw-bold class="text-#{color}" = used_ips
+    - else
+      .text-center.text-muted.py-5
+        i.bi.bi-inbox.fs-1.d-block.mb-3.opacity-50
+        .fw-medium = "Nenhuma rede #{version} configurada"
+        .small = "Configure redes #{version} para gerenciar endereços IP"

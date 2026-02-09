@@ -1,0 +1,9 @@
+= turbo_frame_tag "ponto-map" do
+  .map-container[
+    data-controller="map"
+    data-map-latitude-value=latitude
+    data-map-longitude-value=longitude
+    data-map-zoom-value=zoom
+    data-map-markers-value=markers.to_json
+    data-map-google-api-key-value=Rails.application.credentials.google_maps_api_key
+  ]

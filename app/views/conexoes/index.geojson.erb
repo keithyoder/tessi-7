@@ -7,6 +7,6 @@
         }
     },
     "features": [
-        <%= Conexao.includes([:ponto, :pessoa]).georeferencidas.map(&:as_geojson).join(',').html_safe %>
+        <%= Conexao.includes([:ponto, :pessoa]).georeferenciadas.map(&:as_geojson).join(',').html_safe %>
     ]
 }

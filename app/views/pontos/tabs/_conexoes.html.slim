@@ -1,0 +1,8 @@
+#conexoes.tab-pane.fade role="tabpanel"
+  .card.border-0.shadow-sm
+    .card-header.bg-white.border-bottom
+      h5.mb-0
+        i.bi.bi-people.me-2
+        | Conexões do Ponto
+    .card-body.p-0
+      = render 'conexoes/table', { exclude: %w[ponto equipamento] }

@@ -34,6 +34,9 @@ Rails.application.routes.draw do # rubocop:disable Metrics/BlockLength
   end
   resources :pontos do
     get :snmp, on: :collection
+    member do
+      get 'map', to: 'maps#ponto'
+    end
   end
   resources :ip_redes
   resources :fibra_redes

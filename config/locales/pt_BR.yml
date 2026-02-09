@@ -260,6 +260,14 @@ pt-BR:
   estados:
     update:
       notice: "Estado atualizado com sucesso."
+  faturamento:
+    ano:
+      invalid_year: "Ano inválido"
+    mes:
+      invalid_period: "Período inválido"
+    dia:
+      invalid_date: "Data inválida"
+      invalid_or_future_date: "Data inválida ou futura"
   faturas:
     nfcom:
       create:

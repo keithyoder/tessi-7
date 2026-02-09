@@ -1,40 +1,149 @@
-import { Controller } from "@hotwired/stimulus";
+// app/javascript/controllers/map_controller.js
+import { Controller } from "@hotwired/stimulus"
+import L from "leaflet"
+
+// Fix Leaflet's default icon paths for esbuild
+import iconUrl from 'leaflet/dist/images/marker-icon.png'
+import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png'
+import shadowUrl from 'leaflet/dist/images/marker-shadow.png'
+
+delete L.Icon.Default.prototype._getIconUrl
+L.Icon.Default.mergeOptions({
+  iconUrl,
+  iconRetinaUrl,
+  shadowUrl
+})
 
 export default class extends Controller {
+  static values = {
+    latitude: Number,
+    longitude: Number,
+    zoom: { type: Number, default: 18 },
+    markers: { type: Array, default: [] },
+    googleApiKey: String
+  }
+
   connect() {
-    this.initializeMap();
+    console.log("Map controller connected")
+    console.log("Lat:", this.latitudeValue, "Lng:", this.longitudeValue)
+    
+    // Wait for next frame to ensure DOM is ready
+    requestAnimationFrame(() => {
+      this.initializeMap()
+    })
   }
 
   initializeMap() {
-    // Wait for Google Maps API to load
-    if (typeof google === 'undefined' || !google.maps) {
-      setTimeout(() => this.initializeMap(), 100);
-      return;
+    // Check if element has dimensions
+    const rect = this.element.getBoundingClientRect()
+    console.log("Element dimensions:", rect.width, rect.height)
+    
+    if (rect.height === 0) {
+      console.error("Map container has no height!")
+      return
     }
 
-    // Read lat/lng from form inputs
-    const latInput = document.getElementById("conexao_latitude");
-    const lngInput = document.getElementById("conexao_longitude");
-    
-    const lat = parseFloat(latInput?.value) || -15.7942; // Default to center of Brazil if empty
-    const lng = parseFloat(lngInput?.value) || -47.8822;
+    // Google Maps tile layers
+    const satellite = L.tileLayer(`https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}`, {
+      attribution: '© Google',
+      maxZoom: 20,
+      subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+    })
 
-    const latlng = new google.maps.LatLng(lat, lng);
+    const hybrid = L.tileLayer(`https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}`, {
+      attribution: '© Google',
+      maxZoom: 20,
+      subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+    })
 
-    const map = new google.maps.Map(this.element, {
-      zoom: 18,
-      center: latlng
-    });
+    const streets = L.tileLayer(`https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}`, {
+      attribution: '© Google',
+      maxZoom: 20,
+      subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+    })
 
-    const marker = new google.maps.Marker({
-      map: map,
-      position: latlng,
-      draggable: true
-    });
+    // Initialize map
+    try {
+      this.map = L.map(this.element, {
+        center: [this.latitudeValue, this.longitudeValue],
+        zoom: this.zoomValue,
+        layers: [hybrid]
+      })
 
-    marker.addListener("dragend", (evt) => {
-      if (latInput) latInput.value = evt.latLng.lat();
-      if (lngInput) lngInput.value = evt.latLng.lng();
-    });
+      console.log("Map initialized successfully")
+
+      // Add layer control
+      L.control.layers({
+        "Híbrido": hybrid,
+        "Satélite": satellite,
+        "Ruas": streets
+      }, null, {
+        position: 'topright'
+      }).addTo(this.map)
+
+      // Add markers
+      this.addMarkers()
+      
+      // Force map to recalculate size
+      setTimeout(() => {
+        this.map.invalidateSize()
+      }, 100)
+      
+    } catch (error) {
+      console.error("Error initializing map:", error)
+    }
+  }
+
+  addMarkers() {
+    if (!this.hasMarkersValue || this.markersValue.length === 0) {
+      console.log("No markers to add")
+      return
+    }
+
+    console.log("Adding", this.markersValue.length, "markers")
+    const bounds = []
+
+    this.markersValue.forEach(marker => {
+      const lat = parseFloat(marker.lat)
+      const lng = parseFloat(marker.lng)
+      
+      if (isNaN(lat) || isNaN(lng)) {
+        console.error("Invalid marker coordinates:", marker)
+        return
+      }
+
+      const m = L.marker([lat, lng], {
+        title: marker.title
+      }).addTo(this.map)
+
+      if (marker.popup) {
+        m.bindPopup(marker.popup)
+      }
+
+      // Custom icon for different marker types
+      if (marker.icon) {
+        const icon = L.divIcon({
+          className: 'custom-marker',
+          html: `<div class="marker-${marker.icon}">${marker.label || ''}</div>`,
+          iconSize: [30, 30]
+        })
+        m.setIcon(icon)
+      }
+
+      bounds.push([lat, lng])
+    })
+
+    // Fit bounds if multiple markers
+    if (bounds.length > 1) {
+      this.map.fitBounds(bounds, { padding: [50, 50] })
+    }
+  }
+
+  disconnect() {
+    console.log("Map controller disconnecting")
+    if (this.map) {
+      this.map.remove()
+      this.map = null
+    }
   }
 }

@@ -28,8 +28,6 @@
 #
 #  fk_rails_...  (servidor_id => servidores.id)
 #
-require 'snmp'
-
 class Ponto < ApplicationRecord
   include Ransackable
 
@@ -38,27 +36,35 @@ class Ponto < ApplicationRecord
   has_many :ip_redes, dependent: :restrict_with_exception
   has_many :redes, class_name: 'FibraRede', dependent: :restrict_with_exception
   has_many :caixas, through: :redes, source: :fibra_caixas
-  has_many :autenticacoes, through: :conexoes, source: :autenticacoes
+  has_many :autenticacoes, through: :conexoes
+
+  # Scopes
   scope :ativo, -> { joins(:servidor).where('servidores.ativo') }
   scope :fibra, -> { where(tecnologia: :Fibra) }
+  scope :radio, -> { where(tecnologia: :Radio) }
 
-  RANSACK_ATTRIBUTES = %w[nome ssid ip_s].freeze
-  RANSACK_ASSOCIATIONS = %w[].freeze
-  ransacker :ip_s do
+  # Ransack configuration
+  RANSACK_ATTRIBUTES = %w[nome ssid ip_string].freeze
+  RANSACK_ASSOCIATIONS = %w[servidor].freeze
+
+  ransacker :ip_string do
     Arel.sql('ip::text')
   end
 
-  enum tecnologia: {
+  # Enums
+  enum :tecnologia, {
     Radio: 1,
     Fibra: 2
-  }
-  enum sistema: {
+  }, prefix: true
+
+  enum :sistema, {
     Ubnt: 1,
     Mikrotik: 2,
     Chima: 3,
     Outro: 4
-  }
-  enum equipamento: {
+  }, prefix: true
+
+  enum :equipamento, {
     'Ubiquiti Loco M5' => 'locoM5',
     'Ubiquiti Rocket M5' => 'rocketM5',
     'Ubiquiti Litebeam AC-16-120' => 'litebeamAC',
@@ -66,91 +72,99 @@ class Ponto < ApplicationRecord
     'Ubiquiti Nanostation M5' => 'nanostationM5'
   }
 
-  after_touch :save
-  before_save do
-    info = snmp
-    self.frequencia = info[:frequencia]
-    self.ssid = info[:ssid]
-    self.canal_tamanho = info[:canal_tamanho]
-  rescue StandardError
+  # Validations
+  validates :nome, presence: true
+  validates :ip, presence: true
+  validates :tecnologia, presence: true
+  validates :servidor, presence: true
+
+  # ========================================================================
+  # Métodos de informação de frequência
+  # ========================================================================
+
+  # Retorna texto formatado da frequência com tamanho do canal
+  #
+  # @return [String] ex: "5180 MHz (20)" ou "5180 MHz"
+  def frequencia_formatada
+    return nil unless frequencia.present?
+
+    texto = "#{frequencia} MHz"
+    texto += " (#{canal_tamanho})" if canal_tamanho.present?
+    texto
   end
+  alias frequencia_text frequencia_formatada
 
-  SNMP_CAMPOS = {
-    uptime: 'SNMPv2-MIB::sysUpTime.0',
-    ssid: 'SNMPv2-SMI::enterprises.41112.1.4.5.1.2.1',
-    frequencia: 'SNMPv2-SMI::enterprises.41112.1.4.1.1.4.1',
-    canal_tamanho: 'SNMPv2-SMI::enterprises.41112.1.4.5.1.14.1',
-    conectados: 'SNMPv2-SMI::enterprises.41112.1.4.5.1.15.1',
-    qualidade_airmax: 'SNMPv2-SMI::enterprises.41112.1.4.6.1.3.1',
-    station_ccq: 'SNMPv2-SMI::enterprises.41112.1.4.5.1.7.1'
-  }.freeze
+  # ========================================================================
+  # Métodos de IP disponíveis
+  # ========================================================================
 
-  def to_csv
-    attributes = %i[id nome ip sistema tecnologia]
-    CSV.generate(headers: true) do |csv|
-      csv << attributes
-
-      find_each do |estado|
-        csv << attributes.map { |attr| estado.send(attr) }
-      end
-    end
-  end
-
-  def frequencia_text
-    "#{frequencia} MHz#{" (#{canal_tamanho})" if canal_tamanho.present?}"
-  end
-
-  def snmp
-    snmp_manager do |manager|
-      response = manager.get(SNMP_CAMPOS.values)
-      result = {}
-      response.each_varbind do |vb|
-        result.merge!(SNMP_CAMPOS.key(vb.name.to_s) => vb.value)
-      end
-      result
-    end
-  end
-
-  def google_maps_pins
-    result = 'markers=color:blue%7Clabel:C'
-    conexoes.each do |cnx|
-      result += "|#{cnx.latitude},#{cnx.longitude}" if cnx.latitude.present?
-    end
-    result
-  end
-
+  # Retorna todos os IPs das redes associadas ao ponto
+  #
+  # @return [Array<IPAddr>]
   def lista_ips
-    ips = []
-    ip_redes.each do |rede|
-      ips += rede.to_a
-    end
-    ips
+    ip_redes.flat_map(&:para_array)
   end
 
+  # Retorna IPs IPv4 disponíveis (não ocupados por conexões)
+  #
+  # @return [Array<IPAddr>]
   def ipv4_disponiveis
-    ips = []
-    ip_redes.ipv4.each do |rede|
-      ips += rede.ips_disponiveis
-    end
-    ips
+    ip_redes.ipv4.flat_map(&:ips_disponiveis)
   end
 
+  # Retorna IPs IPv6 disponíveis (não ocupados por conexões)
+  #
+  # @return [Array<IPAddr>]
   def ipv6_disponiveis
-    ips = []
-    ip_redes.ipv6.each do |rede|
-      ips += rede.ips_disponiveis
-    end
-    ips
+    ip_redes.ipv6.flat_map(&:ips_disponiveis)
   end
 
-  private
+  # ========================================================================
+  # Integração com SNMP (delegado ao serviço)
+  # ========================================================================
 
-  def snmp_manager
-    SNMP::Manager.open(
-      host: ip.to_s,
-      community: 'public',
-      port: 161,
-      version: :SNMPv1
-    )
+  # Retorna o serviço SNMP para este ponto
+  #
+  # @return [Pontos::SnmpService]
+  def servico_snmp
+    @servico_snmp ||= Pontos::SnmpService.new(self)
+  end
+
+  # Coleta informações SNMP do equipamento
+  # Delegado ao serviço para manter o modelo limpo
+  #
+  # @return [Hash] informações SNMP
+  def coletar_snmp
+    servico_snmp.coletar_informacoes
+  end
+
+  # Atualiza informações SNMP (ssid, frequencia, canal_tamanho)
+  # Deve ser chamado explicitamente, não em callbacks
+  #
+  # @return [Boolean] true se atualizou com sucesso
+  def atualizar_snmp!
+    servico_snmp.atualizar_ponto!
+  end
+
+  # Verifica se o ponto está acessível via SNMP
+  #
+  # @return [Boolean]
+  def snmp_acessivel?
+    servico_snmp.acessivel?
+  end
+
+  # ========================================================================
+  # Aliases para compatibilidade com código legado
+  # ========================================================================
+
+  # Mantém compatibilidade com código que chama .snmp diretamente
+  alias snmp coletar_snmp
+
+  # ========================================================================
+  # Métodos de apresentação
+  # ========================================================================
+
+  def to_s
+    nome
   end
 end

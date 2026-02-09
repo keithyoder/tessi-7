@@ -1,0 +1,47 @@
+#network.tab-pane.fade role="tabpanel"
+  / IP Management Actions
+  .row.mb-3
+    .col-12
+      .d-flex.gap-2.flex-wrap
+        - if ponto.ip_redes.any?
+          .dropdown
+            button.btn.btn-outline-primary.dropdown-toggle[
+              type="button"
+              data-bs-toggle="dropdown"
+            ]
+              i.bi.bi-plus-circle.me-2
+              | Gerenciar Redes
+            ul.dropdown-menu
+              li
+                = link_to new_ip_rede_path(ponto_id: ponto.id), class: "dropdown-item" do
+                  i.bi.bi-plus-circle.me-2
+                  | Nova Rede IPv4
+              li
+                = link_to new_ip_rede_path(ponto_id: ponto.id, ipv6: true), class: "dropdown-item" do
+                  i.bi.bi-plus-circle.me-2
+                  | Nova Rede IPv6
+              li
+                hr.dropdown-divider
+              li
+                = link_to ip_redes_path(q: { ponto_id_eq: ponto.id }), class: "dropdown-item" do
+                  i.bi.bi-list-ul.me-2
+                  | Ver Todas as Redes
+        - else
+          = link_to new_ip_rede_path(ponto_id: ponto.id), class: "btn btn-outline-primary" do
+            i.bi.bi-plus-circle.me-2
+            | Adicionar Primeira Rede
+  
+  .row.g-4
+    / IPv4 Ranges
+    .col-lg-6
+      = render 'pontos/tabs/network/ip_ranges', 
+               redes: ponto.ip_redes.ipv4, 
+               version: 'IPv4', 
+               color: 'primary'
+    
+    / IPv6 Ranges
+    .col-lg-6
+      = render 'pontos/tabs/network/ip_ranges', 
+               redes: ponto.ip_redes.ipv6, 
+               version: 'IPv6', 
+               color: 'info'

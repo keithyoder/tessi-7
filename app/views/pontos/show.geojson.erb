@@ -7,6 +7,6 @@
         }
     },
     "features": [
-        <%= @ponto.conexoes.includes(:pessoa).georeferencidas.map(&:as_geojson).join(',').html_safe %>
+        <%= @ponto.conexoes.includes(:pessoa).georeferenciadas.map(&:as_geojson).join(',').html_safe %>
     ]
 }

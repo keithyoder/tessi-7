@@ -108,7 +108,7 @@ class Conexao < ApplicationRecord
   scope :acima_34M, -> { joins(:plano).where('planos.download > 34') }
   enum :tipo, { Cobranca: 1, Cortesia: 2, Outro_3: 3, Outro_4: 4, Outros: 5 }
   scope :rede_ip, ->(rede) { where('ip::inet << ?::inet', rede) }
-  scope :georeferencidas, -> { where.not(latitude: nil, longitude: nil) }
+  scope :georeferenciadas, -> { where.not(latitude: nil, longitude: nil) }
   scope :sem_contrato, lambda {
     left_joins(:contrato).where('conexoes.tipo = 1 and contrato_id is null or cancelamento is not null')
   }
@@ -125,10 +125,9 @@ class Conexao < ApplicationRecord
 
     select("#{table_name}.*, #{sanitize_sql_array([distance_sql, lat, lng, lat])} AS distancia")
       .includes(:ponto)
-      .order("distancia")
+      .order('distancia')
       .limit(20)
   }
-
 
   scope :para_logradouro, lambda { |logradouro_id|
     left_joins(:pessoa).where(
@@ -156,14 +155,13 @@ class Conexao < ApplicationRecord
                       on: %i[create update],
                       message: 'Endereço MAC inválido' }
 
+  after_commit :on_commit, on: :update
   after_touch :save
   after_save do
     atualizar_senha
     atualizar_ip_e_mac
     atualizar_velocidade
   end
-
-  after_commit :on_commit, on: :update
 
   def self.to_csv
     attributes = %w[id Pessoa Plano Ponto IP]
@@ -206,7 +204,7 @@ class Conexao < ApplicationRecord
 
   def conectado
     rad_accts.where('AcctStartTime > ? and AcctStopTime is null', 2.days.ago)
-             .count.positive?
+      .count.positive?
   end
 
   def link_google_maps
@@ -227,7 +225,7 @@ class Conexao < ApplicationRecord
     "#{logradouro.nome} - #{logradouro.bairro.nome_cidade_uf}"
   end
 
-  def as_geojson # rubocop:disable Metrics/MethodLength
+  def as_geojson
     {
       type: 'Feature',
       properties: {
@@ -239,6 +237,24 @@ class Conexao < ApplicationRecord
         coordinates: [longitude, latitude, 0.0]
       }
     }.to_json
+  end
+
+  def self.status_conexoes(conexoes)
+    return {} if conexoes.empty?
+
+    usernames = conexoes.map(&:usuario).compact
+    return {} if usernames.empty?
+
+    conectados = RadAcct
+      .where(username: usernames)
+      .where('acctstarttime > ?', 2.days.ago)
+      .where(acctstoptime: nil)
+      .pluck(:username)
+      .to_set
+
+    conexoes.each_with_object({}) do |conexao, hash|
+      hash[conexao.id] = conectados.include?(conexao.usuario)
+    end
   end
 
   private
@@ -253,7 +269,7 @@ class Conexao < ApplicationRecord
   end
 
   def atualizar_senha(forcar = false)
-    return unless forcar || usuario.present? && senha.present? && (saved_change_to_senha? || saved_change_to_usuario?)
+    return unless forcar || (usuario.present? && senha.present? && (saved_change_to_senha? || saved_change_to_usuario?))
 
     atr = conexao_verificar_atributos.where(atributo: RADIUS_SENHA).first_or_create
     atr.update!(op: ':=', valor: senha)

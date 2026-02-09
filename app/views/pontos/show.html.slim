@@ -1,36 +1,117 @@
-ul.nav.nav-pills
-  li.nav-item
-    a.nav-link class="#{params.key?(:conexao_q) ? '' : 'active'}" data-bs-toggle='tab' href='#ponto' Ponto de Acesso
-  li.nav-item
-    a.nav-link class="#{params.key?(:conexao_q) ? 'active' : ''}" data-bs-toggle='tab' href='#conexoes' Conexões
+/ app/views/pontos/show.html.slim
+
+/ Hero Section
+.row.mb-4
+  .col-12
+    .card.border-0.shadow-sm
+      .card-body.p-4
+        .d-flex.justify-content-between.align-items-start.flex-wrap
+          div
+            .d-flex.align-items-center.gap-3.mb-2
+              h2.mb-0 = @ponto.nome
+              - if @ponto.Radio?
+                span.badge.bg-primary.fs-6
+                  i.bi.bi-broadcast
+                  = " #{@ponto.tecnologia}"
+              - else
+                span.badge.bg-success.fs-6
+                  i.bi.bi-diagram-3
+                  = " #{@ponto.tecnologia}"
+            .text-muted
+              = @ponto.sistema
+              = " • "
+              = link_to @ponto.servidor.nome, @ponto.servidor, class: "text-decoration-none"
+          
+          .d-flex.gap-2.mt-3.mt-md-0
+            = link_to edit_ponto_path(@ponto), class: "btn btn-outline-primary" do
+              i.bi.bi-pencil
+              = " Editar"
+            - if can? :destroy, @ponto
+              = link_to @ponto, method: :delete, data: { confirm: 'Tem certeza?' }, class: "btn btn-outline-danger" do
+                i.bi.bi-trash
+                = " Excluir"
+
+/ Quick Stats
+.row.g-3.mb-4
+  .col-md-3.col-6
+    .card.border-0.shadow-sm.h-100
+      .card-body.text-center
+        .text-muted.small.mb-1 Conexões
+        .fs-3.fw-bold.text-primary = @ponto.conexoes.count
+  .col-md-3.col-6
+    .card.border-0.shadow-sm.h-100
+      .card-body.text-center
+        .text-muted.small.mb-1 Bloqueados
+        .fs-3.fw-bold class="#{@ponto.conexoes.bloqueado.count > 0 ? 'text-danger' : 'text-success'}"
+          = @ponto.conexoes.bloqueado.count
+  .col-md-3.col-6
+    .card.border-0.shadow-sm.h-100
+      .card-body.text-center
+        .text-muted.small.mb-1 Ativos
+        .fs-3.fw-bold.text-success = @ponto.conexoes.ativo.count
+  .col-md-3.col-6
+    .card.border-0.shadow-sm.h-100
+      .card-body.text-center
+        .text-muted.small.mb-1 Redes IP
+        .fs-3.fw-bold.text-info = @ponto.ip_redes.count
+
+/ Navigation Tabs
+ul.nav.nav-tabs.mb-4 role="tablist"
+  li.nav-item role="presentation"
+    button.nav-link.active[
+      id="overview-tab"
+      data-bs-toggle="tab"
+      data-bs-target="#overview"
+      type="button"
+      role="tab"
+    ]
+      i.bi.bi-info-circle.me-2
+      | Visão Geral
+  
+  li.nav-item role="presentation"
+    button.nav-link[
+      id="network-tab"
+      data-bs-toggle="tab"
+      data-bs-target="#network"
+      type="button"
+      role="tab"
+    ]
+      i.bi.bi-hdd-network.me-2
+      | Rede & IPs
+  
+  li.nav-item role="presentation"
+    button.nav-link[
+      id="map-tab"
+      data-bs-toggle="tab"
+      data-bs-target="#map"
+      type="button"
+      role="tab"
+    ]
+      i.bi.bi-geo-alt.me-2
+      | Localização
+  
+  li.nav-item role="presentation"
+    button.nav-link[
+      id="conexoes-tab"
+      data-bs-toggle="tab"
+      data-bs-target="#conexoes"
+      type="button"
+      role="tab"
+    ]
+      i.bi.bi-people.me-2
+      | Conexões
+      span.badge.bg-primary.ms-2 = @ponto.conexoes.count
+
+/ Tab Content
 .tab-content
-  #ponto.tab-pane.fade aria-labelledby='ponto-tab' class="#{params.key?(:conexao_q) ? '' : 'show active'}" role='tabpanel'
-    .row
-      .card
-        = render 'shared/show_header', { object: @ponto, titulo: "Ponto de Acesso #{@ponto.nome}" }
-        .card-body
-          .row.row-cols-1.row-cols-sm-2.row-cols-md-3.row-cols-lg-4.g-4.pt-3
-            = render 'shared/field_card', { campo: 'Sistema', valor: @ponto.sistema }
-            = render 'shared/field_card', { campo: 'Tecnologia', valor: @ponto.tecnologia }
-            - if @ponto.ssid.present?
-              = render 'shared/field_card', { campo: 'SSID', valor: @ponto.ssid }
-            = render 'shared/field_card', { campo: 'Servidor', valor: @ponto.servidor.nome, link: @ponto.servidor }
-            = link_to "http://#{@ponto.ip}", target: '_blank' do
-              = render 'shared/field_card', { campo: 'IP', valor: @ponto.ip }
-            -if @ponto.ipv6.present?
-              = link_to "http://[#{@ponto.ipv6}]", target: '_blank' do
-                = render 'shared/field_card', { campo: 'IPv6', valor: @ponto.ipv6 }
-            = render 'shared/field_card', { campo: 'Usuário', valor: @ponto.usuario }
-            = render 'shared/field_card', { campo: 'Conexões', valor: @ponto.conexoes.count }
-            = render 'shared/field_card', { campo: 'Bloqueados', valor: @ponto.conexoes.bloqueado.count }
-            - if @ponto.frequencia.present?
-              = render 'shared/field_card', { campo: 'Frequência', valor: "#{@ponto.frequencia} Mhz" }
-              = render 'shared/field_card', { campo: 'Largura Canal', valor: "#{@ponto.canal_tamanho} Mhz" }
-            = render 'shared/field_card', { campo: 'Equipamento', valor: @ponto.equipamento }
-          .card-columns style='column-count: 1'
-            = link_to "http://maps.google.com/maps?#{@ponto.google_maps_pins}&z=18", target: '_blank' do
-              p align='center'
-                = image_tag "https://maps.googleapis.com/maps/api/staticmap?maptype=hybrid&size=1200x400&#{@ponto.google_maps_pins}&key=#{Rails.application.credentials.google_maps_api_key}", alt: 'Map'
-  #conexoes.tab-pane.fade[role="tabpanel" aria-labelledby="conexoes-tab" class="#{params.key?(:conexao_q) ? 'show active' : ''}"]
-    h3 = @ponto.nome
-    = render 'conexoes/table', { exclude: %w[ponto equipamento] }
+  = render 'pontos/tabs/overview', ponto: @ponto
+  = render 'pontos/tabs/network', ponto: @ponto
+  = render 'pontos/tabs/map', ponto: @ponto
+  = render 'pontos/tabs/conexoes', ponto: @ponto
+
+/ Back Button
+.row.mt-4
+  .col-12
+    = link_to pontos_path, class: "btn btn-outline-secondary" do
+      i.bi.bi-arrow-left.me-2
+      | Voltar para Lista

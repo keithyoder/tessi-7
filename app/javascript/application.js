@@ -16,7 +16,7 @@ import { Chart, registerables } from 'chart.js';
 Chart.register(...registerables);
 window.Chart = Chart;
 
-
+// import "leaflet/dist/leaflet.css"
 import "./faturas"
 import "./fibra_caixas"
 import "./os"

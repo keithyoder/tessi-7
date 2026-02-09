@@ -1,0 +1,120 @@
+/ app/views/pontos/tabs/_overview.html.slim
+
+#overview.tab-pane.fade.show.active role="tabpanel"
+  .row.g-4
+    / Access Information
+    .col-lg-6
+      .card.border-0.shadow-sm.h-100
+        .card-header.bg-white.border-bottom
+          h5.mb-0
+            i.bi.bi-lock.me-2
+            | Informações de Acesso
+        .card-body
+          .row.g-3
+            .col-12
+              .d-flex.justify-content-between.align-items-center
+                span.text-muted IP
+                = link_to "http://#{ponto.ip}", target: '_blank', class: "text-decoration-none fw-medium" do
+                  = ponto.ip
+                  i.bi.bi-box-arrow-up-right.ms-1.small
+            
+            - if ponto.ipv6.present?
+              .col-12
+                .d-flex.justify-content-between.align-items-center
+                  span.text-muted IPv6
+                  = link_to "http://[#{ponto.ipv6}]", target: '_blank', class: "text-decoration-none fw-medium" do
+                    = ponto.ipv6
+                    i.bi.bi-box-arrow-up-right.ms-1.small
+            
+            .col-12
+              .d-flex.justify-content-between.align-items-center
+                span.text-muted Usuário
+                code.bg-light.px-2.py-1.rounded = ponto.usuario
+            
+            .col-12
+              .d-flex.justify-content-between.align-items-center
+                span.text-muted Senha
+                code.bg-light.px-2.py-1.rounded = ponto.senha || "••••••••"
+    
+    / Technology-Specific Information
+    - if ponto.Radio?
+      .col-lg-6
+        .card.border-0.shadow-sm.h-100
+          .card-header.bg-white.border-bottom
+            h5.mb-0
+              i.bi.bi-broadcast.me-2
+              | Configuração Rádio
+          .card-body
+            .row.g-3
+              - if ponto.ssid.present?
+                .col-12
+                  .d-flex.justify-content-between.align-items-center
+                    span.text-muted SSID
+                    span.fw-medium = ponto.ssid
+              
+              - if ponto.frequencia.present?
+                .col-12
+                  .d-flex.justify-content-between.align-items-center
+                    span.text-muted Frequência
+                    span.fw-medium = "#{ponto.frequencia} MHz"
+              
+              - if ponto.canal_tamanho.present?
+                .col-12
+                  .d-flex.justify-content-between.align-items-center
+                    span.text-muted Largura do Canal
+                    span.fw-medium = "#{ponto.canal_tamanho} MHz"
+              
+              - if ponto.equipamento.present?
+                .col-12
+                  .d-flex.justify-content-between.align-items-center
+                    span.text-muted Equipamento
+                    span.fw-medium = ponto.equipamento
+    - else
+      .col-lg-6
+        .card.border-0.shadow-sm.h-100
+          .card-header.bg-white.border-bottom
+            h5.mb-0
+              i.bi.bi-diagram-3.me-2
+              | Infraestrutura Fibra
+          .card-body
+            .row.g-3
+              .col-12
+                button.btn.btn-link.text-decoration-none.p-0.d-flex.justify-content-between.align-items-center.w-100[
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#redesCollapse"
+                  aria-expanded="false"
+                ]
+                  span.text-muted Redes
+                  .d-flex.align-items-center.gap-2
+                    span.fw-medium = ponto.redes.count
+                    i.bi.bi-chevron-down.small
+              
+              / Collapsible Redes List
+              .col-12
+                .collapse#redesCollapse
+                  .card.card-body.bg-light.border-0.mt-2
+                    - if ponto.redes.any?
+                      .list-group.list-group-flush
+                        - ponto.redes.each do |rede|
+                          = link_to fibra_rede_path(rede), class: "list-group-item list-group-item-action bg-transparent border-0 px-0 py-2" do
+                            .d-flex.justify-content-between.align-items-center
+                              .d-flex.align-items-center.gap-2
+                                i.bi.bi-diagram-2.text-success
+                                span.small = rede.nome || "Rede ##{rede.id}"
+                              i.bi.bi-chevron-right.small.text-muted
+                    - else
+                      .text-center.text-muted.py-3
+                        i.bi.bi-inbox.d-block.mb-2.opacity-50
+                        .small Nenhuma rede configurada
+              
+              .col-12
+                .d-flex.justify-content-between.align-items-center
+                  span.text-muted Caixas
+                  span.fw-medium = ponto.caixas.count
+              
+              - if ponto.equipamento.present?
+                .col-12
+                  .d-flex.justify-content-between.align-items-center
+                    span.text-muted Equipamento
+                    span.fw-medium = ponto.equipamento

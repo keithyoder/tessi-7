@@ -119,46 +119,28 @@ class Ponto < ApplicationRecord
     ip_redes.ipv6.flat_map(&:ips_disponiveis)
   end
 
-  # ========================================================================
-  # Integração com SNMP (delegado ao serviço)
-  # ========================================================================
-
-  # Retorna o serviço SNMP para este ponto
-  #
-  # @return [Pontos::SnmpService]
-  def servico_snmp
-    @servico_snmp ||= Pontos::SnmpService.new(self)
+  def snmp_reader
+    @snmp_reader ||= Ubiquiti::SnmpReader.new(self)
   end
 
-  # Coleta informações SNMP do equipamento
-  # Delegado ao serviço para manter o modelo limpo
-  #
-  # @return [Hash] informações SNMP
-  def coletar_snmp
-    servico_snmp.coletar_informacoes
+  def snmp_provisioner
+    @snmp_provisioner ||= Ubiquiti::SnmpProvisioner.new(self)
   end
 
-  # Atualiza informações SNMP (ssid, frequencia, canal_tamanho)
-  # Deve ser chamado explicitamente, não em callbacks
-  #
-  # @return [Boolean] true se atualizou com sucesso
+  delegate :coletar_informacoes, :acessivel?, :estatisticas_conexao, to: :snmp_reader, prefix: :snmp
+
   def atualizar_snmp!
-    servico_snmp.atualizar_ponto!
+    info = snmp_reader.coletar_informacoes
+
+    update!(
+      ssid: info[:ssid],
+      frequencia: info[:frequencia],
+      canal_tamanho: info[:canal_tamanho]
+    )
+  rescue SNMP::RequestTimeout, Errno::EHOSTUNREACH => e
+    Rails.logger.warn("Falha SNMP para ponto #{id} (#{ip}): #{e.message}")
+    false
   end
-
-  # Verifica se o ponto está acessível via SNMP
-  #
-  # @return [Boolean]
-  def snmp_acessivel?
-    servico_snmp.acessivel?
-  end
-
-  # ========================================================================
-  # Aliases para compatibilidade com código legado
-  # ========================================================================
-
-  # Mantém compatibilidade com código que chama .snmp diretamente
-  alias snmp coletar_snmp
 
   # ========================================================================
   # Métodos de apresentação

@@ -96,8 +96,7 @@ module ApplicationHelper
     confirm_message = options[:confirm] || 'Tem certeza?'
 
     link_to polymorphic_path(resource),
-            method: :delete,
-            data: { confirm: confirm_message },
+            data: { turbo_method: :delete, turbo_confirm: confirm_message },
             class: css_class do
       concat content_tag(:i, '', class: "bi #{icon} me-1")
       concat text

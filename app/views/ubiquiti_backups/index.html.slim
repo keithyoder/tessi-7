@@ -1,0 +1,20 @@
+h1 Backups — #{@ponto.nome}
+p #{@ponto.ip} · #{@ponto.equipamento}
+
+table
+  thead
+    tr
+      th Data
+      th Checksum
+      th
+  tbody
+    - @backups.each do |backup|
+      tr
+        td = l(backup.created_at, format: :short)
+        td
+          code = backup.checksum.first(12)
+        td
+          = link_to 'Ver', ponto_ubiquiti_backup_path(@ponto, backup)
+          = link_to 'Download .cfg', download_ponto_ubiquiti_backup_path(@ponto, backup), data: { turbo: false }
+
+= paginate @backups

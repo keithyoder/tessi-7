@@ -37,6 +37,9 @@ Rails.application.routes.draw do # rubocop:disable Metrics/BlockLength
     member do
       get 'map', to: 'maps#ponto'
     end
+    resources :ubiquiti_backups, only: %i[index show], path: 'backups' do
+      get :download, on: :member
+    end
   end
   resources :ip_redes
   resources :fibra_redes

@@ -66,11 +66,11 @@ class Ponto < ApplicationRecord
   }, prefix: true
 
   enum :equipamento, {
-    'Ubiquiti Loco M5' => 'locoM5',
-    'Ubiquiti Rocket M5' => 'rocketM5',
-    'Ubiquiti Litebeam AC-16-120' => 'litebeamAC',
-    'Ubiquiti Powerbeam M5' => 'powerbeamM5',
-    'Ubiquiti Nanostation M5' => 'nanostationM5'
+    'Loco M5' => 'locoM5',
+    'Rocket M5' => 'rocketM5',
+    'Litebeam AC-16-120' => 'litebeamAC',
+    'Powerbeam M5' => 'powerbeamM5',
+    'Nanostation M5' => 'nanostationM5'
   }
 
   # Validations
@@ -136,7 +136,8 @@ class Ponto < ApplicationRecord
     update!(
       ssid: info[:ssid],
       frequencia: info[:frequencia],
-      canal_tamanho: info[:canal_tamanho]
+      canal_tamanho: info[:canal_tamanho],
+      equipamento: info[:modelo]
     )
   rescue SNMP::RequestTimeout, Errno::EHOSTUNREACH => e
     Rails.logger.warn("Falha SNMP para ponto #{id} (#{ip}): #{e.message}")

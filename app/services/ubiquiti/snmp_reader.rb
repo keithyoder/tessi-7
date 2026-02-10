@@ -11,7 +11,9 @@ module Ubiquiti
       canal_tamanho: 'SNMPv2-SMI::enterprises.41112.1.4.5.1.14.1',
       conectados: 'SNMPv2-SMI::enterprises.41112.1.4.5.1.15.1',
       qualidade_airmax: 'SNMPv2-SMI::enterprises.41112.1.4.6.1.3.1',
-      station_ccq: 'SNMPv2-SMI::enterprises.41112.1.4.5.1.7.1'
+      station_ccq: 'SNMPv2-SMI::enterprises.41112.1.4.5.1.7.1',
+      modelo: '1.2.840.10036.3.1.2.1.3.5',
+      firmware: '1.2.840.10036.3.1.2.1.4.5'
     }.freeze
 
     COMMUNITY = SnmpProvisioner::COMMUNITY

@@ -7,6 +7,12 @@ module Ubiquiti
   class ConfigManager
     CONFIG_PATH = '/tmp/system.cfg'
 
+    SSH_OPTIONS = {
+      verify_host_key: :never,
+      timeout: 10,
+      non_interactive: true
+    }.freeze
+
     def initialize(host, user: 'ubnt', password: 'ubnt')
       @host = host
       @user = user
@@ -15,11 +21,10 @@ module Ubiquiti
 
     # Download and return config as a Hash
     def download_config
-      config_content = nil
-      Net::SCP.start(@host, @user, password: @password) do |scp|
-        config_content = scp.download!(CONFIG_PATH)
+      content = Net::SCP.start(host, user, ssh_options) do |scp|
+        scp.download!(CONFIG_PATH)
       end
-      parse_config(config_content)
+      parse_config(content)
     end
 
     # Upload modified config and persist
@@ -35,11 +40,15 @@ module Ubiquiti
         Rails.logger.info "cfgmtd result: #{result}"
 
         # Apply without full reboot (optional)
-        # ssh.exec!('reboot')
+        ssh.exec!('reboot')
       end
     end
 
     private
+
+    def ssh_options
+      SSH_OPTIONS.merge(password: password)
+    end
 
     def parse_config(content)
       config = {}

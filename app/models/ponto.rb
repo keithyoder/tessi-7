@@ -70,7 +70,7 @@ class Ponto < ApplicationRecord
     'Rocket M5' => 'rocketM5',
     'Litebeam AC-16-120' => 'litebeamAC',
     'Powerbeam M5' => 'powerbeamM5',
-    'Nanostation M5' => 'nanostationM5'
+    'NanoStation M5' => 'nanostationM5'
   }
 
   # Validations

@@ -13,13 +13,14 @@ module Ubiquiti
       non_interactive: true
     }.freeze
 
-    def initialize(host, user: 'ubnt', password: 'ubnt')
+    attr_reader :host, :user, :password
+
+    def initialize(host, password:, user: 'ubnt')
       @host = host
       @user = user
       @password = password
     end
 
-    # Download and return config as a Hash
     def download_config
       content = Net::SCP.start(host, user, ssh_options) do |scp|
         scp.download!(CONFIG_PATH)
@@ -27,21 +28,27 @@ module Ubiquiti
       parse_config(content)
     end
 
-    # Upload modified config and persist
     def upload_config(config_hash)
       config_content = serialize_config(config_hash)
 
-      Net::SSH.start(@host, @user, password: @password) do |ssh|
-        # Upload via SCP
+      Net::SSH.start(host, user, ssh_options) do |ssh|
         ssh.scp.upload!(StringIO.new(config_content), CONFIG_PATH)
-
-        # Persist to flash
         result = ssh.exec!('cfgmtd -w')
         Rails.logger.info "cfgmtd result: #{result}"
-
-        # Apply without full reboot (optional)
         ssh.exec!('reboot')
       end
+    end
+
+    def self.package_for_restore(config_text)
+      io = StringIO.new
+      Zlib::GzipWriter.wrap(io) do |gz|
+        Gem::Package::TarWriter.new(gz) do |tar|
+          tar.add_file_simple('system.cfg', 0o644, config_text.bytesize) do |f|
+            f.write(config_text)
+          end
+        end
+      end
+      io.string
     end
 
     private

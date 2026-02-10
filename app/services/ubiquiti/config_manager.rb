@@ -22,8 +22,9 @@ module Ubiquiti
     end
 
     def download_config
-      content = Net::SCP.start(host, user, ssh_options) do |scp|
-        scp.download!(CONFIG_PATH)
+      content = nil
+      Net::SCP.start(host, user, ssh_options) do |scp|
+        content = scp.download!(CONFIG_PATH)
       end
       parse_config(content)
     end

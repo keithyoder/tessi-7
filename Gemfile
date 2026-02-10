@@ -56,6 +56,7 @@ gem 'oauth2'
 
 gem 'net-ftp'
 gem 'net-ping'
+gem 'net-scp'
 gem 'net-ssh'
 gem 'snmp'
 

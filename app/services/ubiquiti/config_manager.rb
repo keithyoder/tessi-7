@@ -1,9 +1,11 @@
+# frozen_string_literal: true
+
 require 'net/ssh'
 require 'net/scp'
 
 module Ubiquiti
-  class ConfigService
-    CONFIG_PATH = '/tmp/system.cfg'.freeze
+  class ConfigManager
+    CONFIG_PATH = '/tmp/system.cfg'
 
     def initialize(host, user: 'ubnt', password: 'ubnt')
       @host = host

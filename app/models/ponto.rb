@@ -37,6 +37,7 @@ class Ponto < ApplicationRecord
   has_many :redes, class_name: 'FibraRede', dependent: :restrict_with_exception
   has_many :caixas, through: :redes, source: :fibra_caixas
   has_many :autenticacoes, through: :conexoes
+  has_many :ubiquiti_backups, dependent: :destroy
 
   # Scopes
   scope :ativo, -> { joins(:servidor).where('servidores.ativo') }

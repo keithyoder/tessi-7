@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Ubiquiti
   class SnmpReader
     require 'snmp'

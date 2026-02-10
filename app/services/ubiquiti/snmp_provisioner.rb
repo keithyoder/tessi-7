@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 module Ubiquiti
   class SnmpProvisioner
-    COMMUNITY = 'erp'.freeze
-    CONTACT = 'Tessi Telecom'.freeze
+    COMMUNITY = 'erp'
+    CONTACT = 'Tessi Telecom'
 
     attr_reader :ponto
 

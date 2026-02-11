@@ -2,7 +2,7 @@ class UbiquitiBackupsController < ApplicationController
   load_and_authorize_resource
 
   before_action :set_ponto
-  before_action :set_backup, only: :show
+  before_action :set_backup, only: %i[show download]
 
   def index
     @backups = @ponto.ubiquiti_backups
@@ -13,6 +13,14 @@ class UbiquitiBackupsController < ApplicationController
 
   def show
     @config = @backup.to_hash
+  end
+
+  def download
+    cfg = Ubiquiti::ConfigManager.package_for_restore(@backup.config)
+
+    send_data cfg,
+              filename: "#{@ponto.nome}-#{@backup.created_at.strftime('%Y%m%d%H%M')}.cfg",
+              type: 'application/gzip'
   end
 
   private

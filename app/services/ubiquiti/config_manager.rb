@@ -2,6 +2,7 @@
 
 require 'net/ssh'
 require 'net/scp'
+require 'rubygems/package'
 
 module Ubiquiti
   class ConfigManager

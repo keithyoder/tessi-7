@@ -91,7 +91,7 @@ class IpRede < ApplicationRecord
   end
 
   def ips_disponiveis
-    ocupados = conexoes.pluck(:ip).map(&:to_s)
+    ocupados = conexoes.pluck(:ip).to_a
     para_array - ocupados
   end
 

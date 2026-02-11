@@ -230,6 +230,95 @@ RSpec.describe IpRede do
     end
   end
 
+  # Add this block inside the RSpec.describe IpRede do block,
+  # alongside the other describe blocks
+
+  describe '#ips_disponiveis' do
+    let(:ip_rede) { create(:ip_rede, ponto: ponto, rede: '192.168.1.0/30') }
+
+    context 'sem conexões na faixa' do
+      it 'retorna todos os IPs da faixa' do
+        disponiveis = ip_rede.ips_disponiveis
+
+        # /30 tem 4 IPs totais: .0, .1, .2, .3
+        expect(disponiveis.size).to eq(4)
+        expect(disponiveis.map(&:to_s)).to contain_exactly(
+          '192.168.1.0', '192.168.1.1', '192.168.1.2', '192.168.1.3'
+        )
+      end
+    end
+
+    context 'com conexões ocupando IPs na faixa' do
+      before do
+        create(:conexao, ponto: ponto, ip: '192.168.1.1')
+        create(:conexao, ponto: ponto, ip: '192.168.1.2')
+      end
+
+      it 'exclui IPs ocupados por conexões' do
+        disponiveis = ip_rede.ips_disponiveis.map(&:to_s)
+
+        expect(disponiveis).not_to include('192.168.1.1')
+        expect(disponiveis).not_to include('192.168.1.2')
+        expect(disponiveis).to include('192.168.1.0', '192.168.1.3')
+      end
+
+      it 'retorna quantidade correta de IPs disponíveis' do
+        expect(ip_rede.ips_disponiveis.size).to eq(2)
+      end
+    end
+
+    context 'com todos os IPs ocupados' do
+      before do
+        %w[192.168.1.0 192.168.1.1 192.168.1.2 192.168.1.3].each do |ip|
+          create(:conexao, ponto: ponto, ip: ip)
+        end
+      end
+
+      it 'retorna array vazio' do
+        expect(ip_rede.ips_disponiveis).to be_empty
+      end
+    end
+
+    context 'com conexões fora da faixa' do
+      before do
+        create(:conexao, ponto: ponto, ip: '10.0.0.1')
+        create(:conexao, ponto: ponto, ip: '192.168.2.1')
+      end
+
+      it 'não afeta IPs disponíveis na faixa' do
+        expect(ip_rede.ips_disponiveis.size).to eq(4)
+      end
+    end
+
+    context 'quando rede está em branco' do
+      let(:ip_rede) { build(:ip_rede, ponto: ponto, rede: nil) }
+
+      it 'retorna array vazio' do
+        expect(ip_rede.ips_disponiveis).to eq([])
+      end
+    end
+
+    context 'com faixa maior (/28)' do
+      let(:ip_rede) { create(:ip_rede, ponto: ponto, rede: '10.0.1.0/28') }
+
+      before do
+        # Ocupa 3 IPs dos 16 totais
+        create(:conexao, ponto: ponto, ip: '10.0.1.1')
+        create(:conexao, ponto: ponto, ip: '10.0.1.5')
+        create(:conexao, ponto: ponto, ip: '10.0.1.10')
+      end
+
+      it 'retorna IPs não ocupados' do
+        disponiveis = ip_rede.ips_disponiveis.map(&:to_s)
+
+        # /28 = 16 IPs totais, 3 ocupados = 13 disponíveis
+        expect(disponiveis.size).to eq(13)
+        expect(disponiveis).not_to include('10.0.1.1', '10.0.1.5', '10.0.1.10')
+        expect(disponiveis).to include('10.0.1.0', '10.0.1.2', '10.0.1.15')
+      end
+    end
+  end
+
   describe 'aliases para compatibilidade retroativa' do
     let(:ip_rede) { create(:ip_rede, ponto: ponto, rede: '10.0.1.0/24') }
 

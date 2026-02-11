@@ -75,14 +75,16 @@ module Ubiquiti
 
     def resolve_modelo(result)
       modelo = result[:modelo]
-      return modelo if modelo.present? && modelo != 'null'
+      return modelo if valid_snmp_value?(modelo)
 
-      # Try board_name
-      board = result[:board_name]
-      return board if board.present? && board != 'noSuchInstance' && board != 'noSuchObject'
+      # Walk the parent OID to find the model regardless of index
+      with_snmp_manager do |manager|
+        manager.walk('1.2.840.10036.3.1.2.1.3') do |vb|
+          return vb.value.to_s if valid_snmp_value?(vb.value.to_s)
+        end
+      end
 
-      # Extract from sysDescr (e.g. "Linux 4.4.x ... XW.ar934x.v6.3.6...")
-      result[:sys_descr]
+      result[:board_name]
     end
 
     def parse_response(response)
@@ -92,6 +94,11 @@ module Ubiquiti
         result[oid_key] = vb.value.to_s if oid_key
       end
       result
+    end
+
+    def valid_snmp_value?(value)
+      value.present? &&
+        %w[Null noSuchInstance noSuchObject].exclude?(value)
     end
   end
 end

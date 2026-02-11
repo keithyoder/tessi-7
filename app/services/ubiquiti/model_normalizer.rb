@@ -7,7 +7,7 @@ module Ubiquiti
     PATTERNS = [
       { match: /loco\s*m5/i,        equipamento: 'NanoStation loco M5' },
       { match: /rocket\s*m5/i,      equipamento: 'Rocket M5' },
-      { match: /litebeam|lbe.*ac/i, equipamento: 'Litebeam AC-16-120' },
+      { match: /liteap ac/i,        equipamento: 'Litebeam AC-16-120' },
       { match: /powerbeam\s*m5/i,   equipamento: 'Powerbeam M5' },
       { match: /nanostation\s*m5/i, equipamento: 'NanoStation M5' }
     ].freeze

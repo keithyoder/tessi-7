@@ -66,7 +66,7 @@ class Ponto < ApplicationRecord
   }, prefix: true
 
   enum :equipamento, {
-    'Loco M5' => 'locoM5',
+    'NanoStation loco M5' => 'locoM5',
     'Rocket M5' => 'rocketM5',
     'Litebeam AC-16-120' => 'litebeamAC',
     'Powerbeam M5' => 'powerbeamM5',

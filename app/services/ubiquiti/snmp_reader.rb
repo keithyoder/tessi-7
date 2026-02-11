@@ -13,7 +13,9 @@ module Ubiquiti
       qualidade_airmax: 'SNMPv2-SMI::enterprises.41112.1.4.6.1.3.1',
       station_ccq: 'SNMPv2-SMI::enterprises.41112.1.4.5.1.7.1',
       modelo: '1.2.840.10036.3.1.2.1.3.5',
-      firmware: '1.2.840.10036.3.1.2.1.4.5'
+      firmware: '1.2.840.10036.3.1.2.1.4.5',
+      sys_descr: '1.3.6.1.2.1.1.1.0',
+      board_name: 'SNMPv2-SMI::enterprises.41112.1.4.5.1.1.1'
     }.freeze
 
     COMMUNITY = SnmpProvisioner::COMMUNITY
@@ -28,6 +30,9 @@ module Ubiquiti
       with_snmp_manager do |manager|
         response = manager.get(OIDS.values)
         parse_response(response)
+        result = parse_response(response)
+        result[:modelo] = resolve_modelo(result)
+        result
       end
     end
 
@@ -66,6 +71,18 @@ module Ubiquiti
         timeout: 2,
         retries: 1
       }
+    end
+
+    def resolve_modelo(result)
+      modelo = result[:modelo]
+      return modelo if modelo.present? && modelo != 'noSuchInstance' && modelo != 'noSuchObject'
+
+      # Try board_name
+      board = result[:board_name]
+      return board if board.present? && board != 'noSuchInstance' && board != 'noSuchObject'
+
+      # Extract from sysDescr (e.g. "Linux 4.4.x ... XW.ar934x.v6.3.6...")
+      result[:sys_descr]
     end
 
     def parse_response(response)

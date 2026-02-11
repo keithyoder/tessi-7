@@ -71,7 +71,8 @@ class Ponto < ApplicationRecord
     'Litebeam AC-16-120' => 'litebeamAC',
     'Powerbeam M5' => 'powerbeamM5',
     'NanoStation M5' => 'nanostationM5',
-    'NanoBeam M5' => 'nanobeamM5'
+    'NanoBeam M5' => 'nanobeamM5',
+    'LiteAP GPS' => 'liteapGPS'
   }
 
   # Validations

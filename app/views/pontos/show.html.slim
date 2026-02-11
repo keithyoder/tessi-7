@@ -98,9 +98,24 @@ ul.nav.nav-tabs.mb-4 role="tablist"
       | Conexões
       span.badge.bg-primary.ms-2 = @ponto.conexoes.count
 
+  - if @ponto.sistema_Ubnt?
+    li.nav-item role="presentation"
+      button.nav-link[
+        id="backups-tab"
+        data-bs-toggle="tab"
+        data-bs-target="#backups"
+        type="button"
+        role="tab"
+      ]
+        i.bi.bi-clock-history.me-2
+        | Backups
+        span.badge.bg-secondary.ms-2 = @ponto.ubiquiti_backups.count
+
 / Tab Content
 .tab-content
   = render 'pontos/tabs/overview', ponto: @ponto
   = render 'pontos/tabs/network', ponto: @ponto
   = render 'pontos/tabs/map', ponto: @ponto
   = render 'pontos/tabs/conexoes', ponto: @ponto
+  - if @ponto.sistema_Ubnt?
+    = render 'pontos/tabs/backups', ponto: @ponto

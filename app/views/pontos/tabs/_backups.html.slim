@@ -1,0 +1,33 @@
+/ app/views/pontos/tabs/_backups.html.slim
+.tab-pane.fade id="backups" role="tabpanel"
+  .card.border-0.shadow-sm
+    .card-body
+      h5.card-title Backups de Configuração
+
+      - backups = ponto.ubiquiti_backups.order(created_at: :desc).limit(20)
+      - if backups.any?
+        table.table.table-hover
+          thead
+            tr
+              th Data
+              th Checksum
+              th
+          tbody
+            - backups.each do |backup|
+              tr
+                td = l(backup.created_at, format: :short)
+                td
+                  code = backup.checksum.first(12)
+                td.text-end
+                  = link_to ponto_ubiquiti_backup_path(ponto, backup), class: 'btn btn-sm btn-outline-primary me-1'
+                    i.bi.bi-eye
+                  = link_to download_ponto_ubiquiti_backup_path(ponto, backup), class: 'btn btn-sm btn-outline-secondary', data: { turbo: false }
+                    i.bi.bi-download
+
+        - if ponto.ubiquiti_backups.count > 20
+          .text-center.mt-3
+            = link_to 'Ver todos', ponto_ubiquiti_backups_path(ponto), class: 'btn btn-outline-primary btn-sm'
+      - else
+        .text-center.text-muted.py-4
+          i.bi.bi-clock-history.fs-1.d-block.mb-2
+          | Nenhum backup encontrado

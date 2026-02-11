@@ -117,21 +117,4 @@ RSpec.describe Ubiquiti::ConfigManager do
       )
     end
   end
-
-  describe '.package_for_restore' do
-    it 'creates a gzipped tarball containing system.cfg' do
-      config_text = "snmp.status=enabled\n"
-      package = described_class.package_for_restore(config_text)
-
-      # Decompress and extract
-      io = StringIO.new(package)
-      Zlib::GzipReader.wrap(io) do |gz|
-        Gem::Package::TarReader.new(gz) do |tar|
-          entry = tar.first
-          expect(entry.full_name).to eq('system.cfg')
-          expect(entry.read).to eq(config_text)
-        end
-      end
-    end
-  end
 end

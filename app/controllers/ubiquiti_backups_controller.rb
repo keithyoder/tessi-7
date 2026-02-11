@@ -16,11 +16,9 @@ class UbiquitiBackupsController < ApplicationController
   end
 
   def download
-    cfg = Ubiquiti::ConfigManager.package_for_restore(@backup.config)
-
-    send_data cfg,
+    send_data @backup.config,
               filename: "#{@ponto.nome}-#{@backup.created_at.strftime('%Y%m%d%H%M')}.cfg",
-              type: 'application/gzip'
+              type: 'application/octet-stream'
   end
 
   private

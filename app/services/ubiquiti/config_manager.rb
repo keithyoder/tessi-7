@@ -2,7 +2,6 @@
 
 require 'net/ssh'
 require 'net/scp'
-require 'rubygems/package'
 
 module Ubiquiti
   class ConfigManager
@@ -39,18 +38,6 @@ module Ubiquiti
         Rails.logger.info "cfgmtd result: #{result}"
         ssh.exec!('reboot')
       end
-    end
-
-    def self.package_for_restore(config_text)
-      io = StringIO.new
-      Zlib::GzipWriter.wrap(io) do |gz|
-        Gem::Package::TarWriter.new(gz) do |tar|
-          tar.add_file_simple('system.cfg', 0o644, config_text.bytesize) do |f|
-            f.write(config_text)
-          end
-        end
-      end
-      io.string
     end
 
     private

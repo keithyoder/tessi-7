@@ -71,7 +71,7 @@ module Ubiquiti
     end
 
     def serialize_config(config_hash)
-      config_hash.map { |k, v| "#{k}=#{v}" }.join("\n") + "\n"
+      "#{config_hash.map { |k, v| "#{k}=#{v}" }.join("\n")}\n"
     end
   end
 end

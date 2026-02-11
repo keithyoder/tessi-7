@@ -12,19 +12,16 @@ module Ubiquiti
     end
 
     # Returns true if changes were made, false if already in sync
-    def sync!
+    def apply!
       config = config_manager.download_config
+      UbiquitiBackup.store(ponto, config)
       desired = desired_snmp_settings
 
-      if needs_update?(config, desired)
-        config.merge!(desired)
-        config_manager.upload_config(config)
-        Rails.logger.info("[SNMP] Updated config on #{ponto.nome} (#{ponto.ip})")
-        true
-      else
-        Rails.logger.info("[SNMP] Config already in sync on #{ponto.nome} (#{ponto.ip})")
-        false
-      end
+      return unless needs_update?(config, desired)
+
+      config.merge!(desired)
+      config_manager.upload_config(config)
+      Rails.logger.info("[SNMP] Updated config on #{ponto.nome} (#{ponto.ip})")
     end
 
     # Just check without making changes

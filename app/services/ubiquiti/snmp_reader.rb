@@ -75,7 +75,7 @@ module Ubiquiti
 
     def resolve_modelo(result)
       modelo = result[:modelo]
-      return modelo if modelo.present? && modelo != 'noSuchInstance' && modelo != 'noSuchObject'
+      return modelo if modelo.present? && modelo != 'null'
 
       # Try board_name
       board = result[:board_name]

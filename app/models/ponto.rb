@@ -133,12 +133,16 @@ class Ponto < ApplicationRecord
   def atualizar_snmp!
     info = snmp_reader.coletar_informacoes
 
-    update!(
+    attrs = {
       ssid: info[:ssid],
       frequencia: info[:frequencia],
-      canal_tamanho: info[:canal_tamanho],
-      equipamento: info[:modelo]
-    )
+      canal_tamanho: info[:canal_tamanho]
+    }
+
+    equipamento_key = Ubiquiti::ModelNormalizer.resolve(info[:modelo])
+    attrs[:equipamento] = equipamento_key if equipamento_key
+
+    update!(attrs)
   rescue SNMP::RequestTimeout, Errno::EHOSTUNREACH => e
     Rails.logger.warn("Falha SNMP para ponto #{id} (#{ip}): #{e.message}")
     false

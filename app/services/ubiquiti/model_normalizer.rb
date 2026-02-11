@@ -9,7 +9,8 @@ module Ubiquiti
       { match: /rocket\s*m5/i,      equipamento: 'Rocket M5' },
       { match: /liteap ac/i,        equipamento: 'Litebeam AC-16-120' },
       { match: /powerbeam\s*m5/i,   equipamento: 'Powerbeam M5' },
-      { match: /nanostation\s*m5/i, equipamento: 'NanoStation M5' }
+      { match: /nanostation\s*m5/i, equipamento: 'NanoStation M5' },
+      { match: /nanobeam\s*m5/i,    equipamento: 'NanoBeam M5' }
     ].freeze
 
     def self.resolve(snmp_modelo)

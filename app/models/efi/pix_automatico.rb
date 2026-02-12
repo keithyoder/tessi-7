@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Efi
-  class PixAutomatico # rubocop:disable Style/Documentation,Metrics/ClassLength
+  class PixAutomatico
     def initialize(contrato)
       @contrato = contrato
       @cliente = Efi.cliente(
@@ -21,7 +21,7 @@ module Efi
         body: { status: 'CANCELADA' },
         params: { id: @contrato.recorrencia_id }
       )
-      puts resposta
+      Rails.logger.debug resposta
       # @contrato.update(recorrencia_id: resposta['idRec'])
     end
 
@@ -42,7 +42,7 @@ module Efi
     end
 
     def qrcode_base64
-      return unless qrcode.present?
+      return if qrcode.blank?
 
       ::RQRCode::QRCode.new(qrcode, level: :q).as_png(margin: 0).to_data_url
     end
@@ -62,7 +62,7 @@ module Efi
     def proxima_cobranca
       @proxima_cobranca ||= begin
         fatura = @contrato.faturas.a_vencer.first
-        return unless fatura.id_externo.present?
+        return if fatura.id_externo.blank?
 
         resposta = @cliente.getChargeRecurring(params: { txid: fatura.id_externo })
         return resposta unless resposta['status'] == 400
@@ -77,7 +77,7 @@ module Efi
 
     def criar_cobranca
       cobranca = @cliente.createChargeRecurring(body: cobranca_body)
-      puts cobranca
+      Rails.logger.debug cobranca
       @contrato.faturas.a_vencer.first.update(id_externo: cobranca['txid'])
     end
 
@@ -91,7 +91,7 @@ module Efi
       @location ||= @cliente.createLocationRecurring
     end
 
-    def body # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
+    def body # rubocop:disable Metrics/AbcSize
       cpf_cnpj = if @contrato.pessoa.cpf.present?
                    { vinculo: { devedor: { cpf: CPF.new(@contrato.pessoa.cpf).stripped.to_s } } }
                  else
@@ -120,29 +120,29 @@ module Efi
 
     def cobranca_body # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
       {
-        "idRec": @contrato.recorrencia_id,
-        "infoAdicional": @contrato.descricao_personalizada.presence || @contrato.plano.nome,
-        "calendario": {
-          "dataDeVencimento": [@contrato.faturas.a_vencer.first.vencimento,
-                               Date.today + 3.days].max.strftime('%Y-%m-%d')
+        idRec: @contrato.recorrencia_id,
+        infoAdicional: @contrato.descricao_personalizada.presence || @contrato.plano.nome,
+        calendario: {
+          dataDeVencimento: [@contrato.faturas.a_vencer.first.vencimento,
+                             Time.zone.today + 3.days].max.strftime('%Y-%m-%d')
         },
-        "valor": {
-          "original": format(
+        valor: {
+          original: format(
             '%.2f',
             @contrato.mensalidade_com_desconto
           )
         },
-        "ajusteDiaUtil": false,
-        "devedor": {
-          "cep": @contrato.pessoa.logradouro.cep,
-          "cidade": @contrato.pessoa.cidade.nome,
-          "logradouro": @contrato.pessoa.endereco.strip,
-          "uf": @contrato.pessoa.estado.sigla
+        ajusteDiaUtil: false,
+        devedor: {
+          cep: @contrato.pessoa.logradouro.cep,
+          cidade: @contrato.pessoa.cidade.nome,
+          logradouro: @contrato.pessoa.endereco.strip,
+          uf: @contrato.pessoa.estado.sigla
         },
-        "recebedor": {
-          "agencia": '0001',
-          "conta": @contrato.pagamento_perfil.conta.to_s,
-          "tipoConta": 'PAGAMENTO'
+        recebedor: {
+          agencia: '0001',
+          conta: @contrato.pagamento_perfil.conta.to_s,
+          tipoConta: 'PAGAMENTO'
         }
       }
     end

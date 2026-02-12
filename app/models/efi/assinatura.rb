@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Efi
-  class Assinatura # rubocop:disable Style/Documentation
+  class Assinatura
     def initialize(contrato)
       @contrato = contrato
       @cliente = Efi.cliente(
@@ -15,7 +15,7 @@ module Efi
         id: @contrato.plano.gerencianet_id
       }
       resposta = @cliente.createOneStepSubscriptionLink(params: params, body: body)
-      puts resposta
+      Rails.logger.debug resposta
       @contrato.update(recorrencia_id: resposta['data']['subscription_id'])
     end
 
@@ -46,26 +46,26 @@ module Efi
       "https://erp7.tessi.com.br/webhooks/#{Webhook.find_by(tipo: :gerencianet).token}"
     end
 
-    def body # rubocop:disable Metrics/MethodLength
+    def body
       {
-        "items": [
+        items: [
           {
-            "amount": 1,
-            "name": @contrato.descricao,
-            "value": (@contrato.mensalidade_com_desconto * 100).to_i
+            amount: 1,
+            name: @contrato.descricao,
+            value: (@contrato.mensalidade_com_desconto * 100).to_i
           }
         ],
-        "metadata": {
-          "custom_id": @contrato.id.to_s,
-          "notification_url": notification_url
+        metadata: {
+          custom_id: @contrato.id.to_s,
+          notification_url: notification_url
         },
-        "customer": {
-          "email": 'yoder@tessi.com.br'
+        customer: {
+          email: 'yoder@tessi.com.br'
         },
-        "settings": {
-          "payment_method": 'credit_card',
-          "expire_at": (DateTime.now + 2.days).to_date.iso8601,
-          "request_delivery_address": false
+        settings: {
+          payment_method: 'credit_card',
+          expire_at: (DateTime.now + 2.days).to_date.iso8601,
+          request_delivery_address: false
         }
       }
     end

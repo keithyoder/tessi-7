@@ -80,7 +80,6 @@ class Ponto < ApplicationRecord
   validates :nome, presence: true
   validates :ip, presence: true
   validates :tecnologia, presence: true
-  validates :servidor, presence: true
 
   # ========================================================================
   # Métodos de informação de frequência
@@ -90,7 +89,7 @@ class Ponto < ApplicationRecord
   #
   # @return [String] ex: "5180 MHz (20)" ou "5180 MHz"
   def frequencia_formatada
-    return nil unless frequencia.present?
+    return nil if frequencia.blank?
 
     texto = "#{frequencia} MHz"
     texto += " (#{canal_tamanho})" if canal_tamanho.present?

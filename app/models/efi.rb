@@ -8,7 +8,7 @@ module Efi
     params = {
       client_id: kwargs[:client_id] || perfil.client_id,
       client_secret: kwargs[:client_secret] || perfil.client_secret,
-      "x-skip-mtls-checking": 'true',
+      'x-skip-mtls-checking': 'true',
       sandbox: false # ENV['RAILS_ENV'] != 'production'
     }
 

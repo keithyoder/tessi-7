@@ -11,7 +11,7 @@
 #   link_pagamento.create
 #
 module Efi
-  class LinkDePagamento # rubocop:disable Style/Documentation
+  class LinkDePagamento
     def initialize(fatura)
       @fatura = fatura
       @cliente = Efi.cliente(
@@ -22,8 +22,8 @@ module Efi
 
     def create
       resposta = @cliente.createOneStepLink(body: body)
-      puts resposta
-      @fatura.update(cancelamento: Date.today)
+      Rails.logger.debug resposta
+      @fatura.update(cancelamento: Time.zone.today)
       fatura_nova.update(
         link: resposta['data']['payment_url'],
         id_externo: resposta['data']['charge_id']
@@ -41,29 +41,31 @@ module Efi
     end
 
     def perfil
-      @perfil ||= PagamentoPerfil.find_by(banco: 365, nome: 'Link de Pagamento')
+      return @perfil if defined?(@perfil)
+
+      @perfil = PagamentoPerfil.find_by(banco: 365, nome: 'Link de Pagamento')
     end
 
-    def body # rubocop:disable Metrics/MethodLength
+    def body
       {
-        "items": [
+        items: [
           {
-            "amount": 1,
-            "name": fatura_nova.contrato.descricao,
-            "value": (fatura_nova.valor * 100).to_i
+            amount: 1,
+            name: fatura_nova.contrato.descricao,
+            value: (fatura_nova.valor * 100).to_i
           }
         ],
-        "metadata": {
-          "custom_id": fatura_nova.id.to_s,
-          "notification_url": "https://erp7.tessi.com.br/webhooks/#{Webhook.find_by(tipo: :gerencianet).token}"
+        metadata: {
+          custom_id: fatura_nova.id.to_s,
+          notification_url: "https://erp7.tessi.com.br/webhooks/#{Webhook.find_by(tipo: :gerencianet).token}"
         },
-        "customer": {
-          "email": 'yoder@tessi.com.br'
+        customer: {
+          email: 'yoder@tessi.com.br'
         },
-        "settings": {
-          "payment_method": 'credit_card',
-          "expire_at": (DateTime.now + 2.days).to_date.iso8601,
-          "request_delivery_address": false
+        settings: {
+          payment_method: 'credit_card',
+          expire_at: (DateTime.now + 2.days).to_date.iso8601,
+          request_delivery_address: false
         }
       }
     end

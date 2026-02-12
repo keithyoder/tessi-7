@@ -11,6 +11,7 @@ module Brcobranca
       # Baseado em: http://www.bb.com.br/docs/pub/emp/empl/dwn/Doc2628CBR643Pos7.pdf
       class BB < Brcobranca::Retorno::Cnab400::Base
         extend ParseLine::FixedWidth # Extendendo parseline
+
         attr_accessor :agencia_com_dv, :cedente_com_dv, :nosso_numero, :motivos_de_ocorrencia, :carteira_variacao,
                       :carteira, :codigo_ocorrencia, :data_ocorrencia, :data_vencimento, :valor_titulo,
                       :banco_recebedor, :agencia_recebedora_com_dv, :especie_documento, :data_credito,
@@ -21,7 +22,7 @@ module Brcobranca
         def self.load_lines(file, options = {})
           default_options = { except: [1] } # por padrao ignora a primeira linha que é header
           options = default_options.merge!(options)
-          super file, options
+          super
         end
 
         fixed_width_layout do |parse|

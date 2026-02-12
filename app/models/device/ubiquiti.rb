@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # app/models/devices/ubiquiti.rb
 module Devices
   class Ubiquiti < Device

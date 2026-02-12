@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Efi # rubocop:disable Metrics/ModuleLength
+module Efi
   IspdParticipantes = { # rubocop:disable Naming/ConstantName
     0 => :BANCO_DO_BRASIL,
     208 => :BRB,

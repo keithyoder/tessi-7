@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Efi
-  class PixWebhook # rubocop:disable Style/Documentation
+  class PixWebhook
     CHAVE_PIX = 'fc831fd6-1cd0-4d48-a804-1fdf51fbf2aa'
     def initialize
       pagamento_perfil = PagamentoPerfil.find_by(nome: 'Pix Automático')
@@ -9,7 +9,7 @@ module Efi
         certificate: Rails.application.credentials.efi_pix_certificate,
         client_id: pagamento_perfil.client_id,
         client_secret: pagamento_perfil.client_secret,
-        "x-skip-mtls-checking": 'true'
+        'x-skip-mtls-checking': 'true'
       )
     end
 
@@ -22,7 +22,7 @@ module Efi
       body = {
         webhookUrl: "https://erp7.tessi.com.br#{Webhook.find_by(tipo: :efi_pix).url}"
       }
-      puts @cliente.pixConfigWebhook(params: params, body: body)
+      Rails.logger.debug @cliente.pixConfigWebhook(params: params, body: body)
     end
 
     def get

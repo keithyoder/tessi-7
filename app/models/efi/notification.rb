@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Efi
-  class Notification # rubocop:disable Style/Documentation
+  class Notification
     CHARGE_TYPES = %w[charge subscription_charge].freeze
 
     def initialize(token)

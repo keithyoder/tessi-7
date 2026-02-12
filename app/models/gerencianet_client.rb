@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class GerencianetClient # rubocop:disable Metrics/ClassLength,Style/Documentation
+class GerencianetClient # rubocop:disable Metrics/ClassLength
   def self.criar_boleto(fatura)
     # não criar um novo boleto se já foi criado anteriormente.
     return unless fatura.pagamento_perfil.banco == 364 && fatura.pix.blank?
@@ -172,7 +172,7 @@ class GerencianetClient # rubocop:disable Metrics/ClassLength,Style/Documentatio
     params = {
       id: contrato.plano.gerencianet_id
     }
-    puts body.as_json
+    Rails.logger.debug body.as_json
     response = cliente.create_subscription_onestep(body: body, params: params)
     unless response['code'] == 200
       Rails.logger.error "Erro ao criar assinatura #{response}"
@@ -181,7 +181,7 @@ class GerencianetClient # rubocop:disable Metrics/ClassLength,Style/Documentatio
 
     data = response['data']
     contrato.update(gerencianet_assinatura_id: data['subscription_id'])
-    puts data.as_json
+    Rails.logger.debug data.as_json
   end
 
   def self.cliente
@@ -213,7 +213,7 @@ class GerencianetClient # rubocop:disable Metrics/ClassLength,Style/Documentatio
       return
     end
 
-    if notificacao.pago || notificacao.identificado
+    if notificacao.pago # || notificacao.identificado
       valor_pago = notificacao.pago['value'] / 100.0
       desconto = (valor_pago - notificacao.fatura.valor if valor_pago < notificacao.fatura.valor) || 0
       juros = (valor_pago - notificacao.fatura.valor if valor_pago > notificacao.fatura.valor) || 0
@@ -304,7 +304,7 @@ class GerencianetClient # rubocop:disable Metrics/ClassLength,Style/Documentatio
   end
 
   def self.criar_plano_assinatura(plano)
-    return unless plano.gerencianet_id.blank?
+    return if plano.gerencianet_id.present?
 
     resposta = cliente.create_plan(
       body: {
@@ -318,7 +318,7 @@ class GerencianetClient # rubocop:disable Metrics/ClassLength,Style/Documentatio
     plano.update!(gerencianet_id: resposta['data']['plan_id'])
   end
 
-  def self.atualizar_fatura(id_efi) # rubocop:disable Metrics/AbcSize
+  def self.atualizar_fatura(id_efi)
     cobranca = GerencianetClient.cliente.detail_charge(params: { id: id_efi })
     data = cobranca['data']['payment']['banking_billet']
     nossonumero = data['barcode'][25, 11].gsub(/\D/, '')
@@ -332,7 +332,7 @@ class GerencianetClient # rubocop:disable Metrics/ClassLength,Style/Documentatio
     )
   end
 
-  def pessoa_fisica_attributes # rubocop:disable Metrics/MethodLength
+  def pessoa_fisica_attributes
     {
       payment: {
         banking_billet: {
@@ -346,7 +346,7 @@ class GerencianetClient # rubocop:disable Metrics/ClassLength,Style/Documentatio
     }
   end
 
-  def pessoa_juridica_attributes # rubocop:disable Metrics/MethodLength
+  def pessoa_juridica_attributes
     {
       payment: {
         banking_billet: {
@@ -406,7 +406,7 @@ class GerencianetClient # rubocop:disable Metrics/ClassLength,Style/Documentatio
 
     contrato.update(recorrencia_id: response['data']['id'])
     data = response['data']
-    puts data
+    Rails.logger.debug data
     # fatura.update(
     #   pix: data['pix']['qrcode'],
     #   id_externo: data['charge_id'],

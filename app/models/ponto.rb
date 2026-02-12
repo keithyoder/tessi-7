@@ -38,6 +38,7 @@ class Ponto < ApplicationRecord
   has_many :caixas, through: :redes, source: :fibra_caixas
   has_many :autenticacoes, through: :conexoes
   has_many :ubiquiti_backups, dependent: :destroy
+  has_one :device, as: :deviceable, dependent: :destroy
 
   # Scopes
   scope :ativo, -> { joins(:servidor).where('servidores.ativo') }
@@ -126,8 +127,8 @@ class Ponto < ApplicationRecord
     @snmp_reader ||= Ubiquiti::SnmpReader.new(self)
   end
 
-  def snmp_provisioner
-    @snmp_provisioner ||= Ubiquiti::SnmpProvisioner.new(self)
+  def provisioner
+    @provisioner ||= Ubiquiti::Provisioner.new(self)
   end
 
   delegate :coletar_informacoes, :acessivel?, :estatisticas_conexao, to: :snmp_reader, prefix: :snmp

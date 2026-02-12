@@ -5,13 +5,17 @@ module Ubiquiti
     # Patterns mapped to the canonical enum key
     # Order matters — first match wins
     PATTERNS = [
-      { match: /loco\s*m5/i,        equipamento: 'NanoStation loco M5' },
-      { match: /rocket\s*m5/i,      equipamento: 'Rocket M5' },
-      { match: /liteap ac/i,        equipamento: 'Litebeam AC-16-120' },
-      { match: /powerbeam\s*m5/i,   equipamento: 'Powerbeam M5' },
-      { match: /nanostation\s*m5/i, equipamento: 'NanoStation M5' },
-      { match: /nanobeam\s*m5/i,    equipamento: 'NanoBeam M5' },
-      { match: /liteap gps/i, equipamento: 'LiteAP GPS' }
+      { match: /nanoloco|loco\s*m5/i,          modelo: 'NanoLoco M5' },
+      { match: /rocket\s*m5/i,                 modelo: 'Rocket M5' },
+      { match: /liteap ac/i,                   modelo: 'Litebeam AC-16-120' },
+      { match: /litebeam.*5ac|lbe.*5ac/i,      modelo: 'Litebeam 5ac-gen2-br 23dbi' },
+      { match: /litebeam.*ac.*16.*120/i,       modelo: 'Litebeam AC-16-120' },
+      { match: /litebeam.*m5/i,                modelo: 'Litebeam M5 23dbi' },
+      { match: /liteap gps/i,                  modelo: 'LiteAP GPS' },
+      { match: /airgrid/i,                     modelo: 'Airgrid M5 23dbi' },
+      { match: /nanobeam\s*m5/i,               modelo: 'Nanobeam M5 16dbi' },
+      { match: /powerbeam\s*m5/i,              modelo: 'Powerbeam M5' },
+      { match: /nanostation\s*m5/i,            modelo: 'NanoStation M5' }
     ].freeze
 
     def self.resolve(snmp_modelo)

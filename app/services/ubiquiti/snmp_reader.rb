@@ -15,10 +15,10 @@ module Ubiquiti
       modelo: '1.2.840.10036.3.1.2.1.3.5',
       firmware: '1.2.840.10036.3.1.2.1.4.5',
       sys_descr: '1.3.6.1.2.1.1.1.0',
-      board_name: 'SNMPv2-SMI::enterprises.41112.1.4.5.1.1.1'
+      mac: '1.3.6.1.2.1.2.2.1.6.2'
     }.freeze
 
-    COMMUNITY = SnmpProvisioner::COMMUNITY
+    COMMUNITY = Provisioner::SNMP_COMMUNITY
 
     attr_reader :ponto
 
@@ -83,8 +83,6 @@ module Ubiquiti
           return vb.value.to_s if valid_snmp_value?(vb.value.to_s)
         end
       end
-
-      result[:board_name]
     end
 
     def parse_response(response)

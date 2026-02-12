@@ -101,31 +101,26 @@ module Ubiquiti
       nil
     end
 
-    def resolve_mac(result)
-      mac = format_mac_value(result[:mac])
-      return mac if mac.present?
-
-      format_mac_value(result[:mac_ubnt])
-    end
-
     def parse_response(response)
       result = {}
       response.each_varbind do |vb|
         oid_key = OIDS.key(vb.name.to_s)
         next unless oid_key
 
-        result[oid_key] = if %i[mac mac_ubnt].include?(oid_key)
-                            format_mac_value(vb.value)
-                          else
-                            vb.value.to_s
-                          end
+        result[oid_key] = vb.value
       end
       result
     end
 
+    def resolve_mac(result)
+      format_mac_value(result[:mac]) || format_mac_value(result[:mac_ubnt])
+    end
+
     def format_mac_value(value)
+      return nil if value.nil?
+
       bytes = value.to_s.bytes
-      return nil if bytes.empty? || bytes.length != 6
+      return nil if bytes.length != 6
 
       bytes.map { |b| '%02X' % b }.join(':')
     end

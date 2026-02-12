@@ -108,19 +108,26 @@ module Ubiquiti
       format_mac_value(result[:mac_ubnt])
     end
 
-    def format_mac_value(value)
-      return nil if value.blank? || !valid_snmp_value?(value)
-
-      value.to_s.bytes.map { |b| '%02X' % b }.join(':')
-    end
-
     def parse_response(response)
       result = {}
       response.each_varbind do |vb|
         oid_key = OIDS.key(vb.name.to_s)
-        result[oid_key] = vb.value.to_s if oid_key
+        next unless oid_key
+
+        result[oid_key] = if %i[mac mac_ubnt].include?(oid_key)
+                            format_mac_value(vb.value)
+                          else
+                            vb.value.to_s
+                          end
       end
       result
+    end
+
+    def format_mac_value(value)
+      bytes = value.to_s.bytes
+      return nil if bytes.empty? || bytes.length != 6
+
+      bytes.map { |b| '%02X' % b }.join(':')
     end
 
     def valid_snmp_value?(value)

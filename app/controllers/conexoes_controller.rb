@@ -10,18 +10,29 @@ class ConexoesController < ApplicationController
   # GET /conexoes
   # GET /conexoes.json
   def index
-    conexao = Conexao.includes(:pessoa, :plano, :ponto)
+    conexao = Conexao.includes(
+      :pessoa,
+      :plano,
+      :ponto,
+      :equipamento
+    )
+
     conexao = conexao.sem_autenticar if params.key?(:sem_autenticar)
-    conexao = conexao.bloqueado if params.key?(:suspensas)
-    conexao = conexao.ativo if params.key?(:ativas)
-    conexao = conexao.conectada if params.key?(:conectadas)
-    conexao = conexao.desconectada if params.key?(:desconectadas)
-    conexao = conexao.sem_contrato if params.key?(:sem_contrato)
+    conexao = conexao.bloqueado       if params.key?(:suspensas)
+    conexao = conexao.ativo           if params.key?(:ativas)
+    conexao = conexao.conectada       if params.key?(:conectadas)
+    conexao = conexao.desconectada    if params.key?(:desconectadas)
+    conexao = conexao.sem_contrato    if params.key?(:sem_contrato)
 
     @params = conexoes_params(params)
 
     @conexao_q = conexao.ransack(params[:conexao_q])
-    @conexoes = @conexao_q.result.includes(:pessoa).page(params[:conexoes_page])
+
+    @conexoes = @conexao_q
+      .result
+      .page(params[:conexoes_page])
+
+    @conexoes_status = Conexao.status_conexoes(@conexoes)
     respond_to do |format|
       format.html
       format.geojson
@@ -86,7 +97,7 @@ class ConexoesController < ApplicationController
         format.json { render :show, status: :created, location: @conexao }
       else
         format.html { render :new }
-        format.json { render json: @conexao.errors, status: :unprocessable_entity }
+        format.json { render json: @conexao.errors, status: :unprocessable_content }
       end
     end
   end
@@ -102,7 +113,7 @@ class ConexoesController < ApplicationController
         format.json { render :show, status: :ok, location: @conexao }
       else
         format.html { render :edit }
-        format.json { render json: @conexao.errors, status: :unprocessable_entity }
+        format.json { render json: @conexao.errors, status: :unprocessable_content }
       end
     end
   end
@@ -132,8 +143,8 @@ class ConexoesController < ApplicationController
 
   def set_caixas
     @caixas = @conexao.ponto.caixas
-                      .joins(:fibra_rede, :ponto)
-                      .order('pontos.nome, fibra_caixas.nome').all
+      .joins(:fibra_rede, :ponto)
+      .order('pontos.nome, fibra_caixas.nome').all
   end
 
   def set_scope

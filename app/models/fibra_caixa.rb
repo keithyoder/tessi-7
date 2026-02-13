@@ -30,6 +30,6 @@ class FibraCaixa < ApplicationRecord
   belongs_to :logradouro, optional: true
   has_one :ponto, through: :fibra_rede
   has_many :conexoes, foreign_key: :caixa_id
-  enum fibra_cor: %i[verde amarela branca azul vermelha
-                     violeta marrom rosa preta cinza laranja aqua]
+  enum :fibra_cor, { verde: 0, amarela: 1, branca: 2, azul: 3, vermelha: 4, violeta: 5, marrom: 6,
+                     rosa: 7, preta: 8, cinza: 9, laranja: 10, aqua: 11 }
 end

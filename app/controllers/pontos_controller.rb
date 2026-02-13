@@ -11,7 +11,17 @@ class PontosController < ApplicationController
   def index
     @q = Ponto.ransack(params[:q])
     @q.sorts = 'nome'
-    @pontos = @q.result.page params[:page]
+
+    @pontos = @q.result
+      .left_joins(:conexoes)
+      .select(
+        'pontos.*',
+        'COUNT(conexoes.id) AS conexoes_count',
+        'COUNT(CASE WHEN conexoes.bloqueado THEN 1 END) AS bloqueadas_count'
+      )
+      .group('pontos.id')
+      .includes(:servidor) # fixes Servidor N+1
+      .page(params[:page])
     respond_to do |format|
       format.html
       format.csv do
@@ -31,8 +41,16 @@ class PontosController < ApplicationController
   # GET /pontos/1
   # GET /pontos/1.json
   def show
-    @conexao_q = @ponto.conexoes.order(:ip).ransack(params[:conexao_q])
-    @conexoes = @conexao_q.result.page params[:conexoes_page]
+    @conexao_q = @ponto
+      .conexoes
+      .includes(:pessoa, :plano)
+      .order(:ip)
+      .ransack(params[:conexao_q])
+
+    @conexoes = @conexao_q.result.page(params[:conexoes_page])
+    @conexoes_status = Conexao.status_conexoes(@conexoes)
+
+    @ponto = Ponto.includes(device: :equipamento).find(params[:id])
     @autenticacoes = @ponto.autenticacoes
     @ips = @ponto.ipv4_disponiveis if params.key?(:ipv4)
     @params = conexoes_params(params)

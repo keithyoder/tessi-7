@@ -125,13 +125,13 @@ class Conexao < ApplicationRecord
 
     select("#{table_name}.*, #{sanitize_sql_array([distance_sql, lat, lng, lat])} AS distancia")
       .includes(:ponto)
-      .order('distancia')
+      .order(:distancia)
       .limit(20)
   }
 
   scope :para_logradouro, lambda { |logradouro_id|
     left_joins(:pessoa).where(
-      <<~SQL,
+      <<~SQL.squish,
         conexoes.logradouro_id = :id
         OR (
           conexoes.logradouro_id IS NULL
@@ -168,7 +168,7 @@ class Conexao < ApplicationRecord
     CSV.generate(headers: true) do |csv|
       csv << attributes
 
-      all.find_each do |conexao|
+      find_each do |conexao|
         csv << [
           conexao.id,
           conexao.pessoa.nome,
@@ -204,7 +204,7 @@ class Conexao < ApplicationRecord
 
   def conectado
     rad_accts.where('AcctStartTime > ? and AcctStopTime is null', 2.days.ago)
-      .count.positive?
+      .any?
   end
 
   def link_google_maps

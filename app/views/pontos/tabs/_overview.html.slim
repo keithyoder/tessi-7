@@ -45,7 +45,7 @@
                 .col-12
                   .d-flex.justify-content-between.align-items-center
                     span.text-muted Firmware
-                    span.fw-medium = device.firmware
+                    span.fw-medium = format_firmware(device.firmware)
               - if device.last_seen_at.present?
                 .col-12
                   .d-flex.justify-content-between.align-items-center

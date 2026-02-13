@@ -12,11 +12,25 @@ class FibraCaixasController < ApplicationController
 
   # GET /fibra_caixas/1
   def show
-    @q = @fibra_caixa.conexoes.ransack(params[:q])
+    @q = @fibra_caixa
+      .conexoes
+      .includes(
+        :pessoa,
+        :plano,
+        :ponto,
+        :equipamento
+      )
+      .ransack(params[:q])
+
     @q.sorts = 'ip' if @q.sorts.empty?
 
     @params = conexoes_params(params)
-    @conexoes = @q.result.page(params[:conexoes_page])
+
+    @conexoes = @q
+      .result
+      .page(params[:conexoes_page])
+
+    @conexoes_status = Conexao.status_conexoes(@conexoes)
   end
 
   # GET /fibra_caixas/new

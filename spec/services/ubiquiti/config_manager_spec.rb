@@ -74,14 +74,13 @@ RSpec.describe Ubiquiti::ConfigManager do
   end
 
   describe '#upload_config' do
-    it 'uploads the serialized config, persists, and reboots' do
+    it 'uploads the serialized config, persists, and reboots', :aggregate_failures do
       ssh = instance_double(Net::SSH::Connection::Session)
       scp = instance_double(Net::SCP)
 
       allow(Net::SSH).to receive(:start).and_yield(ssh)
-      allow(ssh).to receive(:scp).and_return(scp)
       allow(scp).to receive(:upload!)
-      allow(ssh).to receive(:exec!).and_return('')
+      allow(ssh).to receive_messages(scp: scp, exec!: '')
 
       manager.upload_config(parsed_config)
 
@@ -102,9 +101,8 @@ RSpec.describe Ubiquiti::ConfigManager do
       ssh = instance_double(Net::SSH::Connection::Session)
       scp = instance_double(Net::SCP)
 
-      allow(ssh).to receive(:scp).and_return(scp)
       allow(scp).to receive(:upload!)
-      allow(ssh).to receive(:exec!).and_return('')
+      allow(ssh).to receive_messages(scp: scp, exec!: '')
 
       allow(Net::SSH).to receive(:start).and_yield(ssh)
 

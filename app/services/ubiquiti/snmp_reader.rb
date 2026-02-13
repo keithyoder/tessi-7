@@ -16,7 +16,7 @@ module Ubiquiti
       firmware: '1.2.840.10036.3.1.2.1.4.5',
       sys_descr: '1.3.6.1.2.1.1.1.0',
       mac: '1.3.6.1.2.1.2.2.1.6.2',
-      mac_ubnt: '1.3.6.1.4.1.41112.1.4.5.1.4.1'
+      mac_ubnt: 'SNMPv2-SMI::enterprises.41112.1.4.5.1.4.1'
     }.freeze
 
     COMMUNITY = Provisioner::SNMP_COMMUNITY
@@ -107,20 +107,52 @@ module Ubiquiti
         oid_key = OIDS.key(vb.name.to_s)
         next unless oid_key
 
-        result[oid_key] = vb.value
+        result[oid_key] = if %i[mac mac_ubnt].include?(oid_key)
+                            vb.value
+                          else
+                            vb.value.to_s
+                          end
       end
       result
     end
 
     def resolve_mac(result)
-      format_mac_value(result[:mac]) || format_mac_value(result[:mac_ubnt])
+      raw_mac = result[:mac]
+      raw_ubnt = result[:mac_ubnt]
+
+      Rails.logger.info do
+        "[SNMP] #{device.ip} MAC raw - IF-MIB: #{raw_mac.inspect} bytes: #{raw_mac&.to_s&.bytes&.inspect} class: #{raw_mac.class}"
+      end
+      Rails.logger.debug do
+        "[SNMP] #{device.ip} MAC raw - UBNT: #{raw_ubnt.inspect} bytes: #{raw_ubnt&.to_s&.bytes&.inspect} class: #{raw_ubnt.class}"
+      end
+
+      mac = format_mac_value(raw_mac)
+      if mac
+        Rails.logger.info { "[SNMP] #{device.ip} MAC resolved from IF-MIB: #{mac}" }
+        return mac
+      end
+
+      Rails.logger.info { "[SNMP] #{device.ip} IF-MIB MAC invalid, trying UBNT OID" }
+
+      mac_ubnt = format_mac_value(raw_ubnt)
+      if mac_ubnt
+        Rails.logger.info { "[SNMP] #{device.ip} MAC resolved from UBNT OID: #{mac_ubnt}" }
+        return mac_ubnt
+      end
+
+      Rails.logger.warn("[SNMP] #{device.ip} No valid MAC found from either OID")
+      nil
     end
 
-    def format_mac_value(value)
-      return nil if value.nil?
+    # def resolve_mac(result)
+    #   format_mac_value(result[:mac]) || format_mac_value(result[:mac_ubnt])
+    # end
 
+    def format_mac_value(value)
       bytes = value.to_s.bytes
       return nil if bytes.length != 6
+      return nil if bytes.all?(&:zero?)
 
       bytes.map { |b| '%02X' % b }.join(':')
     end

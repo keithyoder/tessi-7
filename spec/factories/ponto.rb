@@ -20,8 +20,8 @@ FactoryBot.define do
     # Trait para pontos de rádio
     trait :radio do
       tecnologia { :Radio }
-      sistema { 'MikroTik RouterOS' }
-      equipamento { 'RB912UAG-5HPnD' }
+      sistema { :Ubnt }
+      equipamento { 'NanoStation loco M5' }
       sequence(:nome) { |n| "Torre Radio #{n}" }
     end
 

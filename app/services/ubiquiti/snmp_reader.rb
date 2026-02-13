@@ -117,37 +117,8 @@ module Ubiquiti
     end
 
     def resolve_mac(result)
-      raw_mac = result[:mac]
-      raw_ubnt = result[:mac_ubnt]
-
-      Rails.logger.info do
-        "[SNMP] #{device.ip} MAC raw - IF-MIB: #{raw_mac.inspect} bytes: #{raw_mac&.to_s&.bytes&.inspect} class: #{raw_mac.class}"
-      end
-      Rails.logger.debug do
-        "[SNMP] #{device.ip} MAC raw - UBNT: #{raw_ubnt.inspect} bytes: #{raw_ubnt&.to_s&.bytes&.inspect} class: #{raw_ubnt.class}"
-      end
-
-      mac = format_mac_value(raw_mac)
-      if mac
-        Rails.logger.info { "[SNMP] #{device.ip} MAC resolved from IF-MIB: #{mac}" }
-        return mac
-      end
-
-      Rails.logger.info { "[SNMP] #{device.ip} IF-MIB MAC invalid, trying UBNT OID" }
-
-      mac_ubnt = format_mac_value(raw_ubnt)
-      if mac_ubnt
-        Rails.logger.info { "[SNMP] #{device.ip} MAC resolved from UBNT OID: #{mac_ubnt}" }
-        return mac_ubnt
-      end
-
-      Rails.logger.warn("[SNMP] #{device.ip} No valid MAC found from either OID")
-      nil
+      format_mac_value(result[:mac]) || format_mac_value(result[:mac_ubnt])
     end
-
-    # def resolve_mac(result)
-    #   format_mac_value(result[:mac]) || format_mac_value(result[:mac_ubnt])
-    # end
 
     def format_mac_value(value)
       bytes = value.to_s.bytes

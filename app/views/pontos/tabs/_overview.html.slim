@@ -17,7 +17,7 @@
                 = link_to "http://#{ponto.ip}", target: '_blank', class: "text-decoration-none fw-medium" do
                   = ponto.ip
                   i.bi.bi-box-arrow-up-right.ms-1.small
-            
+
             - if ponto.ipv6.present?
               .col-12
                 .d-flex.justify-content-between.align-items-center
@@ -25,17 +25,42 @@
                   = link_to "http://[#{ponto.ipv6}]", target: '_blank', class: "text-decoration-none fw-medium" do
                     = ponto.ipv6
                     i.bi.bi-box-arrow-up-right.ms-1.small
-            
-            .col-12
-              .d-flex.justify-content-between.align-items-center
-                span.text-muted Usuário
-                code.bg-light.px-2.py-1.rounded = ponto.usuario
-            
-            .col-12
-              .d-flex.justify-content-between.align-items-center
-                span.text-muted Senha
-                code.bg-light.px-2.py-1.rounded = ponto.senha || "••••••••"
-    
+
+            - device = ponto.device
+            - if device
+              .col-12
+                .d-flex.justify-content-between.align-items-center
+                  span.text-muted Usuário
+                  code.bg-light.px-2.py-1.rounded = device.effective_user
+              .col-12
+                .d-flex.justify-content-between.align-items-center
+                  span.text-muted Senha
+                  code.bg-light.px-2.py-1.rounded = device.effective_password || "••••••••"
+              - if device.mac.present?
+                .col-12
+                  .d-flex.justify-content-between.align-items-center
+                    span.text-muted MAC
+                    code.bg-light.px-2.py-1.rounded = device.mac
+              - if device.firmware.present?
+                .col-12
+                  .d-flex.justify-content-between.align-items-center
+                    span.text-muted Firmware
+                    span.fw-medium = device.firmware
+              - if device.last_seen_at.present?
+                .col-12
+                  .d-flex.justify-content-between.align-items-center
+                    span.text-muted Último SNMP
+                    span.fw-medium = l(device.last_seen_at, format: :short)
+            - else
+              .col-12
+                .d-flex.justify-content-between.align-items-center
+                  span.text-muted Usuário
+                  code.bg-light.px-2.py-1.rounded = ponto.usuario
+              .col-12
+                .d-flex.justify-content-between.align-items-center
+                  span.text-muted Senha
+                  code.bg-light.px-2.py-1.rounded = ponto.senha || "••••••••"
+
     / Technology-Specific Information
     - if ponto.tecnologia_Radio?
       .col-lg-6
@@ -46,29 +71,70 @@
               | Configuração Rádio
           .card-body
             .row.g-3
-              - if ponto.ssid.present?
-                .col-12
-                  .d-flex.justify-content-between.align-items-center
-                    span.text-muted SSID
-                    span.fw-medium = ponto.ssid
-              
-              - if ponto.frequencia.present?
-                .col-12
-                  .d-flex.justify-content-between.align-items-center
-                    span.text-muted Frequência
-                    span.fw-medium = "#{ponto.frequencia} MHz"
-              
-              - if ponto.canal_tamanho.present?
-                .col-12
-                  .d-flex.justify-content-between.align-items-center
-                    span.text-muted Largura do Canal
-                    span.fw-medium = "#{ponto.canal_tamanho} MHz"
-              
-              - if ponto.equipamento.present?
-                .col-12
-                  .d-flex.justify-content-between.align-items-center
-                    span.text-muted Equipamento
-                    span.fw-medium = ponto.equipamento
+              - device = ponto.device
+              - if device
+                - if device.ssid.present?
+                  .col-12
+                    .d-flex.justify-content-between.align-items-center
+                      span.text-muted SSID
+                      span.fw-medium = device.ssid
+
+                - if device.frequencia.present?
+                  .col-12
+                    .d-flex.justify-content-between.align-items-center
+                      span.text-muted Frequência
+                      span.fw-medium = "#{device.frequencia} MHz"
+
+                - if device.canal_tamanho.present?
+                  .col-12
+                    .d-flex.justify-content-between.align-items-center
+                      span.text-muted Largura do Canal
+                      span.fw-medium = "#{device.canal_tamanho} MHz"
+
+                - if device.signal.present?
+                  .col-12
+                    .d-flex.justify-content-between.align-items-center
+                      span.text-muted Sinal / Ruído
+                      span.fw-medium = "#{device.signal} / #{device.noise} dBm"
+
+                - if device.conectados.present?
+                  .col-12
+                    .d-flex.justify-content-between.align-items-center
+                      span.text-muted Conectados
+                      span.fw-medium = device.conectados
+
+                - if device.equipamento.present?
+                  .col-12
+                    .d-flex.justify-content-between.align-items-center
+                      span.text-muted Equipamento
+                      span.fw-medium = device.equipamento.descricao
+
+              - else
+                / Fallback to ponto fields until devices are fully populated
+                - if ponto.ssid.present?
+                  .col-12
+                    .d-flex.justify-content-between.align-items-center
+                      span.text-muted SSID
+                      span.fw-medium = ponto.ssid
+
+                - if ponto.frequencia.present?
+                  .col-12
+                    .d-flex.justify-content-between.align-items-center
+                      span.text-muted Frequência
+                      span.fw-medium = "#{ponto.frequencia} MHz"
+
+                - if ponto.canal_tamanho.present?
+                  .col-12
+                    .d-flex.justify-content-between.align-items-center
+                      span.text-muted Largura do Canal
+                      span.fw-medium = "#{ponto.canal_tamanho} MHz"
+
+                - if ponto.equipamento.present?
+                  .col-12
+                    .d-flex.justify-content-between.align-items-center
+                      span.text-muted Equipamento
+                      span.fw-medium = ponto.equipamento
+
     - else
       .col-lg-6
         .card.border-0.shadow-sm.h-100
@@ -89,7 +155,7 @@
                   .d-flex.align-items-center.gap-2
                     span.fw-medium = ponto.redes.count
                     i.bi.bi-chevron-down.small
-              
+
               / Collapsible Redes List
               .col-12
                 .collapse#redesCollapse
@@ -107,12 +173,12 @@
                       .text-center.text-muted.py-3
                         i.bi.bi-inbox.d-block.mb-2.opacity-50
                         .small Nenhuma rede configurada
-              
+
               .col-12
                 .d-flex.justify-content-between.align-items-center
                   span.text-muted Caixas
                   span.fw-medium = ponto.caixas.count
-              
+
               - if ponto.equipamento.present?
                 .col-12
                   .d-flex.justify-content-between.align-items-center

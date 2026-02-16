@@ -1,5 +1,20 @@
 # frozen_string_literal: true
 
+# == Schema Information
+#
+# Table name: ip_redes
+#
+#  id         :bigint           not null, primary key
+#  rede       :inet
+#  subnet     :integer
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#  ponto_id   :bigint
+#
+# Indexes
+#
+#  index_ip_redes_on_ponto_id  (ponto_id)
+#
 require 'rails_helper'
 
 RSpec.describe IpRede do

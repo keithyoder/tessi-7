@@ -1,0 +1,26 @@
+/ app/views/device_backups/show.html.slim
+h1 Backup - #{@device.name}
+p
+  = l(@backup.created_at, format: :long)
+  |  · 
+  code = @backup.checksum.first(12)
+
+.mb-3
+  = link_to '← Voltar', @device.deviceable
+  |  
+  = link_to 'Download .cfg', download_device_backup_path(@device, @backup), data: { turbo: false }
+
+- if @config_hash
+  table
+    thead
+      tr
+        th Chave
+        th Valor
+    tbody
+      - @config_hash.each do |key, value|
+        tr
+          td
+            code = key
+          td = value
+- else
+  pre = @config

@@ -14,7 +14,7 @@ table
         td
           code = backup.checksum.first(12)
         td
-          = link_to 'Ver', ponto_ubiquiti_backup_path(@ponto, backup)
-          = link_to 'Download .cfg', download_ponto_ubiquiti_backup_path(@ponto, backup), data: { turbo: false }
+          = link_to 'Ver', device_backup_path(@device, backup)
+          = link_to 'Download .cfg', download_device_backup_path(@device, backup), data: { turbo: false }
 
 = paginate @backups

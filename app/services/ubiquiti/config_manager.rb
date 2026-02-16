@@ -26,11 +26,11 @@ module Ubiquiti
       Net::SCP.start(host, user, ssh_options) do |scp|
         content = scp.download!(CONFIG_PATH)
       end
-      parse_config(content)
+      ConfigParser.to_hash(content)
     end
 
     def upload_config(config_hash)
-      config_content = serialize_config(config_hash)
+      config_content = ConfigParser.to_text(config_hash)
 
       Net::SSH.start(host, user, ssh_options) do |ssh|
         ssh.scp.upload!(StringIO.new(config_content), CONFIG_PATH)
@@ -44,22 +44,6 @@ module Ubiquiti
 
     def ssh_options
       SSH_OPTIONS.merge(password: password)
-    end
-
-    def parse_config(content)
-      config = {}
-      content.each_line do |line|
-        line.strip!
-        next if line.empty? || line.start_with?('#')
-
-        key, value = line.split('=', 2)
-        config[key] = value
-      end
-      config
-    end
-
-    def serialize_config(config_hash)
-      "#{config_hash.map { |k, v| "#{k}=#{v}" }.join("\n")}\n"
     end
   end
 end

@@ -58,7 +58,7 @@ class Ability
   def tecnico_n1_permissions
     can :update, FibraCaixa
     can %i[create update], Conexao
-    can :download, UbiquitiBackup
+    can :download, DeviceBackup
   end
 
   # Level 2 technician
@@ -67,7 +67,7 @@ class Ability
     can %i[create update], [FibraRede, FibraCaixa, IpRede, Conexao, Equipamento]
     can :destroy, [Conexao, IpRede]
     can %i[backup backups], Servidor
-    can :download, UbiquitiBackup
+    can :download, DeviceBackup
   end
 
   # Level 1 financial

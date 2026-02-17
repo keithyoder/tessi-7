@@ -339,6 +339,15 @@ pt-BR:
       notice: "Plano atualizado com sucesso."
     destroy:
       notice: "Plano removido com sucesso."
+  pontos:
+    snmp:
+      sucesso: Varredura SNMP iniciada.
+    create:
+      sucesso: Ponto criado com sucesso.
+    update:
+      sucesso: Ponto atualizado com sucesso.
+    destroy:
+      sucesso: Ponto removido com sucesso.
   retornos:
     create:
       notice: "Retorno criado com sucesso."

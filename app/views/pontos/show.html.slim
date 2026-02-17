@@ -23,6 +23,12 @@
               = link_to @ponto.servidor.nome, @ponto.servidor, class: "text-decoration-none"
           
           .d-flex.gap-2.mt-3.mt-md-0
+            = link_to ponto_path(@ponto, format: :kml), class: 'btn btn-outline-secondary btn-sm', data: { turbo: false }
+              i.bi.bi-download.me-1
+              | KML
+            = link_to ponto_path(@ponto, format: :geojson), class: 'btn btn-outline-secondary btn-sm', data: { turbo: false }
+              i.bi.bi-download.me-1
+              | GeoJSON
             = back_button(pontos_path)
             = edit_button(@ponto)
             = delete_button(@ponto)

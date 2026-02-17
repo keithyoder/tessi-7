@@ -1,0 +1,44 @@
+/ app/views/pontos/_form.html.slim
+= simple_form_for(@ponto) do |f|
+  = f.error_notification
+  = f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present?
+
+  .card.border-0.shadow-sm.mb-4
+    .card-body.p-4
+      h6.text-muted.text-uppercase.fw-semibold.mb-3.small Identificação
+      .row.g-3
+        .col-12.col-md-4
+          = f.input :nome, input_html: { autofocus: true, placeholder: 'Nome do ponto' }
+        .col-12.col-sm-6.col-md-4
+          = f.input :sistema, collection: Ponto.sistemas.keys, include_blank: 'Selecione'
+        .col-12.col-sm-6.col-md-4
+          = f.input :tecnologia, collection: Ponto.tecnologias.keys, include_blank: 'Selecione'
+
+  .card.border-0.shadow-sm.mb-4
+    .card-body.p-4
+      h6.text-muted.text-uppercase.fw-semibold.mb-3.small Rede
+      .row.g-3
+        .col-12.col-md-4
+          = f.association :servidor, collection: Servidor.ativo.order(:nome), label_method: :nome, include_blank: 'Selecione'
+        .col-12.col-sm-6.col-md-4
+          = f.input :ip, as: :string, input_html: { placeholder: '10.0.0.1' }
+        .col-12.col-sm-6.col-md-4
+          = f.input :ipv6, as: :string, input_html: { placeholder: '::1' }
+
+  .card.border-0.shadow-sm.mb-4
+    .card-body.p-4
+      h6.text-muted.text-uppercase.fw-semibold.mb-3.small Dispositivo
+      .row.g-3
+        .col-12.col-md-6
+          = f.input :device_id, collection: @available_devices, label: 'Dispositivo', \
+                    label_method: :label_for_select, value_method: :id, \
+                    include_blank: 'Nenhum', input_html: { class: 'form-select' }
+
+  .d-flex.justify-content-between.align-items-center
+      - if @ponto.persisted?
+        = link_to 'Cancelar', ponto_path(@ponto), class: 'btn btn-outline-secondary'
+      - else
+        = link_to 'Cancelar', pontos_path, class: 'btn btn-outline-secondary'
+      = button_tag class: 'btn btn-primary px-4'
+        i.bi.bi-check-lg.me-1
+        |  Salvar

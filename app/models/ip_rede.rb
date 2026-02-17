@@ -6,7 +6,7 @@
 #
 #  id         :bigint           not null, primary key
 #  rede       :inet
-#  subnet     :integer          # deprecated - prefixo agora é armazenado na coluna rede
+#  subnet     :integer
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #  ponto_id   :bigint
@@ -106,6 +106,21 @@ class IpRede < ApplicationRecord
 
   # Mantém compatibilidade com código legado que usa `family`
   alias family familia
+
+  def self.agrupar_conexoes(ip_redes, conexoes)
+    ip_redes.each_with_object({}) do |rede, hash|
+      next unless rede.rede
+
+      cidr_range = rede.rede
+      hash[rede.id] = conexoes.select do |conexao|
+        conexao.ip && cidr_range.include?(conexao.ip)
+      rescue IPAddr::InvalidAddressError
+        false
+      end
+    rescue IPAddr::InvalidAddressError
+      hash[rede.id] = []
+    end
+  end
 
   private
 

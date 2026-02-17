@@ -45,11 +45,11 @@ class Ponto < ApplicationRecord
   scope :radio, -> { where(tecnologia: :Radio) }
 
   # Ransack configuration
-  RANSACK_ATTRIBUTES = %w[nome ssid ip_string].freeze
+  RANSACK_ATTRIBUTES = %w[nome ssid ip_string tecnologia].freeze
   RANSACK_ASSOCIATIONS = %w[servidor].freeze
 
   ransacker :ip_string do
-    Arel.sql('ip::text')
+    Arel.sql('pontos.ip::text')
   end
 
   # Enums
@@ -155,5 +155,19 @@ class Ponto < ApplicationRecord
 
   def to_s
     nome
+  end
+
+  def device_id
+    device&.id
+  end
+
+  def device_id=(id)
+    # Unlink current device if any
+    device&.update!(deviceable: nil)
+
+    return if id.blank?
+
+    Device.find(id).update!(deviceable: self)
+    reload_device
   end
 end

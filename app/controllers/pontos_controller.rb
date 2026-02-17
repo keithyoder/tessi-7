@@ -3,14 +3,15 @@
 class PontosController < ApplicationController
   include ConexoesHelper
 
-  before_action :set_ponto, only: %i[show edit update destroy]
-  load_and_authorize_resource
+  authorize_resource
+  before_action :set_ponto, only: %i[edit update destroy]
+  before_action :set_ponto_with_details, only: %i[show]
+  before_action :set_available_devices, only: %i[new edit create update]
 
-  # GET /pontos
-  # GET /pontos.json
   def index
     @q = Ponto.ransack(params[:q])
     @q.sorts = 'nome'
+    @search_params = params[:q]&.to_unsafe_h || {}
 
     @pontos = @q.result
       .left_joins(:conexoes)
@@ -20,26 +21,15 @@ class PontosController < ApplicationController
         'COUNT(CASE WHEN conexoes.bloqueado THEN 1 END) AS bloqueadas_count'
       )
       .group('pontos.id')
-      .includes(:servidor) # fixes Servidor N+1
+      .includes(:servidor)
       .page(params[:page])
-    respond_to do |format|
-      format.html
-      format.csv do
-        send_data @pontos.except(:limit, :offset).to_csv, filename: "pontos-#{Time.zone.today}.csv"
-      end
-    end
   end
 
   def snmp
     AtualizarConcentradoresEPontosJob.perform_later
-    respond_to do |format|
-      format.html { redirect_to pontos_url, notice: 'Varredura SNMP inicada.' }
-      format.json { head :no_content }
-    end
+    redirect_to pontos_url, notice: t('.sucesso')
   end
 
-  # GET /pontos/1
-  # GET /pontos/1.json
   def show
     @conexao_q = @ponto
       .conexoes
@@ -49,120 +39,77 @@ class PontosController < ApplicationController
 
     @conexoes = @conexao_q.result.page(params[:conexoes_page])
     @conexoes_status = Conexao.status_conexoes(@conexoes)
-
-    @ponto = Ponto.includes(device: :equipamento).find(params[:id])
     @autenticacoes = @ponto.autenticacoes
     @ips = @ponto.ipv4_disponiveis if params.key?(:ipv4)
     @params = conexoes_params(params)
+
     respond_to do |format|
-      format.html # show.html.erb
+      format.html
       format.kml
       format.geojson
-      if params.key?(:ipv4)
-        format.json { render json: @ips }
-      else
-        format.json
-      end
     end
   end
 
-  # GET /pontos/new
   def new
     @ponto = Ponto.new
   end
 
-  # GET /pontos/1/edit
   def edit; end
 
-  # POST /pontos
-  # POST /pontos.json
   def create
     @ponto = Ponto.new(ponto_params)
 
-    respond_to do |format|
-      if @ponto.save
-        format.html { redirect_to @ponto, notice: 'Ponto was successfully created.' }
-        format.json { render :show, status: :created, location: @ponto }
-      else
-        format.html { render :new }
-        format.json { render json: @ponto.errors, status: :unprocessable_content }
-      end
+    if @ponto.save
+      redirect_to @ponto, notice: t('.sucesso')
+    else
+      render :new, status: :unprocessable_content
     end
   end
 
-  # PATCH/PUT /pontos/1
-  # PATCH/PUT /pontos/1.json
   def update
-    respond_to do |format|
-      if @ponto.update(ponto_params)
-        format.html { redirect_to @ponto, notice: 'Ponto was successfully updated.' }
-        format.json { render :show, status: :ok, location: @ponto }
-      else
-        format.html { render :edit }
-        format.json { render json: @ponto.errors, status: :unprocessable_content }
-      end
+    if @ponto.update(ponto_params)
+      redirect_to @ponto, notice: t('.sucesso')
+    else
+      render :edit, status: :unprocessable_content
     end
   end
 
-  # DELETE /pontos/1
-  # DELETE /pontos/1.json
   def destroy
     @ponto.destroy
-    respond_to do |format|
-      format.html { redirect_to pontos_url, notice: 'Ponto was successfully destroyed.' }
-      format.json { head :no_content }
-    end
+    redirect_to pontos_url, notice: t('.sucesso')
   end
 
   private
 
-  # Use callbacks to share common setup or constraints between actions.
   def set_ponto
+    @ponto = Ponto.find(params[:id])
+  end
+
+  def set_ponto_with_details
     @ponto = Ponto.includes(
       :servidor,
       :redes,
       :caixas,
       :ip_redes,
+      device: :equipamento,
       conexoes: %i[pessoa plano]
     ).find(params[:id])
 
-    # Group conexoes by IP range for efficient lookup
-    if @ponto.ip_redes.loaded? && @ponto.conexoes.loaded?
-      @conexoes_by_rede = group_conexoes_by_ip_rede(@ponto.ip_redes, @ponto.conexoes)
-    end
+    return unless @ponto.ip_redes.loaded? && @ponto.conexoes.loaded?
 
-    # Batch check connection status (prevents N+1 on rad_accts)
-    return unless @ponto.conexoes.loaded?
-
+    @conexoes_by_rede = IpRede.agrupar_conexoes(@ponto.ip_redes, @ponto.conexoes)
     @conexoes_status = Conexao.status_conexoes(@ponto.conexoes)
   end
 
-  def group_conexoes_by_ip_rede(ip_redes, conexoes)
-    ip_redes.each_with_object({}) do |rede, hash|
-      next unless rede.cidr
-
-      begin
-        cidr_range = IPAddr.new(rede.cidr)
-
-        hash[rede.id] = conexoes.select do |conexao|
-          next false unless conexao.ip
-
-          begin
-            cidr_range.include?(IPAddr.new(conexao.ip.to_s))
-          rescue IPAddr::InvalidAddressError
-            false
-          end
-        end
-      rescue IPAddr::InvalidAddressError
-        hash[rede.id] = []
-      end
-    end
-  end
-
-  # Never trust parameters from the scary internet, only allow the white list through.
   def ponto_params
     params.require(:ponto).permit(
-      :nome, :sistema, :tecnologia, :servidor_id, :ip, :usuario, :senha, :equipamento, :ipv6
+      :nome, :sistema, :tecnologia, :servidor_id, :ip, :ipv6, :device_id
     )
+  end
+
+  def set_available_devices
+    devices = Device.unlinked.order(:mac)
+    devices = devices.or(Device.where(id: @ponto.device&.id)) if @ponto&.device
+    @available_devices = devices
   end
 end

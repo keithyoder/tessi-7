@@ -28,15 +28,13 @@ class ConexoesController < ApplicationController
 
     @conexao_q = conexao.ransack(params[:conexao_q])
 
-    @conexoes = @conexao_q
-      .result
-      .page(params[:conexoes_page])
+    @pagy_conexoes, @conexoes = pagy(@conexao_q.result, page_param: :conexoes_page)
 
     @conexoes_status = Conexao.status_conexoes(@conexoes)
     respond_to do |format|
       format.html
       format.geojson
-      format.csv { send_data @conexoes.except(:limit, :offset).to_csv, filename: "conexoes-#{Time.zone.today}.csv" }
+      format.csv { send_data @conexao_q.result.to_csv, filename: "conexoes-#{Time.zone.today}.csv" }
     end
   end
 

@@ -22,15 +22,12 @@ class PessoasController < ApplicationController
 
     @params = (@params || {}).merge(pessoa_id: @pessoa)
 
-    @conexoes = @pessoa
-      .conexoes
-      .includes(
-        :pessoa,
-        :plano,
-        :ponto,
-        :equipamento
-      )
-      .page(params[:conexoes_page])
+    @pagy_conexoes, @conexoes = pagy(
+      @pessoa
+        .conexoes
+        .includes(:pessoa, :plano, :ponto, :equipamento),
+      page_param: :conexoes_page
+    )
 
     @conexoes_status = Conexao.status_conexoes(@conexoes)
 

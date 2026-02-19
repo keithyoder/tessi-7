@@ -104,4 +104,16 @@ module ApplicationHelper
       concat text
     end
   end
+
+  def form_actions(object)
+    cancel_path = object.persisted? ? polymorphic_path(object) : polymorphic_path(object.class)
+
+    content_tag(:div, class: 'd-flex justify-content-between align-items-center') do
+      concat link_to('Cancelar', cancel_path, class: 'btn btn-outline-secondary')
+      concat button_tag(class: 'btn btn-primary px-4') {
+        concat content_tag(:i, '', class: 'bi bi-check-lg me-1')
+        concat ' Salvar'
+      }
+    end
+  end
 end

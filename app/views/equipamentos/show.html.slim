@@ -1,0 +1,30 @@
+.card
+  = render 'shared/show_header', object: @equipamento, titulo: "Equipamento #{@equipamento.descricao}"
+
+  .card-body
+    .row.g-3
+      .col-md-4
+        .card.h-100
+          .card-body
+            p.text-muted.small.mb-1 Fabricante
+            p.fw-semibold.mb-0 = @equipamento.fabricante
+
+      .col-md-4
+        .card.h-100
+          .card-body
+            p.text-muted.small.mb-1 Modelo
+            p.fw-semibold.mb-0 = @equipamento.modelo
+
+      .col-md-4
+        .card.h-100
+          .card-body
+            p.text-muted.small.mb-1 Tipo
+            p.fw-semibold.mb-0 = @equipamento.tipo
+
+    - if @equipamento.imagem.attached?
+      .row.g-3.mt-1
+        .col-md-6
+          .card
+            .card-header.fw-semibold Imagem
+            .card-body.text-center
+              = image_tag @equipamento.imagem, class: 'img-fluid rounded'

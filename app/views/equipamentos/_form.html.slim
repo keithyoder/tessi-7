@@ -10,9 +10,12 @@
     .row
       .col
         = f.input :tipo, collection: Equipamento.tipos.keys
-      .col
-        = f.file_field :imagem
-  .form-actions
-    = button_tag(:class => "btn btn-primary") do
-      i.fas.fa-save aria-hidden="true" 
-      | &nbsp; Salvar
+      .col-md-6
+        = f.label :imagem, class: 'form-label'
+        = f.file_field :imagem, class: 'form-control'
+        = f.label :imagem_url, 'Ou cole uma URL', class: 'form-label mt-2'
+        = f.text_field :imagem_url, class: 'form-control', placeholder: 'https://...'
+        - if @equipamento.imagem.attached?
+          .mt-2
+            = image_tag @equipamento.imagem, class: 'img-fluid rounded', style: 'max-height: 120px'
+  = form_actions(@equipamento)

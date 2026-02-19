@@ -41,6 +41,6 @@ class EquipamentosController < ApplicationController
 
   def equipamento_params
     params.require(:equipamento)
-      .permit(:fabricante, :modelo, :tipo, :imagem)
+      .permit(:fabricante, :modelo, :tipo, :imagem, :imagem_url)
   end
 end

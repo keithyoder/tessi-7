@@ -13,16 +13,17 @@ class PontosController < ApplicationController
     @q.sorts = 'nome'
     @search_params = params[:q]&.to_unsafe_h || {}
 
-    @pontos = @q.result
-      .left_joins(:conexoes)
-      .select(
-        'pontos.*',
-        'COUNT(conexoes.id) AS conexoes_count',
-        'COUNT(CASE WHEN conexoes.bloqueado THEN 1 END) AS bloqueadas_count'
-      )
-      .group('pontos.id')
-      .includes(:servidor)
-      .page(params[:page])
+    @pagy, @pontos = pagy(
+      @q.result
+        .left_joins(:conexoes)
+        .select(
+          'pontos.*',
+          'COUNT(conexoes.id) AS conexoes_count',
+          'COUNT(CASE WHEN conexoes.bloqueado THEN 1 END) AS bloqueadas_count'
+        )
+        .group('pontos.id')
+        .includes(:servidor)
+    )
   end
 
   def snmp
@@ -37,7 +38,7 @@ class PontosController < ApplicationController
       .order(:ip)
       .ransack(params[:conexao_q])
 
-    @conexoes = @conexao_q.result.page(params[:conexoes_page])
+    @pagy_conexoes, @conexoes = pagy(@conexao_q.result, page_param: :conexoes_page)
     @conexoes_status = Conexao.status_conexoes(@conexoes)
     @autenticacoes = @ponto.autenticacoes
     @ips = @ponto.ipv4_disponiveis if params.key?(:ipv4)

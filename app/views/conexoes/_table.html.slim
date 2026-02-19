@@ -48,4 +48,5 @@
               td= conexao.bloqueado.as_checkbox
               td= conexao.inadimplente.as_checkbox
               td= @conexoes_status[conexao.id].as_checkbox
-    = paginate @conexoes, params: @params.merge({tab: "conexoes"}), param_name: "conexoes_page" if defined?(@conexoes.total_pages)
+    == pagy_bootstrap_nav(@pagy_conexoes)
+    / = paginate @conexoes, params: @params.merge({tab: "conexoes"}), param_name: "conexoes_page" if defined?(@conexoes.total_pages)

@@ -1,4 +1,21 @@
 GIT
+  remote: https://github.com/kaminari/kaminari.git
+  revision: 55d6e40767442d206236d3718c5bdb32d01f2345
+  specs:
+    kaminari (1.2.2)
+      activesupport (>= 4.1.0)
+      kaminari-actionview (= 1.2.2)
+      kaminari-activerecord (= 1.2.2)
+      kaminari-core (= 1.2.2)
+    kaminari-actionview (1.2.2)
+      actionview
+      kaminari-core (= 1.2.2)
+    kaminari-activerecord (1.2.2)
+      activerecord
+      kaminari-core (= 1.2.2)
+    kaminari-core (1.2.2)
+
+GIT
   remote: https://github.com/keithyoder/autentique-ruby.git
   revision: 85dfc0686f6a281df356480f233449a7fa4430e5
   specs:
@@ -285,18 +302,6 @@ GEM
     json (2.18.1)
     jwt (3.1.2)
       base64
-    kaminari (1.2.2)
-      activesupport (>= 4.1.0)
-      kaminari-actionview (= 1.2.2)
-      kaminari-activerecord (= 1.2.2)
-      kaminari-core (= 1.2.2)
-    kaminari-actionview (1.2.2)
-      actionview
-      kaminari-core (= 1.2.2)
-    kaminari-activerecord (1.2.2)
-      activerecord
-      kaminari-core (= 1.2.2)
-    kaminari-core (1.2.2)
     language_server-protocol (3.17.0.5)
     lint_roller (1.1.0)
     logger (1.7.0)
@@ -361,6 +366,7 @@ GEM
     openssl (4.0.1)
     orm_adapter (0.5.0)
     ostruct (0.6.3)
+    pagy (9.4.0)
     parallel (1.27.0)
     parseline (1.0.3)
     parser (3.3.10.2)
@@ -660,7 +666,7 @@ DEPENDENCIES
   image_processing
   jbuilder
   jsbundling-rails
-  kaminari
+  kaminari!
   matrix
   mtik
   multipart-post
@@ -671,6 +677,7 @@ DEPENDENCIES
   nfcom!
   nokogiri
   oauth2
+  pagy (~> 9.3)
   pg (>= 1.6, < 2.0)
   phonelib
   prawn-qrcode

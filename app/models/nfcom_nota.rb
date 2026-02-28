@@ -2,30 +2,34 @@
 
 # == Schema Information
 #
-# Table name: nfcoms
+# Table name: nfcom_notas
 #
-#  id                :bigint           not null, primary key
-#  chave_acesso      :string(44)
-#  competencia       :date             not null
-#  data_autorizacao  :datetime
-#  mensagem_sefaz    :string
-#  numero            :integer          not null
-#  protocolo         :string(15)
-#  serie             :integer          default(1), not null
-#  status            :string           default("pending"), not null
-#  valor_total       :decimal(13, 2)
-#  xml_autorizado    :text
-#  created_at        :datetime         not null
-#  updated_at        :datetime         not null
-#  fatura_id         :bigint
+#  id               :bigint           not null, primary key
+#  chave_acesso     :string(44)
+#  competencia      :date             not null
+#  data_autorizacao :datetime
+#  mensagem_sefaz   :string
+#  numero           :integer          not null
+#  protocolo        :string(24)
+#  serie            :integer          default(1), not null
+#  status           :string           default("pending"), not null
+#  valor_total      :decimal(13, 2)
+#  xml_autorizado   :text
+#  created_at       :datetime         not null
+#  updated_at       :datetime         not null
+#  fatura_id        :bigint
 #
 # Indexes
 #
-#  index_nfcoms_on_chave_acesso     (chave_acesso) UNIQUE
-#  index_nfcoms_on_competencia      (competencia)
-#  index_nfcoms_on_fatura_id        (fatura_id)
-#  index_nfcoms_on_serie_and_numero (serie,numero) UNIQUE
-#  index_nfcoms_on_status           (status)
+#  index_nfcom_notas_on_chave_acesso      (chave_acesso) UNIQUE
+#  index_nfcom_notas_on_competencia       (competencia)
+#  index_nfcom_notas_on_fatura_id         (fatura_id)
+#  index_nfcom_notas_on_serie_and_numero  (serie,numero) UNIQUE
+#  index_nfcom_notas_on_status            (status)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (fatura_id => faturas.id)
 #
 class NfcomNota < ApplicationRecord
   belongs_to :fatura
@@ -91,6 +95,23 @@ class NfcomNota < ApplicationRecord
 
   def cancelar!
     update!(status: 'cancelled')
+  end
+
+  def retentar!
+    raise 'Apenas notas rejeitadas podem ser retentadas' unless status == 'rejected'
+
+    update!(
+      status: 'pending',
+      mensagem_sefaz: nil,
+      protocolo: nil,
+      chave_acesso: nil,
+      xml_autorizado: nil,
+      data_autorizacao: nil
+    )
+  end
+
+  def retentavel?
+    status == 'rejected'
   end
 
   def self.ransackable_attributes(_auth_object = nil)

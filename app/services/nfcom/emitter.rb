@@ -16,13 +16,29 @@ module Nfcom
     # Returns the NfcomNota record (with status: 'authorized' or 'rejected')
     def emitir(fatura_id)
       fatura = Fatura.com_associacoes.find(fatura_id)
+      corrigir_juros_desconto(fatura)
+      nfcom_record = criar_registro(fatura)
+      enviar(nfcom_record, fatura)
+    end
+
+    def retentar(nfcom_nota_id)
+      nfcom_record = NfcomNota.find(nfcom_nota_id)
+      raise 'Nota não está rejeitada' unless nfcom_record.retentavel?
+
+      fatura = Fatura.com_associacoes.find(nfcom_record.fatura_id)
+
+      raise 'Fatura já possui outra NFCom autorizada' if fatura.nfcom_notas
+        .where.not(id: nfcom_record.id)
+        .exists?(status: 'authorized')
 
       corrigir_juros_desconto(fatura)
+      nfcom_record.retentar!
+      enviar(nfcom_record, fatura)
+    end
 
-      # Create DB record first (reserves numero)
-      nfcom_record = criar_registro(fatura)
+    private
 
-      # Build gem Nota object
+    def enviar(nfcom_record, fatura)
       nota = build_nota(
         nfcom_record: nfcom_record,
         fatura: fatura,
@@ -30,10 +46,8 @@ module Nfcom
         pessoa: fatura.contrato.pessoa
       )
 
-      # Send to SEFAZ
       resultado = @client.autorizar(nota)
 
-      # Update record based on result
       if resultado[:autorizada]
         nfcom_record.autorizar!(
           protocolo: nota.protocolo,
@@ -41,7 +55,7 @@ module Nfcom
           xml: nota.xml_autorizado
         )
       else
-        nfcom_record&.rejeitar!(resultado[:mensagem_sefaz].to_s)
+        nfcom_record.rejeitar!(resultado[:mensagem_sefaz].to_s)
       end
 
       nfcom_record
@@ -52,8 +66,6 @@ module Nfcom
       nfcom_record&.rejeitar!("Erro: #{e.message}")
       raise
     end
-
-    private
 
     def criar_registro(fatura)
       NfcomNota.create!(

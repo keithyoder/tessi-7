@@ -1,0 +1,38 @@
+.diff {
+  font-family: monospace;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  display: block;
+  overflow-x: auto;
+  background: #1e1e1e;
+  color: #d4d4d4;
+  padding: 1rem;
+  border-radius: 0 0 4px 4px;
+
+  span {
+    display: block;
+    white-space: pre;
+  }
+
+  .diff-add {
+    background-color: rgba(0, 255, 0, 0.15);
+    color: #9ef09e;
+    &::before { content: "+"; color: #6dbd6d; margin-right: 0.5rem; }
+  }
+
+  .diff-remove {
+    background-color: rgba(255, 0, 0, 0.15);
+    color: #f09e9e;
+    &::before { content: "-"; color: #bd6d6d; margin-right: 0.5rem; }
+  }
+
+  .diff-hunk {
+    color: #569cd6;
+    background-color: rgba(86, 156, 214, 0.1);
+    font-style: italic;
+  }
+
+  .diff-context {
+    color: #d4d4d4;
+  }
+}

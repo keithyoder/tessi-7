@@ -5,22 +5,32 @@ p
   |  · 
   code = @backup.checksum.first(12)
 
-.mb-3
-  = link_to '← Voltar', @device.deviceable
-  |  
-  = link_to 'Download .cfg', download_device_backup_path(@device, @backup), data: { turbo: false }
+.btn-group.mb-3
+  = link_to @device.deviceable, class: 'btn btn-sm btn-secondary'
+    i.bi.bi-arrow-left
+    |  Voltar
+  = link_to download_device_backup_path(@device, @backup), class: 'btn btn-sm btn-secondary', data: { turbo: false }
+    i.bi.bi-download
+    |  Download .cfg
+  - if @previous
+    = link_to device_backup_path(@device, @previous), class: 'btn btn-sm btn-secondary'
+      i.bi.bi-chevron-left
+      |  Backup anterior
 
-- if @config_hash
-  table
-    thead
-      tr
-        th Chave
-        th Valor
-    tbody
-      - @config_hash.each do |key, value|
-        tr
-          td
-            code = key
-          td = value
-- else
-  pre = @config
+- if @diff
+  .card
+    .card-header.d-flex.justify-content-between.align-items-center
+      span Alterações em relação ao backup anterior
+      small.text-muted
+        | anterior: 
+        = l(@previous.created_at, format: :long)
+    .card-body.p-0
+      pre.diff.m-0
+        - @diff.each_line do |line|
+          span class=diff_line_class(line) = line
+- elsif @previous.nil?
+  .alert.alert-info.mb-4 Primeiro backup registrado para este device.
+  .card
+    .card-header Configuração
+    .card-body.p-0
+      pre.m-0.p-3 = @backup.config

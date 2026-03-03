@@ -1,24 +1,5 @@
 # frozen_string_literal: true
 
-# == Schema Information
-#
-# Table name: device_backups
-#
-#  id         :bigint           not null, primary key
-#  checksum   :string           not null
-#  config     :text             not null
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
-#  device_id  :bigint           not null
-#
-# Indexes
-#
-#  index_device_backups_on_device_id  (device_id)
-#
-# Foreign Keys
-#
-#  fk_rails_...  (device_id => devices.id)
-#
 class DeviceBackupsController < ApplicationController
   before_action :set_device
   before_action :set_backup, only: %i[show download]
@@ -33,8 +14,8 @@ class DeviceBackupsController < ApplicationController
   end
 
   def show
-    @config = @backup.config
-    @config_hash = Ubiquiti::ConfigParser.to_hash(@config) if @device.is_a?(Devices::Ubiquiti)
+    @diff     = @backup.diff_from_previous
+    @previous = @backup.previous
   end
 
   def download

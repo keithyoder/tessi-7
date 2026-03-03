@@ -41,6 +41,27 @@ class DeviceBackup < ApplicationRecord
     device.backups.create!(config: config_text, checksum: digest)
   end
 
+  # Retorna o backup anterior ao atual para este device.
+  #
+  # @return [DeviceBackup, nil]
+  def previous
+    device.backups
+      .where(created_at: ...created_at)
+      .order(created_at: :desc)
+      .first
+  end
+
+  # Retorna diff unificado entre este backup e o anterior.
+  # Retorna nil se nao houver backup anterior.
+  #
+  # @return [String, nil]
+  def diff_from_previous
+    prev = previous
+    return nil if prev.nil?
+
+    Diffy::Diff.new(prev.config, config).to_s(:text)
+  end
+
   private
 
   def compute_checksum

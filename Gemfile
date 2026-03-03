@@ -90,6 +90,7 @@ gem 'wkhtmltopdf-binary'
 # UI helpers / Utilities
 # ------------------------------------------------------------
 # gem 'chartkick'
+gem 'diffy'
 gem 'geocoder'
 gem 'image_processing'
 gem 'kaminari', github: 'kaminari/kaminari'

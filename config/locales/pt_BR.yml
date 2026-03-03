@@ -269,6 +269,17 @@ pt-BR:
       invalid_date: "Data inválida"
       invalid_or_future_date: "Data inválida ou futura"
   faturas:
+    create:
+      notice: "Fatura criada com sucesso."
+    update:
+      notice: "Fatura alterada com sucesso."
+      valor_atualizado: "Valor da fatura atualizado com sucesso."
+    destroy:
+      notice: "Fatura excluída com sucesso."
+    estornar:
+      notice: "Fatura estornada com sucesso."
+    cancelar:
+      notice: "Fatura cancelada com sucesso."
     nfcom:
       create:
         success: "NFCom emitida com sucesso"

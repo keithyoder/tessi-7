@@ -4,7 +4,7 @@ module Faturas
   # Serviço para atualizar o valor de uma fatura existente.
   #
   # Este serviço:
-  # 1. Se a fatura está registrada (tem registro_id): cancela e cria uma nova com o novo valor
+  # 1. Se a fatura está registrada (tem registro): cancela e cria uma nova com o novo valor
   # 2. Se a fatura não está registrada: atualiza diretamente o valor
   #
   # @param fatura [Fatura] fatura a ser atualizada
@@ -28,8 +28,11 @@ module Faturas
     end
 
     def call
+      raise ArgumentError, 'Fatura já liquidada' if fatura.liquidacao.present?
+      raise ArgumentError, 'Fatura já cancelada' if fatura.cancelamento.present?
+
       ActiveRecord::Base.transaction do
-        if fatura.registro_id.present?
+        if fatura.registro.present?
           # Fatura registrada: cancela e cria nova
           fatura.update!(cancelamento: Time.current)
           criar_nova_fatura

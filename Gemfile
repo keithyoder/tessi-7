@@ -117,7 +117,7 @@ gem 'ruby_ami'
 # ------------------------------------------------------------
 # Low-level / Compatibility
 # ------------------------------------------------------------
-gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
+gem 'tzinfo-data', platforms: %i[windows jruby]
 
 # ------------------------------------------------------------
 # Development & Deployment
@@ -137,7 +137,7 @@ group :development, :test do
   gem 'annotate'
   gem 'dotenv-rails'
 
-  gem 'debug', platforms: %i[mri mingw x64_mingw]
+  gem 'debug', platforms: %i[mri windows]
   gem 'faker', '~> 3.0'
 
   gem 'rubocop', require: false

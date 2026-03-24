@@ -34,6 +34,18 @@
 #  plano_id                :bigint           not null
 #  recorrencia_id          :string
 #
+# Indexes
+#
+#  index_contratos_on_pagamento_perfil_id  (pagamento_perfil_id)
+#  index_contratos_on_pessoa_id            (pessoa_id)
+#  index_contratos_on_plano_id             (plano_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (pagamento_perfil_id => pagamento_perfis.id)
+#  fk_rails_...  (pessoa_id => pessoas.id)
+#  fk_rails_...  (plano_id => planos.id)
+#
 class Contrato < ApplicationRecord
   include Ransackable
 
@@ -237,17 +249,41 @@ class Contrato < ApplicationRecord
   private
 
   def gerar_faturas_iniciais
+    gerar_parcial_inicial if periodo_inicial_parcial?
+
     Faturas::GerarService.call(
       contrato: self,
-      quantidade: prazo_meses,
+      quantidade: periodo_inicial_parcial? ? prazo_meses - 1 : prazo_meses,
       meses_por_fatura: 1
+    )
+  end
+
+  def periodo_inicial_parcial?
+    (adesao + 1.day) != (primeiro_vencimento - 1.month)
+  end
+
+  def gerar_parcial_inicial
+    inicio = adesao + 1.day
+    fracao = Faturas::PeriodoUtilizado.call(inicio: inicio, fim: primeiro_vencimento)
+    valor  = (mensalidade * fracao).round(2)
+
+    faturas.create!(
+      periodo_inicio: inicio,
+      periodo_fim: primeiro_vencimento,
+      vencimento: primeiro_vencimento,
+      vencimento_original: primeiro_vencimento,
+      valor: valor,
+      valor_original: valor,
+      parcela: 1,
+      nossonumero: pagamento_perfil.proximo_nosso_numero.to_s,
+      pagamento_perfil: pagamento_perfil
     )
   end
 
   def verificar_exclusao
     return if faturas.registradas.none? && faturas.pagas.none?
 
-    errors[:base] << 'Não pode excluir um contrato que tem faturas pagas ou boletos registrados'
+    errors.add(:base, 'Não pode excluir um contrato que tem faturas pagas ou boletos registrados')
     throw :abort
   end
 

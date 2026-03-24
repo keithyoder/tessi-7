@@ -6,18 +6,41 @@ module Faturas
   # Cada fatura pode cobrir 1 ou mais meses contratuais.
   # Se houver cancelamento parcial, calcula a fração do período.
   #
+  # Para faturas antecipadas (antecipado: true), o vencimento é calculado
+  # para o início do período em vez do final, e um desconto percentual
+  # pode ser aplicado (ex: 1% por mês = 12% para 12 meses).
+  #
+  # Uso típico:
+  #
+  #   # Fatura mensal normal
+  #   Faturas::GerarService.call(contrato: contrato, quantidade: 3)
+  #
+  #   # Fatura anual antecipada com 12% de desconto
+  #   Faturas::GerarService.call(
+  #     contrato: contrato,
+  #     quantidade: 1,
+  #     meses_por_fatura: 12,
+  #     antecipado: true,
+  #     desconto_percentual: 12.0
+  #   )
+  #
   class GerarService
-    InvalidParams = Class.new(StandardError)
-    MissingPagamentoPerfil = Class.new(StandardError)
-
-    def self.call(contrato:, quantidade: 1, meses_por_fatura: 1)
-      new(contrato, quantidade, meses_por_fatura).call
+    class InvalidParams < StandardError
     end
 
-    def initialize(contrato, quantidade, meses_por_fatura)
-      @contrato         = contrato
-      @quantidade       = quantidade.to_i
-      @meses_por_fatura = (meses_por_fatura.presence || 1).to_i
+    class MissingPagamentoPerfil < StandardError
+    end
+
+    def self.call(contrato:, quantidade: 1, meses_por_fatura: 1, desconto_percentual: nil, antecipado: false)
+      new(contrato, quantidade, meses_por_fatura, desconto_percentual, antecipado).call
+    end
+
+    def initialize(contrato, quantidade, meses_por_fatura, desconto_percentual = nil, antecipado = false)
+      @contrato            = contrato
+      @quantidade          = quantidade.to_i
+      @meses_por_fatura    = (meses_por_fatura.presence || 1).to_i
+      @desconto_percentual = desconto_percentual&.to_f
+      @antecipado          = antecipado
     end
 
     def call
@@ -31,7 +54,7 @@ module Faturas
 
     private
 
-    attr_reader :contrato, :quantidade, :meses_por_fatura
+    attr_reader :contrato, :quantidade, :meses_por_fatura, :desconto_percentual, :antecipado
 
     # ----------------------------------------------------------------------
     # Inicialização de estado
@@ -51,26 +74,36 @@ module Faturas
       @parcela_atual     += 1
       @nossonumero_atual += 1
 
-      # Calcula o próximo vencimento usando Calendario
+      # Para faturas antecipadas, o vencimento cai no início do período (1 mês),
+      # não no final do período completo.
       vencimento = Faturas::Calendario.avancar_meses(
         @ultimo_vencimento,
         contrato.dia_vencimento,
-        meses: meses_por_fatura
+        meses: antecipado ? 1 : meses_por_fatura
       )
 
-      # Calcula o período da fatura
       periodo = Faturas::Calendario.periodo(@ultimo_vencimento, vencimento)
       inicio  = periodo[:inicio]
-      fim     = periodo[:fim]
 
-      # Ajusta valor proporcional se houver cancelamento no meio do período
+      # Para antecipado, o fim do período deve cobrir todos os meses_por_fatura
+      fim = if antecipado
+              Faturas::Calendario.avancar_meses(
+                @ultimo_vencimento,
+                contrato.dia_vencimento,
+                meses: meses_por_fatura
+              ).then { |v| Faturas::Calendario.periodo(@ultimo_vencimento, v)[:fim] }
+            else
+              periodo[:fim]
+            end
+
       valor = contrato.mensalidade * meses_por_fatura
+
       if contrato.cancelamento.present? && contrato.cancelamento.between?(inicio, fim)
         fracao = Faturas::PeriodoUtilizado.call(inicio: inicio, fim: contrato.cancelamento)
         valor = (valor * fracao).round(2)
       end
 
-      # Soma parcela de instalação se aplicável
+      valor = aplicar_desconto(valor)
       valor += parcela_instalacao(@parcela_atual)
 
       fatura = contrato.faturas.create!(
@@ -87,6 +120,17 @@ module Faturas
 
       @ultimo_vencimento = vencimento
       fatura
+    end
+
+    # ----------------------------------------------------------------------
+    # Desconto
+    # ----------------------------------------------------------------------
+
+    def aplicar_desconto(valor)
+      return valor if desconto_percentual.blank? || desconto_percentual <= 0
+
+      desconto = (valor * desconto_percentual / 100.0).round(2)
+      valor - desconto
     end
 
     # ----------------------------------------------------------------------

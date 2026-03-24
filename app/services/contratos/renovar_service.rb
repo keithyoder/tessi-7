@@ -63,7 +63,11 @@ module Contratos
     end
 
     def fim_contrato
-      Time.zone.today.advance(months: contrato.prazo_meses)
+      proximo_vencimento.advance(months: contrato.prazo_meses)
+    end
+
+    def proximo_vencimento
+      contrato.faturas.order(:vencimento).last&.vencimento || (contrato.primeiro_vencimento - 1.month)
     end
 
     def gerar_faturas_necessarias(meses_restantes)

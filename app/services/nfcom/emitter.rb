@@ -36,6 +36,20 @@ module Nfcom
       enviar(nfcom_record, fatura)
     end
 
+    # Substitute an authorized NFCom with corrected data from fatura_id.
+    # motivo_substituicao defaults to '01' (Erro de Preço).
+    # Returns the new NfcomNota record.
+    def substituir(nfcom_nota_original_id, fatura_id, motivo_substituicao = '01')
+      nota_original = NfcomNota.find(nfcom_nota_original_id)
+      raise 'Nota original não está autorizada' unless nota_original.substituivel?
+
+      fatura = Fatura.com_associacoes.find(fatura_id)
+      corrigir_juros_desconto(fatura)
+
+      nfcom_record = criar_registro_substituicao(fatura, nota_original, motivo_substituicao)
+      enviar_substituicao(nfcom_record, fatura, nota_original)
+    end
+
     private
 
     def enviar(nfcom_record, fatura)
@@ -67,6 +81,40 @@ module Nfcom
       raise
     end
 
+    def enviar_substituicao(nfcom_record, fatura, nota_original)
+      nota = build_nota(
+        nfcom_record: nfcom_record,
+        fatura: fatura,
+        contrato: fatura.contrato,
+        pessoa: fatura.contrato.pessoa
+      )
+
+      nota.finalidade = :substituicao
+      nota.chave_nfcom_substituida = nota_original.chave_acesso
+      nota.motivo_substituicao = nfcom_record.motivo_substituicao
+
+      resultado = @client.autorizar(nota)
+
+      if resultado[:autorizada]
+        nfcom_record.autorizar!(
+          protocolo: nota.protocolo,
+          chave: nota.chave_acesso,
+          xml: nota.xml_autorizado
+        )
+        nota_original.substituir!
+      else
+        nfcom_record.rejeitar!(resultado[:mensagem_sefaz].to_s)
+      end
+
+      nfcom_record
+    rescue Nfcom::Errors::NotaRejeitada => e
+      nfcom_record&.rejeitar!("#{e.codigo}: #{e.motivo}")
+      raise
+    rescue StandardError => e
+      nfcom_record&.rejeitar!("Erro: #{e.message}")
+      raise
+    end
+
     def criar_registro(fatura)
       NfcomNota.create!(
         fatura: fatura,
@@ -75,6 +123,19 @@ module Nfcom
         competencia: Date.current.beginning_of_month,
         valor_total: fatura.base_calculo_icms,
         status: 'pending'
+      )
+    end
+
+    def criar_registro_substituicao(fatura, nota_original, motivo_substituicao)
+      NfcomNota.create!(
+        fatura: fatura,
+        serie: 1,
+        numero: NfcomNota.proximo_numero(1),
+        competencia: Date.current.beginning_of_month,
+        valor_total: fatura.base_calculo_icms,
+        status: 'pending',
+        nota_substituida: nota_original,
+        motivo_substituicao: motivo_substituicao
       )
     end
 

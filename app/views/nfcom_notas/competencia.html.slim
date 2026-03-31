@@ -34,47 +34,60 @@
                   .col-md-3
                     = f.label :fatura_contrato_pessoa_nome_cont, 'Cliente', class: 'form-label'
                     = f.search_field :fatura_contrato_pessoa_nome_cont, class: 'form-control', placeholder: 'Nome do cliente'
-                  
+
                   .col-md-2
                     = f.label :numero_eq, 'Número', class: 'form-label'
                     = f.number_field :numero_eq, class: 'form-control', placeholder: 'Número'
-                  
+
                   .col-md-2
                     = f.label :status_eq, 'Status', class: 'form-label'
                     = f.select :status_eq, options_for_select([['Todas', nil]] + NfcomNota::STATUSES.map { |s| [I18n.t("nfcom_nota.statuses.#{s}", count: 2), s] }, params.dig(:q, :status_eq)), {}, class: 'form-select'
-                  
+
                   .col-md-12.d-flex.gap-2
                     = f.submit 'Buscar', class: 'btn btn-primary'
                     = link_to 'Limpar Filtros', competencia_nfcom_notas_path(@mes), class: 'btn btn-secondary'
 
           - if @notas.any?
             / Estatísticas gerais (todas as notas filtradas, não apenas da página atual)
-            - total_count = @notas.respond_to?(:total_count) ? @notas.total_count : @notas.size
-            - authorized_count = @total_stats['authorized'] || 0
-            - pending_count = @total_stats['pending'] || 0
-            - rejected_count = @total_stats['rejected'] || 0
-            - cancelled_count = @total_stats['cancelled'] || 0
+            - total_count      = @notas.respond_to?(:total_count) ? @notas.total_count : @notas.size
+            - authorized_count = @total_stats['authorized']  || 0
+            - pending_count    = @total_stats['pending']     || 0
+            - rejected_count   = @total_stats['rejected']    || 0
+            - cancelled_count  = @total_stats['cancelled']   || 0
+            - substituted_count = @total_stats['substituted'] || 0
 
             .alert.alert-info.mb-3
               .row
-                .col-md-3
+                .col-md-2
                   strong Total de notas: 
                   = total_count
-                .col-md-3
+                .col-md-2
                   strong 
                     = I18n.t('nfcom_nota.statuses.authorized', count: authorized_count)
                     | : 
                   span.text-success= authorized_count
-                .col-md-3
+                .col-md-2
                   strong 
                     = I18n.t('nfcom_nota.statuses.pending', count: pending_count)
                     | : 
                   span.text-warning= pending_count
-                .col-md-3
+                .col-md-2
                   strong 
                     = I18n.t('nfcom_nota.statuses.rejected', count: rejected_count)
                     | : 
                   span.text-danger= rejected_count
+                .col-md-2
+                  strong 
+                    = I18n.t('nfcom_nota.statuses.cancelled', count: cancelled_count)
+                    | : 
+                  span.text-secondary= cancelled_count
+                - if substituted_count > 0
+                  .col-md-2
+                    strong 
+                      = I18n.t('nfcom_nota.statuses.substituted', count: substituted_count)
+                      | : 
+                    span.text-secondary
+                      s= substituted_count
 
             / Informação de paginação
             - if @notas.offset_value.present?
@@ -103,8 +116,8 @@
                 tbody
                   - total_pagina = 0
                   - @notas.each do |nota|
-                    - total_pagina += nota.valor_total.to_f
-                    tr
+                    - total_pagina += nota.valor_total.to_f unless nota.status == 'substituted'
+                    tr class=('text-muted' if nota.status == 'substituted')
                       td.text-center= nota.serie
                       td.text-center= nota.numero
                       td= link_to(nota.fatura.contrato.pessoa.nome, nota.fatura.contrato.pessoa)
@@ -118,6 +131,9 @@
                           span.badge.bg-danger= I18n.t('nfcom_nota.statuses.rejected', count: 1)
                         - when 'cancelled'
                           span.badge.bg-secondary= I18n.t('nfcom_nota.statuses.cancelled', count: 1)
+                        - when 'substituted'
+                          span.badge.bg-secondary
+                            s= I18n.t('nfcom_nota.statuses.substituted', count: 1)
                       td.text-end= number_to_currency(nota.valor_total)
                       td.text-center= I18n.l(nota.created_at.to_date) if nota.created_at
                       td.text-center.align-middle
@@ -128,9 +144,15 @@
                             i.bi.bi-file-earmark-code
                           = link_to fatura_path(nota.fatura), class: 'btn btn-outline-primary px-3', title: 'Ver Fatura' do
                             i.bi.bi-receipt
+                          / - if nota.substituivel?
+                          /   = link_to '#', class: 'btn btn-outline-warning px-3', title: 'Substituir Nota' do
+                          /     i.bi.bi-arrow-repeat
+                          - if nota.status == 'substituted' && nota.nota_substituta.present?
+                            = link_to nfcom_nota_path(nota.nota_substituta), class: 'btn btn-outline-secondary px-3', title: 'Ver nota substituta' do
+                              i.bi.bi-arrow-right-circle
                 tfoot.table-light
                   tr
-                    th.text-end colspan="4" Total da página:
+                    th.text-end colspan="4" Total da página (excl. substituídas):
                     th.text-end= number_to_currency(total_pagina)
                     th colspan="3"
 

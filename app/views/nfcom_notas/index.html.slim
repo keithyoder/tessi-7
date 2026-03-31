@@ -36,6 +36,10 @@
                             span.badge.bg-secondary
                               = @status_counts_by_competencia[[competencia, 'cancelled']]
                               |  #{I18n.t('nfcom_nota.statuses.cancelled', count: @status_counts_by_competencia[[competencia, 'cancelled']])}
+                          - if @status_counts_by_competencia[[competencia, 'substituted']].to_i > 0
+                            span.badge.bg-secondary.text-decoration-line-through
+                              = @status_counts_by_competencia[[competencia, 'substituted']]
+                              |  #{I18n.t('nfcom_nota.statuses.substituted', count: @status_counts_by_competencia[[competencia, 'substituted']])}          
                           - if @authorized_values_by_competencia[competencia].to_f > 0
                             span.badge.bg-primary.fs-6
                               i.bi.bi-currency-dollar.me-1

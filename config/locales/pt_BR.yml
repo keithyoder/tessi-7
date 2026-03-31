@@ -327,6 +327,9 @@ pt-BR:
       cancelled:
         one: "cancelada"
         other: "canceladas"
+      substituted:
+        one: "substituída"
+        other: "substituídas"
   nfcom_notas:
       errors:
         pdf_generation_failed: "Erro ao gerar PDF da nota"

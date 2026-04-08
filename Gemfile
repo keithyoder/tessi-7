@@ -71,7 +71,8 @@ gem 'cpf_cnpj'
 gem 'extensobr'
 gem 'fixy'
 
-gem 'nfcom', git: 'https://github.com/keithyoder/nfcom-ruby.git'
+# gem 'nfcom', git: 'https://github.com/keithyoder/nfcom-ruby.git'
+gem 'nfcom'
 # gem 'nfcom', path: '../nfcom-ruby'
 
 gem 'sdk_ruby_apis_efi', git: 'https://github.com/keithyoder/sdk-ruby-apis-efi.git'

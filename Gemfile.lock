@@ -16,14 +16,6 @@ GIT
     kaminari-core (1.2.2)
 
 GIT
-  remote: https://github.com/keithyoder/autentique-ruby.git
-  revision: 85dfc0686f6a281df356480f233449a7fa4430e5
-  specs:
-    autentique (0.1.0)
-      graphql-client (~> 0.18)
-      mime-types (~> 3.0)
-
-GIT
   remote: https://github.com/keithyoder/graphql-client.git
   revision: 708af98508351e8c187268acf43b020d320e974d
   specs:
@@ -31,19 +23,6 @@ GIT
       activesupport (>= 3.0)
       graphql
       multipart-post
-
-GIT
-  remote: https://github.com/keithyoder/nfcom-ruby.git
-  revision: 5592eac9c4ad60edafb96f62a4797d3719a838de
-  specs:
-    nfcom (0.1.2)
-      nokogiri (>= 1.15.7, < 2.0)
-      openssl (>= 2.0, < 5.0)
-      prawn (>= 2.4, < 3.0)
-      prawn-qrcode (>= 0.3, < 1.0)
-      prawn-svg (>= 0.32, < 1.0)
-      prawn-table (>= 0.2, < 1.0)
-      rqrcode (>= 2.0, < 4.0)
 
 GIT
   remote: https://github.com/keithyoder/sdk-ruby-apis-efi.git
@@ -68,6 +47,13 @@ GIT
       rghost (~> 0.9)
       rghost_barcode (~> 0.9)
       unidecoder (>= 1.1.2)
+
+PATH
+  remote: ../autentique-ruby
+  specs:
+    autentique (0.1.0)
+      graphql-client (~> 0.18)
+      mime-types (~> 3.0)
 
 GEM
   remote: https://rubygems.org/
@@ -354,6 +340,14 @@ GEM
     net-smtp (0.5.1)
       net-protocol
     net-ssh (7.3.2)
+    nfcom (0.1.2)
+      nokogiri (>= 1.15.7, < 2.0)
+      openssl (>= 2.0, < 5.0)
+      prawn (>= 2.4, < 3.0)
+      prawn-qrcode (>= 0.3, < 1.0)
+      prawn-svg (>= 0.32, < 1.0)
+      prawn-table (>= 0.2, < 1.0)
+      rqrcode (>= 2.0, < 4.0)
     nio4r (2.7.5)
     nokogiri (1.19.2)
       mini_portile2 (~> 2.8.2)
@@ -675,7 +669,7 @@ DEPENDENCIES
   net-ping
   net-scp
   net-ssh
-  nfcom!
+  nfcom
   nokogiri
   oauth2
   pagy (~> 9.3)

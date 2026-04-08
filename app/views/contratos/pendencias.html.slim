@@ -11,15 +11,17 @@
             th Enviado para
             th Estado
         tbody
-          - @documentos.each do |documento|
-            - contrato = Contrato.find_by(id: documento["name"].scan(/\d+/).first)
+          - @pendencias.each do |p|
+            - documento = p[:documento]
+            - contrato = p[:contrato]
             tr
-              td = documento["name"]
+              td = documento.name
               td = link_to contrato&.pessoa&.nome, contrato
-              td = l(documento["created_at"].to_date)
-              td 
-                -if documento["signatures"][1]["delivery_method"][16..-1] == "WHATSAPP"
-                  =documento["signatures"][1]["user"]["phone"]
-                -else
-                  =documento["signatures"][1]["user"]["email"]
-              td = autentique_status documento["signatures"][1]["email_events"]
+              td = l(documento.created_at.to_date)
+              td
+                - sig = documento.signatures[1]
+                - if sig&.delivery_method&.end_with?('WHATSAPP')
+                  = sig&.user&.dig('phone')
+                - else
+                  = sig&.email
+              td = autentique_status documento.signatures[1].email_events

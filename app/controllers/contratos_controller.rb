@@ -1,14 +1,61 @@
 # frozen_string_literal: true
 
-class ContratosController < ApplicationController # rubocop:disable Metrics/ClassLength,Style/Documentation
+# == Schema Information
+#
+# Table name: contratos
+#
+#  id                      :bigint           not null, primary key
+#  adesao                  :date
+#  billing_bairro          :string
+#  billing_cep             :string
+#  billing_cidade          :string
+#  billing_cpf             :string
+#  billing_endereco        :string
+#  billing_endereco_numero :string
+#  billing_estado          :string
+#  billing_nome_completo   :string
+#  cancelamento            :date
+#  cartao_parcial          :string
+#  descricao_personalizada :string
+#  dia_vencimento          :integer
+#  documentos              :jsonb
+#  emite_nf                :boolean          default(TRUE)
+#  numero_conexoes         :integer          default(1)
+#  parcelas_instalacao     :integer
+#  prazo_meses             :integer          default(12)
+#  primeiro_vencimento     :date
+#  status                  :integer
+#  valor_instalacao        :decimal(8, 2)
+#  valor_personalizado     :decimal(8, 2)
+#  created_at              :datetime         not null
+#  updated_at              :datetime         not null
+#  pagamento_perfil_id     :bigint
+#  pessoa_id               :bigint           not null
+#  plano_id                :bigint           not null
+#  recorrencia_id          :string
+#
+# Indexes
+#
+#  index_contratos_on_pagamento_perfil_id  (pagamento_perfil_id)
+#  index_contratos_on_pessoa_id            (pessoa_id)
+#  index_contratos_on_plano_id             (plano_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (pagamento_perfil_id => pagamento_perfis.id)
+#  fk_rails_...  (pessoa_id => pessoas.id)
+#  fk_rails_...  (plano_id => planos.id)
+#
+class ContratosController < ApplicationController # rubocop:disable Metrics/ClassLength
   include ActionView::Helpers::NumberHelper
+
   load_and_authorize_resource
   before_action :set_contrato, only: %i[show edit update destroy renovar termo update_assinatura autentique trocado]
   layout 'print', only: [:termo]
 
   # GET /contratos
   # GET /contratos.json
-  def index # rubocop:disable Metrics/AbcSize,Metrics/MethodLength,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
+  def index # rubocop:disable Metrics/AbcSize
     contrato = Contrato.includes(:pessoa, :plano).order('pessoas.nome')
     contrato = contrato.ativos if params.key?(:ativos)
     contrato = contrato.renovaveis if params.key?(:renovaveis)
@@ -37,27 +84,27 @@ class ContratosController < ApplicationController # rubocop:disable Metrics/Clas
   end
 
   def pendencias
-    @documentos = Autentique::Client.query(
-      Autentique::DocumentosComPendencia
-    ).original_hash['data']['documents']['data']
+    @pendencias = Contratos::PendenciasService.new.call
+  rescue Contratos::PendenciasService::Error => e
+    redirect_to contratos_path, alert: "Erro ao carregar documentos pendentes: #{e.message}"
   end
 
   def churn
     meses = Contrato
-            .select("date_trunc('month', adesao) as mes, count(*) as adesoes, min(cancelamentos.quantos) as cancelamentos")
-            .joins("LEFT JOIN (SELECT count(*) AS quantos, date_trunc('month', cancelamento) as mes FROM contratos WHERE cancelamento - adesao > 15 GROUP BY date_trunc('month', cancelamento)) cancelamentos ON date_trunc('month', adesao) = cancelamentos.mes")
-            .group("date_trunc('month', adesao)")
-            .where('adesao - cancelamento > 15 or cancelamento is null')
-            .order("date_trunc('month', adesao) DESC")
+      .select("date_trunc('month', adesao) as mes, count(*) as adesoes, min(cancelamentos.quantos) as cancelamentos")
+      .joins("LEFT JOIN (SELECT count(*) AS quantos, date_trunc('month', cancelamento) as mes FROM contratos WHERE cancelamento - adesao > 15 GROUP BY date_trunc('month', cancelamento)) cancelamentos ON date_trunc('month', adesao) = cancelamentos.mes")
+      .group("date_trunc('month', adesao)")
+      .where('adesao - cancelamento > 15 or cancelamento is null')
+      .order("date_trunc('month', adesao) DESC")
     @q = meses.ransack
     @meses = @q.result.page params[:page]
   end
 
   def boletos
     @faturas = @contrato.faturas
-                        .where(liquidacao: nil)
-                        .where(vencimento: 1.day.ago..Date::Infinity.new)
-                        .order(:vencimento)
+      .where(liquidacao: nil)
+      .where(vencimento: 1.day.ago..Date::Infinity.new)
+      .order(:vencimento)
     render :carne
   end
 
@@ -97,7 +144,7 @@ class ContratosController < ApplicationController # rubocop:disable Metrics/Clas
   def edit; end
 
   def renovar
-    @contrato.renovar
+    Contratos::RenovarService.new(contrato: @contrato).call
     respond_to do |format|
       format.html { redirect_to @contrato, notice: 'Contrato renovado com sucesso.' }
     end
@@ -125,14 +172,14 @@ class ContratosController < ApplicationController # rubocop:disable Metrics/Clas
         format.json { render :show, status: :created, location: @contrato }
       else
         format.html { render :new }
-        format.json { render json: @contrato.errors, status: :unprocessable_entity }
+        format.json { render json: @contrato.errors, status: :unprocessable_content }
       end
     end
   end
 
   # PATCH/PUT /contratos/1
   # PATCH/PUT /contratos/1.json
-  def update # rubocop:disable Metrics/MethodLength
+  def update
     respond_to do |format|
       if @contrato.update(contrato_params)
         if verificar_conexoes_planos?
@@ -145,7 +192,7 @@ class ContratosController < ApplicationController # rubocop:disable Metrics/Clas
         format.json { render :show, status: :ok, location: @contrato }
       else
         format.html { render :edit }
-        format.json { render json: @contrato.errors, status: :unprocessable_entity }
+        format.json { render json: @contrato.errors, status: :unprocessable_content }
       end
     end
   end
@@ -159,26 +206,22 @@ class ContratosController < ApplicationController # rubocop:disable Metrics/Clas
         format.json { head :no_content }
       else
         format.html { render :edit }
-        format.json { render json: @contrato.errors, status: :unprocessable_entity }
+        format.json { render json: @contrato.errors, status: :unprocessable_content }
       end
     end
   end
 
   def autentique
-    require 'autentique'
-
-    Autentique::Client.query(
-      Autentique::CriarDocumento,
-      variables: JSON.parse(render_termo(formats: [:json]), { symbolize_names: true }),
-      file: UploadIO.new(StringIO.new(termo_pdf), 'application/pdf', 'termo.pdf')
-    )
+    Contratos::AssinaturaService.new(@contrato).enviar_para_assinatura
 
     respond_to do |format|
       format.html { redirect_to @contrato, notice: 'Termo de adesão enviado com sucesso.' }
     end
+  rescue Contratos::AssinaturaService::Error => e
+    redirect_to @contrato, alert: "Erro ao enviar termo para assinatura: #{e.message}"
   end
 
-  def trocado # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
+  def trocado
     f1 = @contrato.primeira_fatura_em_aberto
     f2 = @contrato.ultima_fatura_paga
     f2.contrato.faturas.create(

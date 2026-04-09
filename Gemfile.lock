@@ -17,7 +17,7 @@ GIT
 
 GIT
   remote: https://github.com/keithyoder/autentique-ruby.git
-  revision: 8d7fde5a4b94c42418f237ab4860b6cef3c90222
+  revision: 8ce2cb0cd92ba0ae13664388244f460b10dbe314
   specs:
     autentique (0.1.0)
       graphql-client (~> 0.18)

@@ -8,20 +8,21 @@ module Contratos
       @contrato = contrato
     end
 
-    def enviar_para_assinatura
+    def enviar_para_assinatura # rubocop:disable Metrics/MethodLength
       pdf = gerar_pdf
 
       documento = client.documents.create(
-        file: pdf,
+        file: { io: pdf, name: "contrato_#{@contrato.id}.pdf", mime_type: 'application/pdf' },
         document: {
-          name: "Contrato #{@contrato.id}",
-          message: 'Por favor, assine este contrato'
+          name: "Termo #{@contrato.id}",
+          footer: 'BOTTOM'
         },
         signers: [
           {
-            email: @contrato.pessoa.email,
+            phone: "+55#{@contrato.pessoa.telefone1.gsub(/[^0-9]/, '')}",
+            delivery_method: 'DELIVERY_METHOD_WHATSAPP',
             action: 'SIGN',
-            configs: { cpf: @contrato.pessoa.cpf }
+            configs: { cpf: CPF.new(@contrato.pessoa.cpf).stripped }
           }
         ]
       )
@@ -40,7 +41,7 @@ module Contratos
     end
 
     def gerar_pdf
-      WickedPdf.new.pdf_from_string(
+      pdf_content = WickedPdf.new.pdf_from_string(
         ContratosController.render(
           template: 'contratos/termo',
           assigns: { contrato: @contrato },
@@ -52,6 +53,10 @@ module Contratos
         margin: { top: 15, bottom: 18, left: 15, right: 15 },
         page_size: 'A4'
       )
+
+      io = StringIO.new(pdf_content)
+      io.set_encoding('BINARY')
+      io
     end
 
     private

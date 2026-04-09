@@ -212,12 +212,12 @@ class ContratosController < ApplicationController # rubocop:disable Metrics/Clas
   end
 
   def autentique
-    Contratos::AssinaturaService.new(@contrato).enviar_para_assinatura
+    Contratos::TermoService.new(@contrato).enviar_para_assinatura
 
     respond_to do |format|
       format.html { redirect_to @contrato, notice: 'Termo de adesão enviado com sucesso.' }
     end
-  rescue Contratos::AssinaturaService::Error => e
+  rescue Contratos::TermoService::Error => e
     redirect_to @contrato, alert: "Erro ao enviar termo para assinatura: #{e.message}"
   end
 

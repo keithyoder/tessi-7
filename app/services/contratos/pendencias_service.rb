@@ -10,8 +10,9 @@ module Contratos
 
     # Returns an array of hashes with :documento and :contrato keys
     def call(limit: 60, page: 1)
-      documents = @client.documents.pending(limit: limit, page: page)
-      return [] unless documents.is_a?(Array) && documents.any?
+      response = @client.documents.pending(limit: limit, page: page)
+      documents = response[:documents]
+      return [] unless documents.any?
 
       ids = documents.filter_map { |doc| doc.name.scan(/\d+/).first&.to_i }
       contratos = Contrato.where(id: ids).includes(:pessoa).index_by(&:id)

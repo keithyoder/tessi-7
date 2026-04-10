@@ -8,10 +8,10 @@ module Contratos
       @contrato = contrato
     end
 
-    def enviar_para_assinatura # rubocop:disable Metrics/MethodLength
+    def enviar_para_assinatura
       pdf = gerar_pdf
 
-      documento = client.documents.create(
+      client.documents.create(
         file: { io: pdf, name: "contrato_#{@contrato.id}.pdf", mime_type: 'application/pdf' },
         document: {
           name: "Termo #{@contrato.id}",
@@ -27,15 +27,13 @@ module Contratos
         ]
       )
 
-      @contrato.update!(
-        documentos: Array(@contrato.documentos) + [{
-          'id' => documento.id,
-          'nome' => documento.name,
-          'data' => documento.created_at
-        }]
-      )
-
-      documento
+      # @contrato.update!(
+      #   documentos: Array(@contrato.documentos) + [{
+      #     'id' => documento.id,
+      #     'nome' => documento.name,
+      #     'data' => documento.created_at
+      #   }]
+      # )
     rescue StandardError => e
       raise Error, e.message
     end

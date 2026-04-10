@@ -85,6 +85,7 @@ class ContratosController < ApplicationController # rubocop:disable Metrics/Clas
 
   def pendencias
     @pendencias = Contratos::PendenciasService.new.call
+    puts @pendencias
   rescue Contratos::PendenciasService::Error => e
     redirect_to contratos_path, alert: "Erro ao carregar documentos pendentes: #{e.message}"
   end

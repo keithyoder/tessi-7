@@ -47,11 +47,11 @@ gem 'sidekiq-cron'
 # ------------------------------------------------------------
 # API / Networking / Integrations
 # ------------------------------------------------------------
-gem 'graphql', '< 2.1'
-gem 'graphql-client', git: 'https://github.com/keithyoder/graphql-client.git'
+# gem 'graphql', '< 2.1'
+# gem 'graphql-client', git: 'https://github.com/keithyoder/graphql-client.git'
 
 gem 'httparty'
-gem 'multipart-post'
+# gem 'multipart-post'
 gem 'oauth2'
 
 gem 'net-ftp'
@@ -63,8 +63,8 @@ gem 'snmp'
 # ------------------------------------------------------------
 # Brazilian ecosystem / Finance
 # ------------------------------------------------------------
-gem 'autentique', git: 'https://github.com/keithyoder/autentique-ruby.git'
-# gem 'autentique', path: '../autentique-ruby/'
+gem 'autentique'
+#gem 'autentique', path: '../autentique-ruby/'
 gem 'barby'
 gem 'brcobranca', git: 'https://github.com/kivanio/brcobranca.git', ref: '246c1ea'
 gem 'cpf_cnpj'

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_02_15_100521) do
+ActiveRecord::Schema[7.2].define(version: 2026_03_31_175039) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -366,9 +366,12 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_15_100521) do
     t.decimal "valor_total", precision: 13, scale: 2
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "nota_substituida_id"
+    t.string "motivo_substituicao", limit: 2
     t.index ["chave_acesso"], name: "index_nfcom_notas_on_chave_acesso", unique: true
     t.index ["competencia"], name: "index_nfcom_notas_on_competencia"
     t.index ["fatura_id"], name: "index_nfcom_notas_on_fatura_id"
+    t.index ["nota_substituida_id"], name: "index_nfcom_notas_on_nota_substituida_id"
     t.index ["serie", "numero"], name: "index_nfcom_notas_on_serie_and_numero", unique: true
     t.index ["status"], name: "index_nfcom_notas_on_status"
   end
@@ -516,8 +519,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_15_100521) do
     t.text "framedprotocol"
     t.inet "framedipaddress"
     t.bigint "pessoa_id"
-    t.string "framedipv6address"
-    t.string "delegatedipv6prefix"
     t.index ["acctstarttime", "username"], name: "radacct_start_user_idx"
     t.index ["acctuniqueid"], name: "radacct_active_session_idx", where: "(acctstoptime IS NULL)"
     t.index ["nasipaddress", "acctstarttime"], name: "radacct_bulk_close", where: "(acctstoptime IS NULL)"
@@ -641,6 +642,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_02_15_100521) do
   add_foreign_key "fibra_redes", "pontos"
   add_foreign_key "logradouros", "bairros"
   add_foreign_key "nfcom_notas", "faturas"
+  add_foreign_key "nfcom_notas", "nfcom_notas", column: "nota_substituida_id"
   add_foreign_key "os", "classificacoes"
   add_foreign_key "os", "conexoes"
   add_foreign_key "os", "pessoas"

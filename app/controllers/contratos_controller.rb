@@ -1,51 +1,5 @@
 # frozen_string_literal: true
 
-# == Schema Information
-#
-# Table name: contratos
-#
-#  id                      :bigint           not null, primary key
-#  adesao                  :date
-#  billing_bairro          :string
-#  billing_cep             :string
-#  billing_cidade          :string
-#  billing_cpf             :string
-#  billing_endereco        :string
-#  billing_endereco_numero :string
-#  billing_estado          :string
-#  billing_nome_completo   :string
-#  cancelamento            :date
-#  cartao_parcial          :string
-#  descricao_personalizada :string
-#  dia_vencimento          :integer
-#  documentos              :jsonb
-#  emite_nf                :boolean          default(TRUE)
-#  numero_conexoes         :integer          default(1)
-#  parcelas_instalacao     :integer
-#  prazo_meses             :integer          default(12)
-#  primeiro_vencimento     :date
-#  status                  :integer
-#  valor_instalacao        :decimal(8, 2)
-#  valor_personalizado     :decimal(8, 2)
-#  created_at              :datetime         not null
-#  updated_at              :datetime         not null
-#  pagamento_perfil_id     :bigint
-#  pessoa_id               :bigint           not null
-#  plano_id                :bigint           not null
-#  recorrencia_id          :string
-#
-# Indexes
-#
-#  index_contratos_on_pagamento_perfil_id  (pagamento_perfil_id)
-#  index_contratos_on_pessoa_id            (pessoa_id)
-#  index_contratos_on_plano_id             (plano_id)
-#
-# Foreign Keys
-#
-#  fk_rails_...  (pagamento_perfil_id => pagamento_perfis.id)
-#  fk_rails_...  (pessoa_id => pessoas.id)
-#  fk_rails_...  (plano_id => planos.id)
-#
 class ContratosController < ApplicationController # rubocop:disable Metrics/ClassLength
   include ActionView::Helpers::NumberHelper
 
@@ -85,15 +39,23 @@ class ContratosController < ApplicationController # rubocop:disable Metrics/Clas
 
   def pendencias
     @pendencias = Contratos::PendenciasService.new.call
-    puts @pendencias
+    Rails.logger.debug @pendencias
   rescue Contratos::PendenciasService::Error => e
     redirect_to contratos_path, alert: "Erro ao carregar documentos pendentes: #{e.message}"
   end
 
+  CHURN_JOIN_SQL = <<~SQL.squish
+    LEFT JOIN (
+      SELECT count(*) AS quantos, date_trunc('month', cancelamento) as mes
+      FROM contratos WHERE cancelamento - adesao > 15
+      GROUP BY date_trunc('month', cancelamento)
+    ) cancelamentos ON date_trunc('month', adesao) = cancelamentos.mes
+  SQL
+
   def churn
     meses = Contrato
       .select("date_trunc('month', adesao) as mes, count(*) as adesoes, min(cancelamentos.quantos) as cancelamentos")
-      .joins("LEFT JOIN (SELECT count(*) AS quantos, date_trunc('month', cancelamento) as mes FROM contratos WHERE cancelamento - adesao > 15 GROUP BY date_trunc('month', cancelamento)) cancelamentos ON date_trunc('month', adesao) = cancelamentos.mes")
+      .joins(CHURN_JOIN_SQL)
       .group("date_trunc('month', adesao)")
       .where('adesao - cancelamento > 15 or cancelamento is null')
       .order("date_trunc('month', adesao) DESC")
@@ -147,7 +109,7 @@ class ContratosController < ApplicationController # rubocop:disable Metrics/Clas
   def renovar
     Contratos::RenovarService.new(contrato: @contrato).call
     respond_to do |format|
-      format.html { redirect_to @contrato, notice: 'Contrato renovado com sucesso.' }
+      format.html { redirect_to @contrato, notice: t('.notice') }
     end
   end
 
@@ -155,7 +117,7 @@ class ContratosController < ApplicationController # rubocop:disable Metrics/Clas
     respond_to do |format|
       if @contrato.update(assinatura_params)
         GerencianetClient.criar_assinatura(@contrato, params[:token])
-        format.html { redirect_to @contrato, notice: 'Assinatura criada com sucesso.' }
+        format.html { redirect_to @contrato, notice: t('.notice') }
       else
         format.html { render :assinatura }
       end
@@ -169,7 +131,7 @@ class ContratosController < ApplicationController # rubocop:disable Metrics/Clas
 
     respond_to do |format|
       if @contrato.save
-        format.html { redirect_to @contrato, notice: 'Contrato criado com sucesso.' }
+        format.html { redirect_to @contrato, notice: t('.notice') }
         format.json { render :show, status: :created, location: @contrato }
       else
         format.html { render :new }
@@ -184,7 +146,7 @@ class ContratosController < ApplicationController # rubocop:disable Metrics/Clas
     respond_to do |format|
       if @contrato.update(contrato_params)
         if verificar_conexoes_planos?
-          format.html { redirect_to @contrato, notice: 'Contrato atualizado com sucesso.' }
+          format.html { redirect_to @contrato, notice: t('.notice') }
         else
           format.html do
             redirect_to @contrato, flash: { error: 'Plano da conexão é diferente que o plano do contrato.' }
@@ -203,7 +165,7 @@ class ContratosController < ApplicationController # rubocop:disable Metrics/Clas
   def destroy
     respond_to do |format|
       if @contrato.destroy
-        format.html { redirect_to contratos_url, notice: 'Contrato excluido com sucesso.' }
+        format.html { redirect_to contratos_url, notice: t('.notice') }
         format.json { head :no_content }
       else
         format.html { render :edit }
@@ -216,7 +178,7 @@ class ContratosController < ApplicationController # rubocop:disable Metrics/Clas
     Contratos::TermoService.new(@contrato).enviar_para_assinatura
 
     respond_to do |format|
-      format.html { redirect_to @contrato, notice: 'Termo de adesão enviado com sucesso.' }
+      format.html { redirect_to @contrato, notice: t('.notice') }
     end
   rescue Contratos::TermoService::Error => e
     redirect_to @contrato, alert: "Erro ao enviar termo para assinatura: #{e.message}"
@@ -234,7 +196,7 @@ class ContratosController < ApplicationController # rubocop:disable Metrics/Clas
       valor: f2.valor,
       nossonumero: '300002'
     )
-    f1.update(cancelamento: Date.today)
+    f1.update(cancelamento: Time.zone.today)
     f2.update(
       contrato_id: f1.contrato_id,
       parcela: f1.parcela,
@@ -243,7 +205,7 @@ class ContratosController < ApplicationController # rubocop:disable Metrics/Clas
       periodo_fim: f1.periodo_fim
     )
     respond_to do |format|
-      format.html { redirect_to @contrato, notice: 'Resolvido pagamento trocado' }
+      format.html { redirect_to @contrato, notice: t('.notice') }
     end
   end
 

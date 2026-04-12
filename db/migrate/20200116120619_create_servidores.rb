@@ -11,8 +11,8 @@ class CreateServidores < ActiveRecord::Migration[5.2]
       t.integer :ssh_porta
       t.integer :snmp_porta
       t.string :snmp_comunidade
-      t.boolean :ativo
-      t.boolean :up
+      t.boolean :ativo, default: false, null: false
+      t.boolean :up, default: false, null: false
 
       t.timestamps
     end

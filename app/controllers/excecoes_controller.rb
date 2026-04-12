@@ -13,7 +13,7 @@ class ExcecoesController < ApplicationController
     respond_to do |format|
       format.html
       format.csv do
-        send_data @excecoes.except(:limit, :offset).to_csv, filename: "excecoes-#{Date.today}.csv"
+        send_data @excecoes.except(:limit, :offset).to_csv, filename: "excecoes-#{Time.zone.today}.csv"
       end
     end
   end
@@ -37,11 +37,11 @@ class ExcecoesController < ApplicationController
 
     respond_to do |format|
       if @excecao.save
-        format.html { redirect_to @excecao, notice: 'Exceção criada com sucesso.' }
+        format.html { redirect_to @excecao, notice: t('.notice') }
         format.json { render :show, status: :created, location: @excecao }
       else
         format.html { render :new }
-        format.json { render json: @excecao.errors, status: :unprocessable_entity }
+        format.json { render json: @excecao.errors, status: :unprocessable_content }
       end
     end
   end
@@ -51,11 +51,11 @@ class ExcecoesController < ApplicationController
   def update
     respond_to do |format|
       if @excecao.update(excecao_params)
-        format.html { redirect_to @excecao, notice: 'Exceção atualizada com sucesso.' }
+        format.html { redirect_to @excecao, notice: t('.notice') }
         format.json { render :show, status: :ok, location: @excecao }
       else
         format.html { render :edit }
-        format.json { render json: @excecao.errors, status: :unprocessable_entity }
+        format.json { render json: @excecao.errors, status: :unprocessable_content }
       end
     end
   end
@@ -65,7 +65,7 @@ class ExcecoesController < ApplicationController
   def destroy
     @excecao.destroy
     respond_to do |format|
-      format.html { redirect_to excecoes_url, notice: 'Excecao was successfully destroyed.' }
+      format.html { redirect_to excecoes_url, notice: t('.notice') }
       format.json { head :no_content }
     end
   end

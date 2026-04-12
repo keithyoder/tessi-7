@@ -11,9 +11,6 @@ module Faturamento
 
       respond_to do |format|
         format.html
-        format.pdf do
-          render_pdf
-        end
         format.csv do
           send_csv
         end
@@ -28,38 +25,22 @@ module Faturamento
       @ano = @data.year
       @mes = @data.month
     rescue ArgumentError
-      redirect_to faturamento_root_path, alert: 'Data inválida'
+      redirect_to faturamento_root_path, alert: t('faturamento.dia.invalid_date')
     end
 
     def validar_data
       return if @data.between?(Date.new(2020, 1, 1), Date.current)
 
-      redirect_to faturamento_root_path, alert: 'Data inválida ou futura'
+      redirect_to faturamento_root_path, alert: t('faturamento.dia.invalid_or_future_date')
     end
 
     def carregar_faturas
-      # Eager load associations to avoid N+1
       Fatura
         .includes(contrato: %i[pessoa plano])
         .where(liquidacao: @data)
         .order('contratos.id')
         .page(params[:page])
         .per(50)
-    end
-
-    def render_pdf
-      pdf_html = render_to_string(
-        template: 'faturamento/dia/index',
-        layout: 'print',
-        formats: [:html]
-      )
-
-      send_data(
-        WickedPdf.new.pdf_from_string(pdf_html),
-        filename: "faturamento_#{@data}.pdf",
-        type: 'application/pdf',
-        disposition: 'inline'
-      )
     end
 
     def send_csv

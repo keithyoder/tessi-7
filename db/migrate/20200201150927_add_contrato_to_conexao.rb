@@ -3,7 +3,9 @@
 class AddContratoToConexao < ActiveRecord::Migration[5.2]
   def change
     add_reference :conexoes, :contrato, index: true
-    add_column :pontos, :canal_tamanho, :integer
-    add_column :pontos, :equipamento, :string
+    change_table :pontos, bulk: true do |t|
+      t.integer :canal_tamanho
+      t.string :equipamento
+    end
   end
 end

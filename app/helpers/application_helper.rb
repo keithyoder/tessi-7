@@ -8,7 +8,8 @@ module ApplicationHelper
   # end
 
   # def edit_button(path)
-  #  link_to '<i class="fa fa-pencil fa-lg" aria-hidden="true"></i>'.html_safe, path, class: "btn btn-sm btn-outline-dark"
+  #  link_to '<i class="fa fa-pencil fa-lg" aria-hidden="true"></i>'.html_safe, path,
+  #          class: "btn btn-sm btn-outline-dark"
   # end
 
   # def index_button(path)
@@ -48,17 +49,19 @@ module ApplicationHelper
   end
 
   def flash_message
-    messages = ''
-    %i[notice info warning error].each do |type|
-      if flash[type]
-        messages += "<div class=\"alert alert-#{BOOTSTRAP_ALERT_MAP[type]}\" role=\"alert\">#{flash[type]}</div>"
-      end
+    messages = %i[notice info warning error].filter_map do |type|
+      next unless flash[type]
+
+      content_tag(:div, flash[type], class: "alert alert-#{BOOTSTRAP_ALERT_MAP[type]}", role: 'alert')
     end
-    messages.html_safe
+    safe_join(messages)
   end
 
   def botao_salvar
-    '<button name="button" type="submit" class="btn btn-primary"><i aria-hidden="true" class="bi bi-save"></i> Salvar </button>'.html_safe
+    content_tag(:button, name: 'button', type: 'submit', class: 'btn btn-primary') do
+      concat content_tag(:i, '', aria: { hidden: true }, class: 'bi bi-save')
+      concat ' Salvar '
+    end
   end
 
   def inline_pdf_css(name)

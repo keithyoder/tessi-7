@@ -10,26 +10,9 @@ class ConexoesController < ApplicationController
   # GET /conexoes
   # GET /conexoes.json
   def index
-    conexao = Conexao.includes(
-      :pessoa,
-      :plano,
-      :ponto,
-      :equipamento
-    )
-
-    conexao = conexao.sem_autenticar if params.key?(:sem_autenticar)
-    conexao = conexao.bloqueado       if params.key?(:suspensas)
-    conexao = conexao.ativo           if params.key?(:ativas)
-    conexao = conexao.conectada       if params.key?(:conectadas)
-    conexao = conexao.desconectada    if params.key?(:desconectadas)
-    conexao = conexao.sem_contrato    if params.key?(:sem_contrato)
-
     @params = conexoes_params(params)
-
-    @conexao_q = conexao.ransack(params[:conexao_q])
-
+    @conexao_q = build_conexoes_query.ransack(params[:conexao_q])
     @pagy_conexoes, @conexoes = pagy(@conexao_q.result, page_param: :conexoes_page)
-
     @conexoes_status = Conexao.status_conexoes(@conexoes)
     respond_to do |format|
       format.html
@@ -52,7 +35,7 @@ class ConexoesController < ApplicationController
     AtualizarRadiusJob.perform_later
     respond_to do |format|
       format.html do
-        redirect_to conexoes_url, notice: 'Integração Radius inicada.'
+        redirect_to conexoes_url, notice: t('.notice')
       end
       format.json { head :no_content }
     end
@@ -74,7 +57,7 @@ class ConexoesController < ApplicationController
     @conexao.pessoa_id = params[:pessoa_id] if params[:pessoa_id]
     @conexao.auto_bloqueio = true
     set_contratos
-    @conexao.contrato = @contratos.first if @contratos.count == 1
+    @conexao.contrato = @contratos.first if @contratos.one?
     @caixas = FibraCaixa.joins(:fibra_rede, :ponto).order('pontos.nome, fibra_caixas.nome').all
   end
 
@@ -91,7 +74,7 @@ class ConexoesController < ApplicationController
     set_caixas
     respond_to do |format|
       if @conexao.save
-        format.html { redirect_to @conexao, notice: 'Conexão criada com sucesso.' }
+        format.html { redirect_to @conexao, notice: t('.notice') }
         format.json { render :show, status: :created, location: @conexao }
       else
         format.html { render :new }
@@ -107,7 +90,7 @@ class ConexoesController < ApplicationController
     set_contratos
     respond_to do |format|
       if @conexao.update(conexao_params)
-        format.html { redirect_to @conexao, notice: 'Conexão atualizada com sucesso.' }
+        format.html { redirect_to @conexao, notice: t('.notice') }
         format.json { render :show, status: :ok, location: @conexao }
       else
         format.html { render :edit }
@@ -121,7 +104,7 @@ class ConexoesController < ApplicationController
   def destroy
     @conexao.destroy
     respond_to do |format|
-      format.html { redirect_to conexoes_url, notice: 'Conexao was successfully destroyed.' }
+      format.html { redirect_to conexoes_url, notice: t('.notice') }
       format.json { head :no_content }
     end
   end
@@ -134,8 +117,8 @@ class ConexoesController < ApplicationController
   end
 
   def set_contratos
-    puts @conexao.pessoa.contratos.ativos.disponiveis
-    puts @conexao.contrato_id
+    Rails.logger.debug @conexao.pessoa.contratos.ativos.disponiveis
+    Rails.logger.debug @conexao.contrato_id
     @contratos = @conexao.pessoa.contratos.ativos.disponiveis.or Contrato.where(id: @conexao.contrato_id)
   end
 
@@ -143,6 +126,17 @@ class ConexoesController < ApplicationController
     @caixas = @conexao.ponto.caixas
       .joins(:fibra_rede, :ponto)
       .order('pontos.nome, fibra_caixas.nome').all
+  end
+
+  def build_conexoes_query
+    conexao = Conexao.includes(:pessoa, :plano, :ponto, :equipamento)
+    conexao = conexao.sem_autenticar if params.key?(:sem_autenticar)
+    conexao = conexao.bloqueado      if params.key?(:suspensas)
+    conexao = conexao.ativo          if params.key?(:ativas)
+    conexao = conexao.conectada      if params.key?(:conectadas)
+    conexao = conexao.desconectada   if params.key?(:desconectadas)
+    conexao = conexao.sem_contrato   if params.key?(:sem_contrato)
+    conexao
   end
 
   def set_scope

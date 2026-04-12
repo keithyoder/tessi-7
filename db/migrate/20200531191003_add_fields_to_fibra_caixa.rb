@@ -3,8 +3,10 @@
 class AddFieldsToFibraCaixa < ActiveRecord::Migration[5.2]
   def change
     add_reference :fibra_caixas, :logradouro
-    add_column :fibra_caixas, :poste, :string
-    add_column :fibra_caixas, :latitude, :decimal, precision: 10, scale: 6
-    add_column :fibra_caixas, :longitude, :decimal, precision: 10, scale: 6
+    change_table :fibra_caixas, bulk: true do |t|
+      t.string :poste
+      t.decimal :latitude, precision: 10, scale: 6
+      t.decimal :longitude, precision: 10, scale: 6
+    end
   end
 end

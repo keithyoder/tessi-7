@@ -18,12 +18,10 @@ class TokenController < ApplicationController
     load_config
     state = params[:state].to_s
 
-    if state != @state.to_s
-      render html: '<div>Your State is not matched, consider it hacked.<div>'.html_safe and return
-    end
+    render html: '<div>Your State is not matched, consider it hacked.<div>'.html_safe and return if state != @state.to_s
 
     @code = params[:code]
-    @realmID = params[:realmId]
+    @realm_id = params[:realmId]
 
     result = exchange_code_for_token
 
@@ -32,7 +30,7 @@ class TokenController < ApplicationController
       expires_in: result['expires_in'],
       x_refresh_token_expires_in: result['x_refresh_token_expires_in'],
       access_token: result['access_token'],
-      host_uri: @hostURL.to_s
+      host_uri: @host_url.to_s
     )
   end
 
@@ -44,7 +42,7 @@ class TokenController < ApplicationController
       updated_expires_in: result['expires_in'],
       updated_x_refresh_token_expires_in: result['x_refresh_token_expires_in'],
       updated_access_token: result['access_token'],
-      host_uri: @hostURL.to_s
+      host_uri: @host_url.to_s
     )
   end
 
@@ -56,7 +54,7 @@ class TokenController < ApplicationController
   def refresh_token
     load_config
     post_oauth_request(
-      @exchangeURL,
+      @exchange_url,
       grant_type: @refresh_token_scope.to_s,
       refresh_token: params[:id].to_s
     )
@@ -64,7 +62,7 @@ class TokenController < ApplicationController
 
   def exchange_code_for_token
     post_oauth_request(
-      @exchangeURL,
+      @exchange_url,
       code: @code.to_s,
       grant_type: @grant_type.to_s,
       redirect_uri: @redirect_uri.to_s
@@ -92,9 +90,7 @@ class TokenController < ApplicationController
 
     response = http.request(req)
 
-    unless response.is_a?(Net::HTTPSuccess)
-      raise "OAuth request failed (#{response.code}): #{response.body}"
-    end
+    raise "OAuth request failed (#{response.code}): #{response.body}" unless response.is_a?(Net::HTTPSuccess)
 
     JSON.parse(response.body)
   end
@@ -104,22 +100,34 @@ class TokenController < ApplicationController
   # -----------------------------
   def load_config
     config = YAML.load_file(Rails.root.join('config/oauth.yml'))
-    @hostURL = config['Settings']['host_uri']
-    @baseURL = config['Constant']['baseURL']
-    @exchangeURL = config['Constant']['tokenURL']
-    @client_id = config['OAuth2']['client_id']
-    @client_secret = config['OAuth2']['client_secret']
-    @scope = config['Constant']['scope']
-    @refresh_token_scope = config['Constant']['resfresh_grant_type']
-    @redirect_uri = config['Settings']['redirect_uri']
-    @state = config['Settings']['state']
-    @response_type = config['Constant']['response_type']
-    @grant_type = config['Constant']['grant_type']
+    load_settings_config(config['Settings'])
+    load_oauth_config(config['OAuth2'])
+    load_constants_config(config['Constant'])
+  end
+
+  def load_settings_config(settings)
+    @host_url = settings['host_uri']
+    @redirect_uri = settings['redirect_uri']
+    @state = settings['state']
+  end
+
+  def load_oauth_config(oauth)
+    @client_id = oauth['client_id']
+    @client_secret = oauth['client_secret']
+  end
+
+  def load_constants_config(constants)
+    @base_url = constants['baseURL']
+    @exchange_url = constants['tokenURL']
+    @scope = constants['scope']
+    @refresh_token_scope = constants['resfresh_grant_type']
+    @response_type = constants['response_type']
+    @grant_type = constants['grant_type']
   end
 
   def construct_base_url
     load_config
-    uri = URI(@baseURL)
+    uri = URI(@base_url)
     query_params = {
       client_id: @client_id,
       scope: @scope,

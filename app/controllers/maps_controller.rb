@@ -6,39 +6,32 @@ class MapsController < ApplicationController
 
   def ponto
     @ponto = Ponto.find(params[:id])
-
-    markers = []
-
-    # Add conexões markers if requested
-    if params[:show_conexoes]
-      conexoes = @ponto.conexoes.georeferenciadas.includes(:pessoa).to_a
-
-      # Batch load connection status to avoid N+1 queries
-      status_map = Conexao.status_conexoes(conexoes)
-
-      conexoes.each do |conexao|
-        icon_data = determine_icon(conexao, status_map)
-
-        markers << {
-          lat: conexao.latitude,
-          lng: conexao.longitude,
-          title: conexao.pessoa.nome,
-          icon: icon_data[:icon],
-          color: icon_data[:color],
-          popup: conexao_popup_html(conexao, status_map[conexao.id])
-        }
-      end
-    end
-
+    markers = params[:show_conexoes] ? build_conexoes_markers : []
     render partial: 'maps/viewer', locals: {
       latitude: @ponto.conexoes.georeferenciadas.first&.latitude || @ponto.latitude,
       longitude: @ponto.conexoes.georeferenciadas.first&.longitude || @ponto.longitude,
       zoom: params[:show_conexoes] ? 15 : 18,
-      markers: markers
+      markers:
     }
   end
 
   private
+
+  def build_conexoes_markers
+    conexoes = @ponto.conexoes.georeferenciadas.includes(:pessoa).to_a
+    status_map = Conexao.status_conexoes(conexoes)
+    conexoes.map do |conexao|
+      icon_data = determine_icon(conexao, status_map)
+      {
+        lat: conexao.latitude,
+        lng: conexao.longitude,
+        title: conexao.pessoa.nome,
+        icon: icon_data[:icon],
+        color: icon_data[:color],
+        popup: conexao_popup_html(conexao, status_map[conexao.id])
+      }
+    end
+  end
 
   def determine_icon(conexao, status_map)
     if conexao.bloqueado?

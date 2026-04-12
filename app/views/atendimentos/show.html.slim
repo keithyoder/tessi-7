@@ -17,8 +17,7 @@
         - if @atendimento.fatura.present?
           = render 'shared/field_card', {campo: "Fatura", valor: @atendimento.fatura&.id}
       - if can? :encerrar, @atendimento
-        = link_to encerrar_atendimento_path do
-          = button_tag("Encerrar", {:class => "btn btn-warning"}) do
-            i.fas.fa-door-closed aria-hidden="true" 
-            | Encerrar
-= render 'atendimento_detalhes/table'
+        = button_to encerrar_atendimento_path(@atendimento), method: :patch, class: "btn btn-warning", data: { confirm: "Tem certeza que deseja encerrar este atendimento?" } do
+          i.fas.fa-door-closed aria-hidden="true" 
+          |  Encerrar
+  = render 'atendimento_detalhes/table'

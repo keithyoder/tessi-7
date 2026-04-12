@@ -11,7 +11,7 @@ class CreateContratos < ActiveRecord::Migration[5.2]
       t.decimal :valor_instalacao, precision: 8, scale: 2
       t.integer :numero_conexoes, default: 1
       t.date :cancelamento
-      t.boolean :emite_nf, default: true
+      t.boolean :emite_nf, default: true, null: false
       t.date :primeiro_vencimento
       t.integer :prazo_meses, default: 12
 

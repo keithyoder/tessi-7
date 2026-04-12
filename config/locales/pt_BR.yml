@@ -246,10 +246,40 @@ pt-BR:
       notice: "Atendimento detalhe atualizado com sucesso."
     destroy:
       notice: "Atendimento detalhe excluído com sucesso."
+  classificacoes:
+    create:
+      notice: "Classificação criada com sucesso."
+    update:
+      notice: "Classificação atualizada com sucesso."
+    destroy:
+      notice: "Classificação excluída com sucesso."
+  conexoes:
+    integrar:
+      notice: "Integração Radius iniciada."
+    create:
+      notice: "Conexão criada com sucesso."
+    update:
+      notice: "Conexão atualizada com sucesso."
+    destroy:
+      notice: "Conexão excluída com sucesso."
   contratos:
+    autentique:
+      notice: "Termo de adesão enviado com sucesso."
+    create:
+      notice: "Contrato criado com sucesso."
+    destroy:
+      notice: "Contrato excluído com sucesso."
+    renovar:
+      notice: "Contrato renovado com sucesso."
     termos:
       create:
         notice: "Termo de adesão enviado com sucesso."
+    trocado:
+      notice: "Pagamento trocado resolvido com sucesso."
+    update:
+      notice: "Contrato atualizado com sucesso."
+    update_assinatura:
+      notice: "Assinatura criada com sucesso."
   equipamentos:
     create:
       notice: "Equipamento criado com sucesso."
@@ -383,3 +413,59 @@ pt-BR:
       notice: "Cidade atualizada com sucesso."
     destroy:
       notice: "Cidade removida com sucesso."
+  excecoes:
+    create:
+      notice: "Exceção criada com sucesso."
+    update:
+      notice: "Exceção atualizada com sucesso."
+    destroy:
+      notice: "Exceção excluída com sucesso."
+  nf21_itens:
+    create:
+      notice: "Item NF21 criado com sucesso."
+    update:
+      notice: "Item NF21 atualizado com sucesso."
+    destroy:
+      notice: "Item NF21 excluído com sucesso."
+  os:
+    create:
+      notice: "OS criada com sucesso."
+    update:
+      notice: "OS atualizada com sucesso."
+    destroy:
+      notice: "OS excluída com sucesso."
+  pessoas:
+    create:
+      notice: "Pessoa criada com sucesso."
+    update:
+      notice: "Pessoa atualizada com sucesso."
+    destroy:
+      notice: "Pessoa excluída com sucesso."
+  plano_enviar_atributos:
+    create:
+      notice: "Atributo de envio criado com sucesso."
+    update:
+      notice: "Atributo de envio atualizado com sucesso."
+    destroy:
+      notice: "Atributo de envio excluído com sucesso."
+  plano_verificar_atributos:
+    create:
+      notice: "Atributo de verificação criado com sucesso."
+    update:
+      notice: "Atributo de verificação atualizado com sucesso."
+    destroy:
+      notice: "Atributo de verificação excluído com sucesso."
+  servidores:
+    backup:
+      notice: "Backup iniciado."
+    backups:
+      notice: "Backup iniciado."
+    create:
+      notice: "Concentrador criado com sucesso."
+    update:
+      notice: "Servidor atualizado com sucesso."
+    destroy:
+      notice: "Servidor excluído com sucesso."
+  settings:
+    create:
+      notice: "Configurações atualizadas."

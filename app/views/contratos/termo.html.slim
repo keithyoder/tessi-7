@@ -114,7 +114,7 @@ html
                 tr
                   td
                     p.termo.campo  N&uacute;mero de Parcelas:
-                    span.termo.variable = parcelas_instalacao_display
+                    span.termo.variable = parcelas_instalacao_display(@contrato)
                   td
                     p.termo.campo  Vencimento da Mensalidade da Assinatura SCM:
                     span.termo.variable = "DIA #{@contrato.dia_vencimento}"
@@ -122,7 +122,7 @@ html
                   td
                     span.termo.campo  Data(s) de Vencimento(s)
                     br
-                    span.termo.variable = parcelas_vencimento
+                    span.termo.variable = parcelas_vencimento(@contrato)
                   td
                     p.termo.campo  Documento de Cobran&ccedil;a:
                     span.termo.variable = @contrato.pagamento_perfil.forma_pagamento

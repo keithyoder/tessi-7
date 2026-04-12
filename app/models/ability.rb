@@ -65,7 +65,7 @@ class Ability
   def tecnico_n2_permissions
     can :update, [Cidade, Ponto, Servidor]
     can %i[create update], [FibraRede, FibraCaixa, IpRede, Conexao, Equipamento]
-    can :destroy, [Conexao, IpRede]
+    can :destroy, Conexao
     can %i[backup backups], Servidor
     can :download, DeviceBackup
   end

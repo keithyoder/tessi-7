@@ -2,16 +2,18 @@
 
 class AddAssinaturaToContrato < ActiveRecord::Migration[5.2]
   def change
-    add_column :contratos, :gerencianet_assinatura_id, :integer
-    add_column :contratos, :cartao_parcial, :string
-    add_column :contratos, :billing_nome_completo, :string
-    add_column :contratos, :billing_cpf, :string
-    add_column :contratos, :billing_endereco, :string
-    add_column :contratos, :billing_endereco_numero, :string
-    add_column :contratos, :billing_bairro, :string
-    add_column :contratos, :billing_cidade, :string
-    add_column :contratos, :billing_estado, :string
-    add_column :contratos, :billing_cep, :string
-    add_column :contratos, :documentos, :jsonb
+    change_table :contratos, bulk: true do |t|
+      t.integer :gerencianet_assinatura_id
+      t.string :cartao_parcial
+      t.string :billing_nome_completo
+      t.string :billing_cpf
+      t.string :billing_endereco
+      t.string :billing_endereco_numero
+      t.string :billing_bairro
+      t.string :billing_cidade
+      t.string :billing_estado
+      t.string :billing_cep
+      t.jsonb :documentos
+    end
   end
 end

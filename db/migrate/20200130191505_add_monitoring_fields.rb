@@ -2,9 +2,13 @@
 
 class AddMonitoringFields < ActiveRecord::Migration[5.2]
   def change
-    add_column :pontos, :ssid, :string
-    add_column :pontos, :frequencia, :string
-    add_column :servidores, :versao, :string
-    add_column :servidores, :equipamento, :string
+    change_table :pontos, bulk: true do |t|
+      t.string :ssid
+      t.string :frequencia
+    end
+    change_table :servidores, bulk: true do |t|
+      t.string :versao
+      t.string :equipamento
+    end
   end
 end

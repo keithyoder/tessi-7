@@ -16,33 +16,8 @@ class Nf21sController < ApplicationController
   end
 
   def competencia
-    cadastro = StringIO.new
-    mestre = StringIO.new
-    itens = StringIO.new
-    cadastro.set_encoding('iso-8859-14')
-    mestre.set_encoding('iso-8859-14')
-    itens.set_encoding('iso-8859-14')
-    Nf21.competencia(params[:mes]).order(:numero).each do |nf|
-      cadastro << nf.cadastro
-      mestre << nf.mestre
-      nf.nf21_itens.each do |item|
-        itens << item.item
-      end
-    end
-    cadastro.rewind
-    mestre.rewind
-    itens.rewind
-    zipio = Zip::OutputStream.write_buffer do |zio|
-      zio.put_next_entry(nome_arquivo(params[:mes], 'D'))
-      zio.write cadastro.read
-      zio.put_next_entry(nome_arquivo(params[:mes], 'M'))
-      zio.write mestre.read
-      zio.put_next_entry(nome_arquivo(params[:mes], 'I'))
-      zio.write itens.read
-    end
-    zipio.rewind
     send_data(
-      zipio.sysread,
+      build_competencia_zip(params[:mes]),
       content_type: 'application/zip',
       disposition: 'attachment',
       filename: "competencia-#{params[:mes]}.zip"
@@ -59,6 +34,32 @@ class Nf21sController < ApplicationController
   # Only allow a list of trusted parameters through.
   def nf21_params
     params.require(:nf21).permit(:emissao, :numero, :valor, :cadastro, :mestre)
+  end
+
+  def build_competencia_zip(mes)
+    cadastro, mestre, itens = build_nf21_streams(mes)
+    zipio = Zip::OutputStream.write_buffer do |zio|
+      zio.put_next_entry(nome_arquivo(mes, 'D'))
+      zio.write cadastro.read
+      zio.put_next_entry(nome_arquivo(mes, 'M'))
+      zio.write mestre.read
+      zio.put_next_entry(nome_arquivo(mes, 'I'))
+      zio.write itens.read
+    end
+    zipio.rewind
+    zipio.sysread
+  end
+
+  def build_nf21_streams(mes)
+    cadastro = StringIO.new.tap { |s| s.set_encoding('iso-8859-14') }
+    mestre = StringIO.new.tap { |s| s.set_encoding('iso-8859-14') }
+    itens = StringIO.new.tap { |s| s.set_encoding('iso-8859-14') }
+    Nf21.competencia(mes).order(:numero).each do |nf|
+      cadastro << nf.cadastro
+      mestre << nf.mestre
+      nf.nf21_itens.each { |item| itens << item.item }
+    end
+    [cadastro.tap(&:rewind), mestre.tap(&:rewind), itens.tap(&:rewind)]
   end
 
   def nome_arquivo(mes, letra)

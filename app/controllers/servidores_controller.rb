@@ -13,7 +13,7 @@ class ServidoresController < ApplicationController
     respond_to do |format|
       format.html
       format.csv do
-        send_data @servidores.except(:limit, :offset).to_csv, filename: "concentradores  -#{Date.today}.csv"
+        send_data @servidores.except(:limit, :offset).to_csv, filename: "concentradores  -#{Time.zone.today}.csv"
       end
     end
   end
@@ -46,7 +46,7 @@ class ServidoresController < ApplicationController
   def backup
     @servidor.copiar_backup
     respond_to do |format|
-      format.html { redirect_to @servidor, notice: 'Backup iniciado.' }
+      format.html { redirect_to @servidor, notice: t('.notice') }
       format.json { head :no_content }
     end
   end
@@ -59,7 +59,7 @@ class ServidoresController < ApplicationController
     end
     respond_to do |format|
       format.job do
-        redirect_to backups_servidores_path, notice: 'Backup iniciado.'
+        redirect_to backups_servidores_path, notice: t('.notice')
       end
       format.html { render :backups }
       format.json { head :no_content }
@@ -85,7 +85,7 @@ class ServidoresController < ApplicationController
       .includes(:pessoa, :logradouro, :bairro, :ponto, :logradouro_pessoa)
       .where.not(latitude: nil)
       .to_json(include: %i[pessoa logradouro bairro ponto logradouro_pessoa])
-    puts @desconectadas
+    Rails.logger.debug @desconectadas
   end
 
   # POST /servidores
@@ -96,7 +96,7 @@ class ServidoresController < ApplicationController
     respond_to do |format|
       if @servidor.save
         format.html do
-          redirect_to @servidor, notice: 'Concentrador criado com sucesso.'
+          redirect_to @servidor, notice: t('.notice')
         end
         format.json { render :show, status: :created, location: @servidor }
       else
@@ -111,7 +111,7 @@ class ServidoresController < ApplicationController
   def update
     respond_to do |format|
       if @servidor.update(servidor_params)
-        format.html { redirect_to @servidor, notice: 'Servidor was successfully updated.' }
+        format.html { redirect_to @servidor, notice: t('.notice') }
         format.json { render :show, status: :ok, location: @servidor }
       else
         format.html { render :edit }
@@ -125,7 +125,7 @@ class ServidoresController < ApplicationController
   def destroy
     @servidor.destroy
     respond_to do |format|
-      format.html { redirect_to servidores_url, notice: 'Servidor was successfully destroyed.' }
+      format.html { redirect_to servidores_url, notice: t('.notice') }
       format.json { head :no_content }
     end
   end

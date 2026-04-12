@@ -15,8 +15,8 @@ class LiquidacoesController < ApplicationController
 
   def show
     @liquidacoes = Fatura.includes(%i[contrato pessoa])
-      .where('liquidacao = ?', params[:id])
-    @liquidacoes = @liquidacoes.where('meio_liquidacao = ?', params[:meio]) if params.key?(:meio)
+      .where(liquidacao: params[:id])
+    @liquidacoes = @liquidacoes.where(meio_liquidacao: params[:meio]) if params.key?(:meio)
     @liquidacoes = @liquidacoes.page(params[:page])
   end
 
@@ -105,85 +105,64 @@ class LiquidacoesController < ApplicationController
 
   # Estatísticas mensais com comparação à média histórica
   def monthly_statistics(ano)
-    mes_atual = Date.current.month
-    mes_selecionado = params[:mes]&.to_i || mes_atual
+    mes_selecionado = params[:mes]&.to_i || Date.current.month
     inicio_mes = Date.new(ano, mes_selecionado, 1)
-    fim_mes = inicio_mes.end_of_month
-
-    # Limitar até hoje se for o mês atual
-    fim_mes = [fim_mes, Date.current].min if ano == Date.current.year && mes_selecionado == mes_atual
+    fim_mes = monthly_end_date(ano, mes_selecionado, inicio_mes)
     dia_atual_do_mes = fim_mes.day
 
-    # Valores do mês atual (até hoje se for mês corrente)
     faturas_mes = Fatura.where(liquidacao: inicio_mes..fim_mes)
     total_mes = faturas_mes.sum(:valor_liquidacao)
     total_pagamentos_mes = faturas_mes.count
 
-    # Cálculo da média histórica por dia do mês
-    # Pega últimos 12 meses COMPLETOS (exclui mês atual se parcial)
-    data_inicio_historico = 13.months.ago.beginning_of_month
-    data_fim_historico = 1.month.ago.end_of_month
+    medias_historicas = build_historical_averages
+    media_historica_acumulada = (1..dia_atual_do_mes).sum { |dia| medias_historicas[dia] || 0 }
+    projecao_mes = total_mes + ((dia_atual_do_mes + 1)..31).sum { |dia| medias_historicas[dia] || 0 }
 
-    # Agrupa por dia do mês (1-31) e calcula média de cada dia
-    # Para cada dia: soma TODAS as faturas daquele dia e divide pelo número de meses
-    historico_por_dia = Fatura
-      .where(liquidacao: data_inicio_historico..data_fim_historico)
+    build_monthly_stats(total_mes, total_pagamentos_mes, dia_atual_do_mes,
+                        media_historica_acumulada, projecao_mes, medias_historicas)
+  end
+
+  def monthly_end_date(ano, mes, inicio_mes)
+    fim = inicio_mes.end_of_month
+    fim = [fim, Date.current].min if ano == Date.current.year && mes == Date.current.month
+    fim
+  end
+
+  # Cálculo da média histórica por dia do mês (últimos 12 meses completos)
+  def build_historical_averages
+    historico = Fatura
+      .where(liquidacao: 13.months.ago.beginning_of_month..1.month.ago.end_of_month)
       .group(Arel.sql('EXTRACT(day FROM liquidacao)'))
       .select(
         Arel.sql('EXTRACT(day FROM liquidacao)::int as dia_do_mes'),
         Arel.sql('SUM(valor_liquidacao) as total_dia'),
         Arel.sql("COUNT(DISTINCT DATE_TRUNC('month', liquidacao)) as meses_count")
       )
-
-    # Converte para hash para fácil acesso
-    # Divide pelo número de meses que tiveram aquele dia
-    # (importante: dia 31 só existe em alguns meses)
-    medias_historicas = {}
-    historico_por_dia.each do |registro|
+    historico.each_with_object({}) do |registro, hash|
       meses = registro.meses_count.to_f
-      medias_historicas[registro.dia_do_mes] = meses > 0 ? (registro.total_dia.to_f / meses) : 0
+      hash[registro.dia_do_mes] = meses.positive? ? (registro.total_dia.to_f / meses) : 0
     end
+  end
 
-    # Soma as médias históricas apenas para os dias já decorridos no mês
-    # Exemplo: Se hoje é dia 15, soma médias dos dias 1 a 15
-    media_historica_acumulada = (1..dia_atual_do_mes).sum do |dia|
-      medias_historicas[dia] || 0
-    end
-
-    projecao_mes = total_mes
-
-    # Parte 2: Soma as médias históricas para os dias que faltam
-    # Se hoje é dia 15, soma as médias dos dias 16 até o fim do mês (28, 29, 30 ou 31)
-    ((dia_atual_do_mes + 1)..31).each do |dia|
-      projecao_mes += medias_historicas[dia] || 0
-    end
-
-    # Performance: quanto estamos acima/abaixo da média
+  def build_monthly_stats(total_mes, total_pagamentos_mes, dia_atual_do_mes, # rubocop:disable Metrics/ParameterLists
+                          media_historica_acumulada, projecao_mes, medias_historicas)
     diferenca_valor = total_mes - media_historica_acumulada
-    diferenca_percentual = if media_historica_acumulada > 0
-                             (diferenca_valor / media_historica_acumulada * 100)
-                           else
-                             0
-                           end
-
-    # Média diária do mês atual (para exibição)
-    media_diaria_mes = dia_atual_do_mes > 0 ? total_mes / dia_atual_do_mes : 0
-
-    # Média diária histórica (para exibição)
-    media_diaria_historica = dia_atual_do_mes > 0 ? media_historica_acumulada / dia_atual_do_mes : 0
+    diferenca_percentual = media_historica_acumulada.positive? ? (diferenca_valor / media_historica_acumulada * 100) : 0
+    media_diaria_mes = dia_atual_do_mes.positive? ? total_mes / dia_atual_do_mes : 0
+    media_diaria_historica = dia_atual_do_mes.positive? ? media_historica_acumulada / dia_atual_do_mes : 0
 
     {
-      total_mes: total_mes,
-      total_pagamentos_mes: total_pagamentos_mes,
+      total_mes:,
+      total_pagamentos_mes:,
       dias_decorridos: dia_atual_do_mes,
-      media_diaria_mes: media_diaria_mes,
-      media_diaria_historica: media_diaria_historica,
-      media_historica_acumulada: media_historica_acumulada, # Total esperado até hoje
-      projecao_mes: projecao_mes,
-      diferenca_valor: diferenca_valor,
-      diferenca_percentual: diferenca_percentual,
+      media_diaria_mes:,
+      media_diaria_historica:,
+      media_historica_acumulada:,
+      projecao_mes:,
+      diferenca_valor:,
+      diferenca_percentual:,
       performance: diferenca_percentual >= 0 ? :acima : :abaixo,
-      medias_por_dia: medias_historicas # Para debug ou gráficos futuros
+      medias_por_dia: medias_historicas
     }
   end
 

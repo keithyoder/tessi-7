@@ -13,7 +13,7 @@ class PlanoEnviarAtributosController < ApplicationController
       format.html
       format.csv do
         send_data @plano_enviar_atributos.except(:limit, :offset).to_csv,
-                  filename: "plano_enviar_atributos-#{Date.today}.csv"
+                  filename: "plano_enviar_atributos-#{Time.zone.today}.csv"
       end
     end
   end
@@ -37,11 +37,11 @@ class PlanoEnviarAtributosController < ApplicationController
 
     respond_to do |format|
       if @plano_enviar_atributo.save
-        format.html { redirect_to @plano_enviar_atributo, notice: 'Plano enviar atributo was successfully created.' }
+        format.html { redirect_to @plano_enviar_atributo, notice: t('.notice') }
         format.json { render :show, status: :created, location: @plano_enviar_atributo }
       else
         format.html { render :new }
-        format.json { render json: @plano_enviar_atributo.errors, status: :unprocessable_entity }
+        format.json { render json: @plano_enviar_atributo.errors, status: :unprocessable_content }
       end
     end
   end
@@ -51,11 +51,11 @@ class PlanoEnviarAtributosController < ApplicationController
   def update
     respond_to do |format|
       if @plano_enviar_atributo.update(plano_enviar_atributo_params)
-        format.html { redirect_to @plano_enviar_atributo, notice: 'Plano enviar atributo was successfully updated.' }
+        format.html { redirect_to @plano_enviar_atributo, notice: t('.notice') }
         format.json { render :show, status: :ok, location: @plano_enviar_atributo }
       else
         format.html { render :edit }
-        format.json { render json: @plano_enviar_atributo.errors, status: :unprocessable_entity }
+        format.json { render json: @plano_enviar_atributo.errors, status: :unprocessable_content }
       end
     end
   end
@@ -66,7 +66,7 @@ class PlanoEnviarAtributosController < ApplicationController
     @plano_enviar_atributo.destroy
     respond_to do |format|
       format.html do
-        redirect_to plano_enviar_atributos_url, notice: 'Plano enviar atributo was successfully destroyed.'
+        redirect_to plano_enviar_atributos_url, notice: t('.notice')
       end
       format.json { head :no_content }
     end

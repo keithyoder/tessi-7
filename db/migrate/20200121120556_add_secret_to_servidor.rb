@@ -2,7 +2,9 @@
 
 class AddSecretToServidor < ActiveRecord::Migration[5.2]
   def change
-    add_column :servidores, :radius_secret, :string
-    add_column :servidores, :radius_porta, :integer
+    change_table :servidores, bulk: true do |t|
+      t.string :radius_secret
+      t.integer :radius_porta
+    end
   end
 end

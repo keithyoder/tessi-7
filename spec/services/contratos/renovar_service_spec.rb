@@ -67,7 +67,7 @@ RSpec.describe Contratos::RenovarService do
         described_class.new(contrato: contrato, meses_por_fatura: 2).call
 
         nova_fatura = contrato.faturas.order(:periodo_inicio).last
-        expect(nova_fatura.periodo_fim).to eq(ultima_fatura.periodo_fim + 6.months)
+        expect(nova_fatura.periodo_fim).to eq(ultima_fatura.periodo_fim + contrato.prazo_meses.months)
       end
 
       it 'respeita o meses_por_fatura ao calcular a quantidade' do
@@ -90,9 +90,23 @@ RSpec.describe Contratos::RenovarService do
     end
 
     context 'quando não restam meses para gerar faturas' do
-      before do
-        allow(contrato).to receive(:gerar_faturas_iniciais)
+      let(:contrato) do
+        any_contrato(
+          pessoa: any_pessoa_fisica,
+          plano: plano,
+          adesao: Date.new(2026, 1, 9),
+          prazo_meses: 1,
+          valor_personalizado: 150.0,
+          parcelas_instalacao: 0,
+          primeiro_vencimento: Date.new(2026, 2, 10),
+          dia_vencimento: 10,
+          pagamento_perfil: any_pagamento_perfil,
+          cancelamento: nil
+        )
       end
+
+      # Force contrato creation before any spy is installed
+      before { contrato }
 
       it 'não chama o GerarService' do
         spy_service = class_spy(Faturas::GerarService)

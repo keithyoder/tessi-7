@@ -8,13 +8,6 @@ module Faturamento
     def index
       @estatisticas = EstatisticasMes.new(ano: @ano, mes: @mes).call
       @chart_data = build_chart_data
-
-      respond_to do |format|
-        format.html
-        format.pdf do
-          render_pdf
-        end
-      end
     end
 
     private
@@ -29,7 +22,7 @@ module Faturamento
     def validar_periodo
       return if (1..12).cover?(@mes) && @ano.between?(2020, Date.current.year + 1)
 
-      redirect_to faturamento_root_path, alert: 'Período inválido'
+      redirect_to faturamento_root_path, alert: t('faturamento.mes.invalid_period')
     end
 
     def build_chart_data
@@ -41,21 +34,6 @@ module Faturamento
         'Real' => dias.map { |d| [d[:dia].to_s, d[:acumulado_real]] },
         'Esperado' => dias.map { |d| [d[:dia].to_s, d[:acumulado_esperado]] }
       }
-    end
-
-    def render_pdf
-      pdf_html = render_to_string(
-        template: 'faturamento/mes/index',
-        layout: 'print',
-        formats: [:html]
-      )
-
-      send_data(
-        WickedPdf.new.pdf_from_string(pdf_html),
-        filename: "faturamento_#{@ano}_#{@mes}.pdf",
-        type: 'application/pdf',
-        disposition: 'inline'
-      )
     end
   end
 end

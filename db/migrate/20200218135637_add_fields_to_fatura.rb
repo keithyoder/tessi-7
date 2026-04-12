@@ -2,9 +2,11 @@
 
 class AddFieldsToFatura < ActiveRecord::Migration[5.2]
   def change
-    add_column :faturas, :juros_recebidos, :decimal
-    add_column :faturas, :desconto_concedido, :decimal
-    add_column :faturas, :banco, :integer
-    add_column :faturas, :agencia, :integer
+    change_table :faturas, bulk: true do |t|
+      t.decimal :juros_recebidos
+      t.decimal :desconto_concedido
+      t.integer :banco
+      t.integer :agencia
+    end
   end
 end

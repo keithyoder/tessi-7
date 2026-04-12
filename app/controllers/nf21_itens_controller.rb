@@ -28,11 +28,11 @@ class Nf21ItensController < ApplicationController
 
     respond_to do |format|
       if @nf21_item.save
-        format.html { redirect_to @nf21_item, notice: 'Nf21 item was successfully created.' }
+        format.html { redirect_to @nf21_item, notice: t('.notice') }
         format.json { render :show, status: :created, location: @nf21_item }
       else
         format.html { render :new }
-        format.json { render json: @nf21_item.errors, status: :unprocessable_entity }
+        format.json { render json: @nf21_item.errors, status: :unprocessable_content }
       end
     end
   end
@@ -42,11 +42,11 @@ class Nf21ItensController < ApplicationController
   def update
     respond_to do |format|
       if @nf21_item.update(nf21_item_params)
-        format.html { redirect_to @nf21_item, notice: 'Nf21 item was successfully updated.' }
+        format.html { redirect_to @nf21_item, notice: t('.notice') }
         format.json { render :show, status: :ok, location: @nf21_item }
       else
         format.html { render :edit }
-        format.json { render json: @nf21_item.errors, status: :unprocessable_entity }
+        format.json { render json: @nf21_item.errors, status: :unprocessable_content }
       end
     end
   end
@@ -56,7 +56,7 @@ class Nf21ItensController < ApplicationController
   def destroy
     @nf21_item.destroy
     respond_to do |format|
-      format.html { redirect_to nf21_itens_url, notice: 'Nf21 item was successfully destroyed.' }
+      format.html { redirect_to nf21_itens_url, notice: t('.notice') }
       format.json { head :no_content }
     end
   end

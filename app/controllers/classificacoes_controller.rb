@@ -30,11 +30,11 @@ class ClassificacoesController < ApplicationController
 
     respond_to do |format|
       if @classificacao.save
-        format.html { redirect_to @classificacao, notice: 'Classificacao was successfully created.' }
+        format.html { redirect_to @classificacao, notice: t('.notice') }
         format.json { render :show, status: :created, location: @classificacao }
       else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @classificacao.errors, status: :unprocessable_entity }
+        format.html { render :new, status: :unprocessable_content }
+        format.json { render json: @classificacao.errors, status: :unprocessable_content }
       end
     end
   end
@@ -43,11 +43,11 @@ class ClassificacoesController < ApplicationController
   def update
     respond_to do |format|
       if @classificacao.update(classificacao_params)
-        format.html { redirect_to @classificacao, notice: 'Classificação criada com sucesso.' }
+        format.html { redirect_to @classificacao, notice: t('.notice') }
         format.json { render :show, status: :ok, location: @classificacoes }
       else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @classificacao.errors, status: :unprocessable_entity }
+        format.html { render :edit, status: :unprocessable_content }
+        format.json { render json: @classificacao.errors, status: :unprocessable_content }
       end
     end
   end
@@ -56,7 +56,7 @@ class ClassificacoesController < ApplicationController
   def destroy
     @classificacao.destroy
     respond_to do |format|
-      format.html { redirect_to classificacoes_url, notice: 'Classificacao was successfully destroyed.' }
+      format.html { redirect_to classificacoes_url, notice: t('.notice') }
       format.json { head :no_content }
     end
   end

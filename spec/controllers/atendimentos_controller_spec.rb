@@ -315,12 +315,10 @@ RSpec.describe AtendimentosController, type: :controller do
       end
 
       it 'não permite encerrar atendimento já fechado' do
-        original_fechamento = closed_atendimento.fechamento
+        expect do
+          patch :encerrar, params: { id: closed_atendimento.id }
+        end.not_to(change { closed_atendimento.reload.fechamento.to_i })
 
-        patch :encerrar, params: { id: closed_atendimento.id }
-
-        closed_atendimento.reload
-        expect(closed_atendimento.fechamento).to eq(original_fechamento)
         expect(response).to redirect_to(root_path)
       end
     end
@@ -335,12 +333,10 @@ RSpec.describe AtendimentosController, type: :controller do
       end
 
       it 'não permite encerrar atendimento já fechado' do
-        original_fechamento = closed_atendimento.fechamento
+        expect do
+          patch :encerrar, params: { id: closed_atendimento.id }
+        end.not_to(change { closed_atendimento.reload.fechamento.to_i })
 
-        patch :encerrar, params: { id: closed_atendimento.id }
-
-        closed_atendimento.reload
-        expect(closed_atendimento.fechamento).to eq(original_fechamento)
         expect(response).to redirect_to(root_path)
       end
     end

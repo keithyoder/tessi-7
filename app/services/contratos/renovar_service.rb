@@ -37,6 +37,8 @@ module Contratos
     def call
       validar_contrato!
 
+      meses_restantes = months_between(proximo_vencimento, fim_contrato)
+
       meses_restantes = months_between(inicio_proximo_periodo + 1.day, fim_contrato)
       return if meses_restantes.to_i <= 0
 

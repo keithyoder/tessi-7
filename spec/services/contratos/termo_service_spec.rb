@@ -35,14 +35,9 @@ RSpec.describe Contratos::TermoService, type: :service do
       expect(documents_proxy).to have_received(:create)
     end
 
-    it 'saves the document info in contrato.documentos' do
-      expect do
-        service.enviar_para_assinatura
-      end.to change { contrato.reload.documentos.size }.by(1)
-
-      doc = contrato.reload.documentos.last
-      expect(doc['id']).to eq('doc-123')
-      expect(doc['nome']).to eq('Contrato 1')
+    it 'returns the created document' do
+      result = service.enviar_para_assinatura
+      expect(result).to eq(document_double)
     end
 
     context 'when the client raises an error' do

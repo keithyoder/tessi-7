@@ -7,7 +7,7 @@ class CreatePlanos < ActiveRecord::Migration[5.2]
       t.decimal :mensalidade, precision: 8, scale: 2
       t.integer :upload
       t.integer :download
-      t.boolean :burst
+      t.boolean :burst, default: false, null: false
 
       t.timestamps
     end

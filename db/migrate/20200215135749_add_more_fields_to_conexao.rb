@@ -2,7 +2,9 @@
 
 class AddMoreFieldsToConexao < ActiveRecord::Migration[5.2]
   def change
-    add_column :conexoes, :mac, :string
-    add_column :conexoes, :tipo, :integer
+    change_table :conexoes, bulk: true do |t|
+      t.string :mac
+      t.integer :tipo
+    end
   end
 end

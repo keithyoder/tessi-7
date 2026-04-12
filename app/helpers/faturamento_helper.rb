@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module FaturamentoHelper
   def diferenca_class(diferenca)
     if diferenca.positive?

@@ -13,7 +13,7 @@ class PlanoVerificarAtributosController < ApplicationController
       format.html
       format.csv do
         send_data @plano_verificar_atributos.except(:limit, :offset).to_csv,
-                  filename: "plano_verificar_atributos-#{Date.today}.csv"
+                  filename: "plano_verificar_atributos-#{Time.zone.today}.csv"
       end
     end
   end
@@ -38,12 +38,12 @@ class PlanoVerificarAtributosController < ApplicationController
     respond_to do |format|
       if @plano_verificar_atributo.save
         format.html do
-          redirect_to @plano_verificar_atributo, notice: 'Plano verificar atributo was successfully created.'
+          redirect_to @plano_verificar_atributo, notice: t('.notice')
         end
         format.json { render :show, status: :created, location: @plano_verificar_atributo }
       else
         format.html { render :new }
-        format.json { render json: @plano_verificar_atributo.errors, status: :unprocessable_entity }
+        format.json { render json: @plano_verificar_atributo.errors, status: :unprocessable_content }
       end
     end
   end
@@ -54,12 +54,12 @@ class PlanoVerificarAtributosController < ApplicationController
     respond_to do |format|
       if @plano_verificar_atributo.update(plano_verificar_atributo_params)
         format.html do
-          redirect_to @plano_verificar_atributo, notice: 'Plano verificar atributo was successfully updated.'
+          redirect_to @plano_verificar_atributo, notice: t('.notice')
         end
         format.json { render :show, status: :ok, location: @plano_verificar_atributo }
       else
         format.html { render :edit }
-        format.json { render json: @plano_verificar_atributo.errors, status: :unprocessable_entity }
+        format.json { render json: @plano_verificar_atributo.errors, status: :unprocessable_content }
       end
     end
   end
@@ -70,7 +70,7 @@ class PlanoVerificarAtributosController < ApplicationController
     @plano_verificar_atributo.destroy
     respond_to do |format|
       format.html do
-        redirect_to plano_verificar_atributos_url, notice: 'Plano verificar atributo was successfully destroyed.'
+        redirect_to plano_verificar_atributos_url, notice: t('.notice')
       end
       format.json { head :no_content }
     end

@@ -2,8 +2,10 @@
 
 class AddFieldsToConexao < ActiveRecord::Migration[5.2]
   def change
-    add_column :conexoes, :observacao, :string
-    add_column :conexoes, :usuario, :string
-    add_column :conexoes, :senha, :string
+    change_table :conexoes, bulk: true do |t|
+      t.string :observacao
+      t.string :usuario
+      t.string :senha
+    end
   end
 end

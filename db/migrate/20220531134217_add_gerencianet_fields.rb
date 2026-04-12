@@ -2,11 +2,15 @@
 
 class AddGerencianetFields < ActiveRecord::Migration[5.2]
   def change
-    add_column :pagamento_perfis, :client_id, :string
-    add_column :pagamento_perfis, :client_secret, :string
-    add_column :faturas, :pix, :string
-    add_column :faturas, :id_externo, :integer
-    add_column :faturas, :link, :string
-    add_column :faturas, :codigo_de_barras, :string
+    change_table :pagamento_perfis, bulk: true do |t|
+      t.string :client_id
+      t.string :client_secret
+    end
+    change_table :faturas, bulk: true do |t|
+      t.string :pix
+      t.integer :id_externo
+      t.string :link
+      t.string :codigo_de_barras
+    end
   end
 end

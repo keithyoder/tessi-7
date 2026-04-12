@@ -19,37 +19,11 @@ class PessoasController < ApplicationController
   # GET /pessoas/1.json
   def show
     @pessoa = Pessoa.find(params[:id])
-
     @params = (@params || {}).merge(pessoa_id: @pessoa)
-
-    @pagy_conexoes, @conexoes = pagy(
-      @pessoa
-        .conexoes
-        .includes(:pessoa, :plano, :ponto, :equipamento),
-      page_param: :conexoes_page
-    )
-
-    @conexoes_status = Conexao.status_conexoes(@conexoes)
-
-    @contratos = @pessoa
-      .contratos
-      .order(:adesao)
-      .page(params[:page])
-
-    @os_q = @pessoa
-      .os
-      .includes(:pessoa, :classificacao)
-      .ransack(params[:os_q])
-
-    @os = @os_q.result.page(params[:page])
-
-    @atendimentos_q = @pessoa
-      .atendimentos
-      .includes(:pessoa, :classificacao)
-      .ransack(params[:atendimentos_q])
-
-    @atendimentos = @atendimentos_q.result.page(params[:page])
-
+    load_pessoa_conexoes
+    load_pessoa_contratos
+    load_pessoa_os
+    load_pessoa_atendimentos
     respond_to do |format|
       format.html
       format.json do
@@ -73,7 +47,7 @@ class PessoasController < ApplicationController
 
     respond_to do |format|
       if @pessoa.save
-        format.html { redirect_to @pessoa, notice: 'Pessoa criada com sucesso.' }
+        format.html { redirect_to @pessoa, notice: t('.notice') }
         format.json { render :show, status: :created, location: @pessoa }
       else
         format.html { render :new }
@@ -86,7 +60,7 @@ class PessoasController < ApplicationController
   # PATCH/PUT /pessoas/1.json
   def update
     if @pessoa.update(pessoa_params)
-      redirect_to @pessoa, notice: 'Pessoa foi atualizada com sucesso.'
+      redirect_to @pessoa, notice: t('.notice')
     else
       render :edit, status: :unprocessable_content
     end
@@ -97,12 +71,34 @@ class PessoasController < ApplicationController
   def destroy
     @pessoa.destroy
     respond_to do |format|
-      format.html { redirect_to pessoas_url, notice: 'Pessoa was successfully destroyed.' }
+      format.html { redirect_to pessoas_url, notice: t('.notice') }
       format.json { head :no_content }
     end
   end
 
   private
+
+  def load_pessoa_conexoes
+    @pagy_conexoes, @conexoes = pagy(
+      @pessoa.conexoes.includes(:pessoa, :plano, :ponto, :equipamento),
+      page_param: :conexoes_page
+    )
+    @conexoes_status = Conexao.status_conexoes(@conexoes)
+  end
+
+  def load_pessoa_contratos
+    @contratos = @pessoa.contratos.order(:adesao).page(params[:page])
+  end
+
+  def load_pessoa_os
+    @os_q = @pessoa.os.includes(:pessoa, :classificacao).ransack(params[:os_q])
+    @os = @os_q.result.page(params[:page])
+  end
+
+  def load_pessoa_atendimentos
+    @atendimentos_q = @pessoa.atendimentos.includes(:pessoa, :classificacao).ransack(params[:atendimentos_q])
+    @atendimentos = @atendimentos_q.result.page(params[:page])
+  end
 
   def set_scope
     @params = params.permit(:page, q: [:nome_cont])

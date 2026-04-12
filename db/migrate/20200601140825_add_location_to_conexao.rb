@@ -2,7 +2,9 @@
 
 class AddLocationToConexao < ActiveRecord::Migration[5.2]
   def change
-    add_column :conexoes, :latitude, :decimal, precision: 10, scale: 6
-    add_column :conexoes, :longitude, :decimal, precision: 10, scale: 6
+    change_table :conexoes, bulk: true do |t|
+      t.decimal :latitude, precision: 10, scale: 6
+      t.decimal :longitude, precision: 10, scale: 6
+    end
   end
 end

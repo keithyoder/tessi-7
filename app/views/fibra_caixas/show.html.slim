@@ -14,6 +14,6 @@
     .col-md-3
       .card-body
         p[align="center"]
-          = image_tag "https://maps.googleapis.com/maps/api/staticmap?size=400x310&#{markers}&key=#{Rails.application.credentials.google_maps_api_key}", alt: "Map"
+          = image_tag "https://maps.googleapis.com/maps/api/staticmap?size=400x310&#{markers(@fibra_caixa)}&key=#{Rails.application.credentials.google_maps_api_key}", alt: "Map"
 .card
   = render 'conexoes/table', {exclude: ['ponto']}

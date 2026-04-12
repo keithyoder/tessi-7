@@ -8,12 +8,7 @@ class OsController < ApplicationController
 
   # GET /os or /os.json
   def index
-    @os = Os
-    @os = @os.abertas if params.key?(:abertas)
-    @os = @os.fechadas if params.key?(:fechadas)
-    @os = @os.por_responsavel(current_user) if params.key?(:minhas)
-    @os = @os.por_responsavel(params[:responsavel]) if params.key?(:responsavel)
-    @os_q = @os.includes(:pessoa, :classificacao).order(created_at: :asc).ransack(params[:os_q])
+    @os_q = build_os_query.includes(:pessoa, :classificacao).order(created_at: :asc).ransack(params[:os_q])
     @os = @os_q.result.page params[:page]
     respond_to do |format|
       format.html
@@ -49,11 +44,11 @@ class OsController < ApplicationController
 
     respond_to do |format|
       if @os.save
-        format.html { redirect_to @os, notice: 'OS criada com sucesso.' }
+        format.html { redirect_to @os, notice: t('.notice') }
         format.json { render :show, status: :created, location: @os }
       else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @os.errors, status: :unprocessable_entity }
+        format.html { render :new, status: :unprocessable_content }
+        format.json { render json: @os.errors, status: :unprocessable_content }
       end
     end
   end
@@ -63,11 +58,11 @@ class OsController < ApplicationController
     @os.fechamento = Time.zone.now if params[:commit].present? && params[:commit] == 'Encerrar'
     respond_to do |format|
       if @os.update(os_params.except(:fechamento))
-        format.html { redirect_to @os, notice: 'OS atualizada com sucesso.' }
+        format.html { redirect_to @os, notice: t('.notice') }
         format.json { render :show, status: :ok, location: @os }
       else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @os.errors, status: :unprocessable_entity }
+        format.html { render :edit, status: :unprocessable_content }
+        format.json { render json: @os.errors, status: :unprocessable_content }
       end
     end
   end
@@ -76,7 +71,7 @@ class OsController < ApplicationController
   def destroy
     @os.destroy
     respond_to do |format|
-      format.html { redirect_to os_index_url, notice: 'Os was successfully destroyed.' }
+      format.html { redirect_to os_index_url, notice: t('.notice') }
       format.json { head :no_content }
     end
   end
@@ -86,6 +81,15 @@ class OsController < ApplicationController
   # Use callbacks to share common setup or constraints between actions.
   def set_os
     @os = Os.find(params[:id])
+  end
+
+  def build_os_query
+    os = Os
+    os = os.abertas if params.key?(:abertas)
+    os = os.fechadas if params.key?(:fechadas)
+    os = os.por_responsavel(current_user) if params.key?(:minhas)
+    os = os.por_responsavel(params[:responsavel]) if params.key?(:responsavel)
+    os
   end
 
   def set_scope

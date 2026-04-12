@@ -2,12 +2,14 @@
 
 class IncluirCamposFatura < ActiveRecord::Migration[5.2]
   def change
-    add_column :faturas, :liquidacao, :date
-    add_column :faturas, :valor_liquidacao, :decimal, precision: 8, scale: 2
-    add_column :faturas, :vencimento_original, :date
-    add_column :faturas, :valor_original, :decimal, precision: 8, scale: 2
-    add_column :faturas, :meio_liquidacao, :integer
-    add_column :faturas, :periodo_inicio, :date
-    add_column :faturas, :periodo_fim, :date
+    change_table :faturas, bulk: true do |t|
+      t.date :liquidacao
+      t.decimal :valor_liquidacao, precision: 8, scale: 2
+      t.date :vencimento_original
+      t.decimal :valor_original, precision: 8, scale: 2
+      t.integer :meio_liquidacao
+      t.date :periodo_inicio
+      t.date :periodo_fim
+    end
   end
 end

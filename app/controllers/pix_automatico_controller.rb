@@ -4,17 +4,13 @@ class PixAutomaticoController < ApplicationController
   authorize_resource class: false
   before_action :set_pix_automatico
 
-  def index
-  end
+  def index; end
 
-  def show
-  end
+  def show; end
 
-  def create
-  end
+  def create; end
 
-  def destroy
-  end
+  def destroy; end
 
   private
 

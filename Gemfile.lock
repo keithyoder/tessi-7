@@ -39,18 +39,6 @@ GIT
       rghost_barcode (~> 0.9)
       unidecoder (>= 1.1.2)
 
-PATH
-  remote: ../nfcom-ruby
-  specs:
-    nfcom (0.1.2)
-      nokogiri (>= 1.15.7, < 2.0)
-      openssl (>= 2.0, < 5.0)
-      prawn (>= 2.4, < 3.0)
-      prawn-qrcode (>= 0.3, < 1.0)
-      prawn-svg (>= 0.32, < 1.0)
-      prawn-table (>= 0.2, < 1.0)
-      rqrcode (>= 2.0, < 4.0)
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -342,6 +330,14 @@ GEM
     net-smtp (0.5.1)
       net-protocol
     net-ssh (7.3.2)
+    nfcom (0.1.2)
+      nokogiri (>= 1.15.7, < 2.0)
+      openssl (>= 2.0, < 5.0)
+      prawn (>= 2.4, < 3.0)
+      prawn-qrcode (>= 0.3, < 1.0)
+      prawn-svg (>= 0.32, < 1.0)
+      prawn-table (>= 0.2, < 1.0)
+      rqrcode (>= 2.0, < 4.0)
     nio4r (2.7.5)
     nokogiri (1.19.2)
       mini_portile2 (~> 2.8.2)
@@ -660,7 +656,7 @@ DEPENDENCIES
   net-ping
   net-scp
   net-ssh
-  nfcom!
+  nfcom
   nokogiri
   oauth2
   pagy (~> 9.3)

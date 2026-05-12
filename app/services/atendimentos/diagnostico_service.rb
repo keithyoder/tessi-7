@@ -197,7 +197,7 @@ class Atendimentos::DiagnosticoService
 
     request                    = Net::HTTP::Post.new(API_URL)
     request['Content-Type']    = 'application/json'
-    request['x-api-key']       = ENV.fetch('ANTHROPIC_API_KEY')
+    request['x-api-key']       = Rails.application.credentials[:anthropic_api_key]
     request['anthropic-version'] = '2023-06-01'
     request.body = {
       model: MODEL,

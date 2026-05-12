@@ -37,11 +37,11 @@ class Atendimentos::DiagnosticoController < ApplicationController
     end
 
     @cliente  = contexto[:cliente]
-    @contrato = contexto[:contrato]
+    @conexao  = contexto[:conexao]
 
     resultado_diagnostico = Atendimentos::DiagnosticoService.new(
       cliente: @cliente,
-      contrato: @contrato,
+      contrato: @conexao,
       motivo: @motivo,
       mensagens: mensagens_parsed
     ).call

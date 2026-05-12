@@ -1,0 +1,15 @@
+= form_with url: atendimentos_diagnostico_path, method: :post, data: { turbo_stream: true, controller: 'diagnostico' } do |f|
+  = hidden_field_tag :cpf, cpf
+  = hidden_field_tag :conexao_id, conexao_id
+  = hidden_field_tag :motivo, motivo
+  = hidden_field_tag :mensagens, mensagens.to_json
+  = hidden_field_tag :contexto_erp, contexto_serial
+
+  .input-group
+    = text_area_tag :mensagem_texto, nil,
+        class: 'form-control',
+        placeholder: 'Faça uma pergunta ou descreva o que o cliente disse...',
+        rows: 2,
+        id: 'mensagem_texto',
+        data: { diagnostico_target: 'input' }
+    = f.submit 'Enviar', class: 'btn btn-primary', data: { action: 'click->diagnostico#enviar' }

@@ -1,0 +1,39 @@
+= turbo_stream.update 'resultado-busca' do
+  - if @erro.present?
+    .alert.alert-warning.mt-3 = @erro
+  - else
+    / Customer header
+    .mt-3.mb-3
+      strong = @cliente[:nome]
+      .text-muted.small = "#{@cliente[:cpf]} · #{@cliente[:tipo]}"
+
+    / Contract selector (if multiple)
+    - if @contratos.length > 1
+      .mb-3
+        label.form-label.small.text-uppercase.text-muted Conexão
+        - @contratos.each do |contrato|
+          .form-check
+            input.form-check-input type="radio" name="contrato_selecionado" value="#{contrato[:id]}" id="contrato_#{contrato[:id]}" data-action="change->diagnostico#selecionarContrato"
+            label.form-check-label for="contrato_#{contrato[:id]}"
+              | #{contrato[:id]} — #{contrato[:endereco]}
+
+    / ERP panel for first contract
+    - contrato = @contratos.first
+    = render 'atendimentos/diagnostico/painel_erp', contrato: contrato
+
+    / Motivo form
+    .mt-3
+      label.form-label.small.text-uppercase.text-muted Motivo do contato
+      = form_with url: atendimentos_diagnostico_path, method: :post, data: { turbo_stream: true }, id: 'form-diagnostico' do |f|
+        = hidden_field_tag :cpf, params[:cpf]
+        = hidden_field_tag :conexao_id, @contratos.first[:id]
+        = hidden_field_tag :mensagens, '[]'
+        = hidden_field_tag :contexto_erp, ''
+
+        - @motivos.each do |chave, label|
+          .form-check
+            = f.radio_button :motivo, chave, class: 'form-check-input', id: "motivo_#{chave}"
+            = f.label :motivo, label, value: chave, class: 'form-check-label', for: "motivo_#{chave}"
+
+        .mt-3
+          = f.submit 'Iniciar diagnóstico', class: 'btn btn-primary w-100'

@@ -26,6 +26,7 @@ class Ability
   # Common permissions for all users with a role
   def general_permissions(user)
     can :read, :all
+    can :manage, :diagnostico
     cannot :read, NfcomNota
     cannot :read, :faturamento
     can :suspenso, Conexao

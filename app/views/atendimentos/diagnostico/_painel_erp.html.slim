@@ -1,0 +1,94 @@
+#painel-erp data-contrato-id="#{contrato[:id]}"
+  hr
+
+  / Status badges
+  .d-flex.flex-wrap.gap-2.mb-3
+    - if contrato[:status] == 'bloqueado'
+      span.badge.bg-danger Bloqueado
+    - else
+      span.badge.bg-success Ativo
+    - if contrato[:inadimplente]
+      span.badge.bg-danger Inadimplente
+    - else
+      span.badge.bg-success Em dia
+    - if contrato[:roteador_online]
+      span.badge.bg-success Roteador online
+    - else
+      span.badge.bg-danger Roteador offline
+    - if contrato[:historico_sessoes][:padrao_instavel]
+      span.badge.bg-warning.text-dark Conexão instável
+    span.badge.bg-secondary = contrato[:tecnologia]
+
+  / Contract details
+  table.table.table-sm.table-borderless.small
+    tbody
+      tr
+        td.text-muted.w-40 Contrato
+        td = "#{contrato[:id]} — #{contrato[:plano]}"
+      tr
+        td.text-muted Endereço
+        td = contrato[:endereco]
+      tr
+        td.text-muted = contrato[:vizinhos_label]
+        td = "#{contrato[:referencia_id]}: #{contrato[:vizinhos_proximos_online]}/#{contrato[:vizinhos_proximos_total]} vizinhos online"
+      - unless contrato[:vizinhos_label] == contrato[:vizinhos_amplos_label]
+        tr
+          td.text-muted = contrato[:vizinhos_amplos_label]
+          td = "#{contrato[:vizinhos_amplos_online]}/#{contrato[:vizinhos_amplos_total]} vizinhos online"
+
+  / Ping
+  - ping = contrato[:ping]
+  - if ping.present?
+    .mb-2
+      - if ping[:acessivel]
+        small.text-muted
+          | Ping: #{ping[:latencia_avg_ms]}ms avg / #{ping[:jitter_ms]}ms jitter
+          - if ping[:perda_percentual] > 0
+            span.text-warning.ms-1 = "#{ping[:perda_percentual]}% perda"
+      - else
+        small.text-muted = "Ping: #{ping[:erro]}"
+
+  / Sessions summary
+  - h = contrato[:historico_sessoes]
+  - if h.present?
+    .mb-2
+      small.text-muted
+        | Sessões 7 dias: #{h[:sessoes_7_dias]} / Quedas: #{h[:quedas_7_dias]}
+      - if h[:sessao_atual_inicio]
+        small.d-block.text-muted = "Online desde: #{h[:sessao_atual_inicio]}"
+      - t = h[:transferencia_7_dias]
+      - if t.present?
+        small.d-block.text-muted = "Transferência 7d: ↓#{t[:download_mb]} MB ↑#{t[:upload_mb]} MB"
+
+  / Overdue invoices
+  - if contrato[:faturas_abertas].present?
+    .mt-2
+      small.text-uppercase.text-muted.d-block.mb-1 Faturas vencidas
+      - contrato[:faturas_abertas].each do |fatura|
+        .d-flex.justify-content-between.align-items-center.mb-1
+          small = "#{fatura[:vencimento]} — #{fatura[:valor]}"
+          .d-flex.gap-1
+            - if fatura[:link].present?
+              a href="#{fatura[:link]}" target="_blank" class="btn btn-outline-secondary btn-sm py-0"
+                small Boleto
+            - if fatura[:pix].present?
+              button.btn.btn-outline-secondary.btn-sm.py-0 data-action="click->diagnostico#copiarPix" data-pix="#{fatura[:pix]}"
+                small PIX
+    - if contrato[:trust_release_usado]
+      .alert.alert-warning.py-1.px-2.mt-1
+        small ⚠ Trust release já utilizado
+
+  / Next invoice
+  - if contrato[:proxima_fatura].present?
+    - proxima = contrato[:proxima_fatura]
+    .mt-2
+      small.text-uppercase.text-muted.d-block.mb-1 Próxima fatura
+      .d-flex.justify-content-between.align-items-center
+        small = "#{proxima[:vencimento]} — #{proxima[:valor]}"
+        .d-flex.gap-1
+          - if proxima[:link].present?
+            a href="#{proxima[:link]}" target="_blank" class="btn btn-outline-secondary btn-sm py-0"
+              small Boleto
+          - if proxima[:pix].present?
+            button.btn.btn-outline-secondary.btn-sm.py-0 data-action="click->diagnostico#copiarPix" data-pix="#{proxima[:pix]}"
+              small PIX

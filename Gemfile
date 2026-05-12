@@ -72,8 +72,8 @@ gem 'extensobr'
 gem 'fixy'
 
 # gem 'nfcom', git: 'https://github.com/keithyoder/nfcom-ruby.git'
-gem 'nfcom'
-# gem 'nfcom', path: '../nfcom-ruby'
+# gem 'nfcom'
+gem 'nfcom', path: '../nfcom-ruby'
 
 gem 'sdk_ruby_apis_efi', git: 'https://github.com/keithyoder/sdk-ruby-apis-efi.git'
 # gem 'sdk_ruby_apis_efi', path: '../sdk-ruby-apis-efi/'

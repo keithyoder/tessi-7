@@ -1,0 +1,6 @@
+- is_agent = mensagem['role'] == 'user'
+.d-flex class="#{is_agent ? 'justify-content-end' : 'justify-content-start'}" style="margin-bottom: 12px;"
+  .px-3.py-2.rounded style="max-width: 80%; background: #{is_agent ? '#0d6efd' : '#f1f3f5'}; color: #{is_agent ? '#fff' : '#212529'};"
+    small.d-block.mb-1 style="opacity: 0.7;"
+      = is_agent ? 'Atendente' : 'Assistente'
+    = simple_format mensagem['content'], {}, wrapper_tag: 'div'

@@ -8,6 +8,7 @@ import ConexaoController from "./conexao_controller"
 import GeolocationController from "./geolocation_controller"
 import FaturamentoChartController from "./faturamento_chart_controller"
 import PieChartController from "./pie_chart_controller"
+import DiagnosticoController from "./diagnostico_controller"
 
 // Register controllers
 application.register("fatura", FaturaController)
@@ -17,5 +18,6 @@ application.register("conexao", ConexaoController)
 application.register("geolocation", GeolocationController)
 application.register("faturamento-chart", FaturamentoChartController)
 application.register("pie-chart", PieChartController)
+application.register("diagnostico", DiagnosticoController)
 
 window.Stimulus = application

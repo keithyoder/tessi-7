@@ -14,9 +14,9 @@ class Atendimentos::DiagnosticoController < ApplicationController
     if resultado.nil?
       @erro = 'CPF não encontrado no sistema.'
     else
-      @cliente   = resultado[:cliente]
-      @contratos = resultado[:contratos]
-      @motivos   = motivos_disponiveis
+      @cliente  = resultado[:cliente]
+      @conexoes = resultado[:conexoes]
+      @motivos  = motivos_disponiveis
     end
 
     respond_to do |format|
@@ -60,25 +60,25 @@ class Atendimentos::DiagnosticoController < ApplicationController
   # On followup messages, deserialize from the hidden field — no ERP hit.
   def carregar_contexto
     if params[:contexto_erp].present?
-      dados = JSON.parse(params[:contexto_erp], symbolize_names: true)
-      contrato = dados[:contratos].find { |c| c[:id] == @conexao_id }
-      return nil if contrato.nil?
+      dados    = JSON.parse(params[:contexto_erp], symbolize_names: true)
+      conexao  = dados[:conexoes].find { |c| c[:id] == @conexao_id }
+      return nil if conexao.nil?
 
       {
         cliente: dados[:cliente],
-        contrato: contrato,
+        conexao: conexao,
         serializado: params[:contexto_erp]
       }
     else
       resultado = Atendimentos::BuscaErpService.call(params[:cpf].to_s.strip)
       return nil if resultado.nil?
 
-      contrato = resultado[:contratos].find { |c| c[:id] == @conexao_id }
-      return nil if contrato.nil?
+      conexao = resultado[:conexoes].find { |c| c[:id] == @conexao_id }
+      return nil if conexao.nil?
 
       {
         cliente: resultado[:cliente],
-        contrato: contrato,
+        conexao: conexao,
         serializado: resultado.to_json
       }
     end

@@ -1,11 +1,11 @@
 h4.mb-3 Diagnóstico de Atendimento
 
-.row.g-3 data-controller="diagnostico" data-diagnostico-create-url="#{atendimentos_diagnostico_path}"
+.row.g-3(data-controller="diagnostico" data-diagnostico-create-url="#{atendimentos_diagnostico_path}")
   / Left column: lookup + ERP panel
   .col-md-4
     .card
       .card-body
-        = form_with url: buscar_atendimentos_diagnostico_path, method: :post, data: { turbo_stream: true } do |f|
+        = form_with url: buscar_atendimentos_diagnostico_path, method: :post, data: { turbo_stream: true, action: 'submit->diagnostico#limpar' } do |f|
           .mb-3
             label.form-label CPF / CNPJ
             .input-group

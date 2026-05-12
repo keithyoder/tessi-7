@@ -24,7 +24,7 @@ class Atendimentos::BuscaErpService
 
     {
       cliente: serializar_cliente(pessoa),
-      contratos: serializar_contratos(conexoes, status_online, mapa_vizinhos)
+      conexoes: serializar_conexoes(conexoes, status_online, mapa_vizinhos)
     }
   end
 
@@ -67,7 +67,6 @@ class Atendimentos::BuscaErpService
 
     mapa = { caixa: {}, rede: {}, ponto: {}, todos_ids: [] }
 
-    # Fibra: vizinhos via FibraCaixa e FibraRede
     if fibra.any?
       caixa_ids = fibra.map(&:caixa_id).compact.uniq
       rede_ids  = fibra.map { |c| c.caixa&.fibra_rede_id }.compact.uniq
@@ -97,7 +96,6 @@ class Atendimentos::BuscaErpService
       mapa[:todos_ids] += (vizinhos_por_caixa.values.flatten + vizinhos_por_rede.values.flatten)
     end
 
-    # Radio: vizinhos via Ponto
     if radio.any?
       ponto_ids = radio.map(&:ponto_id).compact.uniq
 
@@ -124,7 +122,7 @@ class Atendimentos::BuscaErpService
     }
   end
 
-  def serializar_contratos(conexoes, status_online, mapa_vizinhos)
+  def serializar_conexoes(conexoes, status_online, mapa_vizinhos)
     conexoes.map do |conexao|
       fibra   = conexao.ponto&.tecnologia_Fibra?
       faturas = conexao.contrato&.faturas || []
@@ -145,6 +143,7 @@ class Atendimentos::BuscaErpService
 
       {
         id: conexao.id,
+        usuario: conexao.usuario,
         contrato_id: conexao.contrato_id,
         endereco: conexao.endereco,
         plano: conexao.plano.nome,

@@ -1,43 +1,46 @@
-#painel-erp data-contrato-id="#{contrato[:id]}"
+#painel-erp data-conexao-id="#{conexao[:id]}"
   hr
 
   / Status badges
   .d-flex.flex-wrap.gap-2.mb-3
-    - if contrato[:status] == 'bloqueado'
+    - if conexao[:status] == 'bloqueado'
       span.badge.bg-danger Bloqueado
     - else
       span.badge.bg-success Ativo
-    - if contrato[:inadimplente]
+    - if conexao[:inadimplente]
       span.badge.bg-danger Inadimplente
     - else
       span.badge.bg-success Em dia
-    - if contrato[:roteador_online]
+    - if conexao[:roteador_online]
       span.badge.bg-success Roteador online
     - else
       span.badge.bg-danger Roteador offline
-    - if contrato[:historico_sessoes][:padrao_instavel]
+    - if conexao[:historico_sessoes][:padrao_instavel]
       span.badge.bg-warning.text-dark Conexão instável
-    span.badge.bg-secondary = contrato[:tecnologia]
+    span.badge.bg-secondary = conexao[:tecnologia]
 
-  / Contract details
+  / Conexao details
   table.table.table-sm.table-borderless.small
     tbody
       tr
-        td.text-muted.w-40 Contrato
-        td = "#{contrato[:id]} — #{contrato[:plano]}"
+        td.text-muted.w-40 Usuário
+        td = conexao[:usuario]
+      tr
+        td.text-muted Plano
+        td = conexao[:plano]
       tr
         td.text-muted Endereço
-        td = contrato[:endereco]
+        td = conexao[:endereco]
       tr
-        td.text-muted = contrato[:vizinhos_label]
-        td = "#{contrato[:referencia_id]}: #{contrato[:vizinhos_proximos_online]}/#{contrato[:vizinhos_proximos_total]} vizinhos online"
-      - unless contrato[:vizinhos_label] == contrato[:vizinhos_amplos_label]
+        td.text-muted = "#{conexao[:vizinhos_label]} #{conexao[:referencia_id]}"
+        td = "#{conexao[:vizinhos_proximos_online]}/#{conexao[:vizinhos_proximos_total]} online"
+      - unless conexao[:vizinhos_label] == conexao[:vizinhos_amplos_label]
         tr
-          td.text-muted = contrato[:vizinhos_amplos_label]
-          td = "#{contrato[:vizinhos_amplos_online]}/#{contrato[:vizinhos_amplos_total]} vizinhos online"
+          td.text-muted = conexao[:vizinhos_amplos_label]
+          td = "#{conexao[:vizinhos_amplos_online]}/#{conexao[:vizinhos_amplos_total]} online"
 
   / Ping
-  - ping = contrato[:ping]
+  - ping = conexao[:ping]
   - if ping.present?
     .mb-2
       - if ping[:acessivel]
@@ -49,7 +52,7 @@
         small.text-muted = "Ping: #{ping[:erro]}"
 
   / Sessions summary
-  - h = contrato[:historico_sessoes]
+  - h = conexao[:historico_sessoes]
   - if h.present?
     .mb-2
       small.text-muted
@@ -61,10 +64,10 @@
         small.d-block.text-muted = "Transferência 7d: ↓#{t[:download_mb]} MB ↑#{t[:upload_mb]} MB"
 
   / Overdue invoices
-  - if contrato[:faturas_abertas].present?
+  - if conexao[:faturas_abertas].present?
     .mt-2
       small.text-uppercase.text-muted.d-block.mb-1 Faturas vencidas
-      - contrato[:faturas_abertas].each do |fatura|
+      - conexao[:faturas_abertas].each do |fatura|
         .d-flex.justify-content-between.align-items-center.mb-1
           small = "#{fatura[:vencimento]} — #{fatura[:valor]}"
           .d-flex.gap-1
@@ -74,13 +77,13 @@
             - if fatura[:pix].present?
               button.btn.btn-outline-secondary.btn-sm.py-0 data-action="click->diagnostico#copiarPix" data-pix="#{fatura[:pix]}"
                 small PIX
-    - if contrato[:trust_release_usado]
+    - if conexao[:trust_release_usado]
       .alert.alert-warning.py-1.px-2.mt-1
         small ⚠ Trust release já utilizado
 
   / Next invoice
-  - if contrato[:proxima_fatura].present?
-    - proxima = contrato[:proxima_fatura]
+  - if conexao[:proxima_fatura].present?
+    - proxima = conexao[:proxima_fatura]
     .mt-2
       small.text-uppercase.text-muted.d-block.mb-1 Próxima fatura
       .d-flex.justify-content-between.align-items-center

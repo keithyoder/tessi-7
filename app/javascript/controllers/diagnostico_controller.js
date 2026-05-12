@@ -2,9 +2,27 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   // Update conexao_id when customer has multiple contracts
-  selecionarContrato(event) {
-    const campo = document.querySelector('#form-diagnostico [name="conexao_id"]')
-    if (campo) campo.value = event.target.value
+  selecionarConexao(event) {
+    const conexaoId = event.target.value
+
+    const campo = document.getElementById('campo-conexao-id')
+    if (campo) campo.value = conexaoId
+
+    document.querySelectorAll('[id^="painel-erp-"]').forEach(el => {
+      el.style.display = 'none'
+    })
+
+    const painel = document.getElementById(`painel-erp-${conexaoId}`)
+    if (painel) painel.style.display = ''
+
+    document.querySelectorAll('[name="motivo"]').forEach(el => el.checked = false)
+    document.getElementById('chat-container').innerHTML = `
+      <div class="card">
+        <div class="card-body text-center text-muted py-5">
+          <p>Selecione o motivo do contato para iniciar o diagnóstico.</p>
+        </div>
+      </div>
+    `
   }
 
   // Copy PIX to clipboard
@@ -33,5 +51,16 @@ export default class extends Controller {
 
     document.getElementById('mensagem_texto').value = ''
     document.getElementById('form-chat').requestSubmit()
+  }
+
+  limpar(event) {
+    document.getElementById('resultado-busca').innerHTML = ''
+    document.getElementById('chat-container').innerHTML = `
+      <div class="card">
+        <div class="card-body text-center text-muted py-5">
+          <p>Busque um CPF e selecione o motivo do contato para iniciar o diagnóstico.</p>
+        </div>
+      </div>
+    `
   }
 }

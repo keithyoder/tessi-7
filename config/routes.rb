@@ -101,10 +101,18 @@ Rails.application.routes.draw do # rubocop:disable Metrics/BlockLength
     get 'competencia/:mes', action: :competencia, as: :competencia, on: :collection
     post 'gerar_lote', on: :collection
   end
+
   # Support and Service Orders
+  namespace :atendimentos do
+    resource :diagnostico, only: %i[show create], controller: 'diagnostico' do
+      post :buscar, on: :collection
+    end
+  end
+
   resources :atendimentos do
     patch :encerrar, on: :member
   end
+
   resources :atendimento_detalhes, only: %i[new create index]
   resources :os do
     get :impressao, on: :member

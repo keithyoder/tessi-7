@@ -112,6 +112,19 @@ class Atendimentos::DiagnosticoService
     linhas.join("\n")
   end
 
+  def resumo_vizinhos
+    qv = @contrato[:quedas_vizinhos]
+    return '' if qv.nil?
+
+    linhas = []
+    linhas << "Análise de vizinhos na mesma #{@contrato[:vizinhos_label]}:"
+    linhas << "  - #{qv[:vizinhos_com_quedas]} de #{qv[:total_vizinhos]} vizinhos também tiveram quedas nos últimos 7 dias"
+    linhas << "  - #{qv[:quedas_coincidentes]} de #{qv[:total_quedas_cliente]} quedas do cliente coincidiram com quedas de vizinhos (±1 hora)"
+    linhas << "  - Proporção de coincidência: #{(qv[:proporcao_coincidente] * 100).round}%"
+    linhas << "  - INFRAESTRUTURA PROVÁVEL: #{qv[:infraestrutura_provavel] ? 'SIM — acionar equipe de campo' : 'não — problema isolado no cliente'}"
+    linhas.join("\n")
+  end
+
   def build_system_prompt
     escopo       = escopo_falha
     motivo_label = MOTIVOS[@motivo] || @motivo
@@ -145,6 +158,9 @@ class Atendimentos::DiagnosticoService
 
       PING:
       #{resumo_ping}
+
+      ANÁLISE DE VIZINHOS:
+      #{resumo_vizinhos}
 
       MOTIVO DO CONTATO: #{motivo_label}
 

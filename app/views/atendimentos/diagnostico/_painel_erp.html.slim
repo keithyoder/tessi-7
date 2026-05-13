@@ -65,6 +65,18 @@
       - if t.present?
         small.d-block.text-muted = "Transferência 7d: ↓#{t[:download_mb]} MB ↑#{t[:upload_mb]} MB"
 
+      - qv = conexao[:quedas_vizinhos]
+      - if qv.present?
+        .mt-2
+          - if qv[:infraestrutura_provavel]
+            .alert.alert-danger.py-1.px-2
+              small
+                strong Infraestrutura provável
+                |  — #{qv[:quedas_coincidentes]}/#{qv[:total_quedas_cliente]} quedas coincidem com vizinhos
+          - else
+            small.text-muted
+              | Vizinhos: #{qv[:vizinhos_com_quedas]}/#{qv[:total_vizinhos]} com quedas / #{(qv[:proporcao_coincidente] * 100).round}% coincidência
+
   / Overdue invoices
   - if conexao[:faturas_abertas].present?
     .mt-2

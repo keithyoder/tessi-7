@@ -163,6 +163,7 @@ class Atendimentos::BuscaErpService
         vizinhos_amplos_online: vizinhos_amplos[:online],
         vizinhos_amplos_total: vizinhos_amplos[:total],
         historico_sessoes: historico_sessoes(conexao),
+        quedas_vizinhos: quedas_vizinhos(conexao, raw_quedas, mapa_vizinhos),
         ping: ping_conexao(conexao)
       }
     end
@@ -298,7 +299,8 @@ class Atendimentos::BuscaErpService
             upload_mb: formatar_bytes(v[:upload_mb])
           }
         end
-      }
+      },
+      _quedas_cliente_raw: quedas_cliente # private, stripped before serialization
     }
   end
 
@@ -336,6 +338,55 @@ class Atendimentos::BuscaErpService
       ultima_causa: nil,
       sessoes_por_dia: {},
       transferencia_7_dias: { download_mb: '0.0 MB', upload_mb: '0.0 MB', por_dia: {} }
+    }
+  end
+
+  def quedas_vizinhos(conexao, quedas_cliente, mapa_vizinhos)
+    return nil if quedas_cliente.count <= 5
+
+    # Get neighbor IDs for this connection
+    vizinho_ids = if conexao.ponto&.tecnologia_Fibra?
+                    mapa_vizinhos[:caixa][conexao.caixa_id] || []
+                  else
+                    mapa_vizinhos[:ponto][conexao.ponto_id] || []
+                  end
+
+    # Exclude the customer's own connection
+    vizinho_ids -= [conexao.id]
+    return nil if vizinho_ids.empty?
+
+    # Get neighbor usernames
+    vizinho_usuarios = Conexao.where(id: vizinho_ids).pluck(:usuario).compact
+    return nil if vizinho_usuarios.empty?
+
+    # One bulk query for all neighbor drops in last 7 days
+    drops_vizinhos = RadAcct
+      .where(username: vizinho_usuarios)
+      .where(acctterminatecause: CAUSAS_CLIENTE)
+      .where('acctstarttime > ?', 7.days.ago)
+      .where.not(acctstoptime: nil)
+      .pluck(:username, :acctstarttime)
+
+    vizinhos_com_quedas = drops_vizinhos.map(&:first).uniq.count
+
+    # For each customer drop, check if any neighbor dropped within 1 hour
+    janela = 1.hour
+    timestamps_vizinhos = drops_vizinhos.map(&:last)
+
+    quedas_coincidentes = quedas_cliente.count do |start, _, _, _, _|
+      timestamps_vizinhos.any? { |t| (t - start).abs <= janela }
+    end
+
+    total = quedas_cliente.count
+    proporcao = total > 0 ? quedas_coincidentes.to_f / total : 0.0
+
+    {
+      total_vizinhos: vizinho_ids.count,
+      vizinhos_com_quedas: vizinhos_com_quedas,
+      quedas_coincidentes: quedas_coincidentes,
+      total_quedas_cliente: total,
+      proporcao_coincidente: proporcao.round(2),
+      infraestrutura_provavel: proporcao >= 0.5
     }
   end
 end

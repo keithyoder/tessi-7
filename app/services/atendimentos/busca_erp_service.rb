@@ -30,7 +30,8 @@ class Atendimentos::BuscaErpService
 
   private
 
-  CAUSAS_PROBLEMA      = %w[Lost-Carrier Lost-Service NAS-Reboot NAS-Error Admin-Reset].freeze
+  CAUSAS_CLIENTE       = %w[Lost-Carrier Lost-Service].freeze
+  CAUSAS_NAS           = %w[NAS-Reboot NAS-Request NAS-Error Admin-Reset].freeze
   DURACAO_MAXIMA_HORAS = 30
 
   def encontrar_pessoa
@@ -247,11 +248,15 @@ class Atendimentos::BuscaErpService
 
     sessao_atual = sessoes_validas.find { |_, stop, _, _, _| stop.nil? }
 
-    quedas = sessoes_validas.select do |_, stop, causa, _, _|
-      stop.present? && CAUSAS_PROBLEMA.include?(causa)
+    quedas_cliente = sessoes_validas.select do |_, stop, causa, _, _|
+      stop.present? && CAUSAS_CLIENTE.include?(causa)
     end
 
-    ultima_queda = quedas.first
+    quedas_nas = sessoes_validas.select do |_, stop, causa, _, _|
+      stop.present? && CAUSAS_NAS.include?(causa)
+    end
+
+    ultima_queda_cliente = quedas_cliente.first
 
     sessoes_por_dia = sessoes_validas
       .group_by { |start, _, _, _, _| start.to_date }
@@ -278,29 +283,59 @@ class Atendimentos::BuscaErpService
     {
       sessao_atual_inicio: sessao_atual ? sessao_atual[0].strftime('%d/%m/%Y %H:%M') : nil,
       sessoes_7_dias: sessoes_validas.count,
-      quedas_7_dias: quedas.count,
-      padrao_instavel: quedas.count > 3,
-      ultima_queda: ultima_queda ? ultima_queda[0].strftime('%d/%m/%Y %H:%M') : nil,
-      ultima_causa: ultima_queda ? ultima_queda[2] : nil,
+      quedas_cliente: quedas_cliente.count,
+      quedas_nas: quedas_nas.count,
+      padrao_instavel: instavel?(quedas_cliente),
+      ultima_queda: ultima_queda_cliente ? ultima_queda_cliente[0].strftime('%d/%m/%Y %H:%M') : nil,
+      ultima_causa: ultima_queda_cliente ? ultima_queda_cliente[2] : nil,
       sessoes_por_dia: sessoes_por_dia,
       transferencia_7_dias: {
-        download_mb: (download_total / 1_048_576.0).round(1),
-        upload_mb: (upload_total / 1_048_576.0).round(1),
-        por_dia: transferencia_por_dia
+        download_mb: formatar_bytes(download_total / 1_048_576.0),
+        upload_mb: formatar_bytes(upload_total / 1_048_576.0),
+        por_dia: transferencia_por_dia.transform_values do |v|
+          {
+            download_mb: formatar_bytes(v[:download_mb]),
+            upload_mb: formatar_bytes(v[:upload_mb])
+          }
+        end
       }
     }
+  end
+
+  def instavel?(quedas_cliente)
+    return false if quedas_cliente.empty?
+
+    # Flag if any single day had 3 or more client-side drops
+    quedas_por_dia = quedas_cliente.group_by { |start, _, _, _, _| start.to_date }
+    return true if quedas_por_dia.any? { |_, q| q.count >= 3 }
+
+    # Flag if average session duration is under 4 hours (repeated short sessions)
+    sessoes_com_duracao = quedas_cliente.select { |_, stop, _, _, _| stop.present? }
+    return false if sessoes_com_duracao.empty?
+
+    duracao_media = sessoes_com_duracao.sum { |start, stop, _, _, _| stop - start } / sessoes_com_duracao.count
+    duracao_media < 4.hours
+  end
+
+  def formatar_bytes(mb)
+    if mb >= 1024
+      "#{(mb / 1024.0).round(1)} GB"
+    else
+      "#{mb.round(1)} MB"
+    end
   end
 
   def sessoes_vazias
     {
       sessao_atual_inicio: nil,
       sessoes_7_dias: 0,
-      quedas_7_dias: 0,
+      quedas_cliente: 0,
+      quedas_nas: 0,
       padrao_instavel: false,
       ultima_queda: nil,
       ultima_causa: nil,
       sessoes_por_dia: {},
-      transferencia_7_dias: { download_mb: 0.0, upload_mb: 0.0, por_dia: {} }
+      transferencia_7_dias: { download_mb: '0.0 MB', upload_mb: '0.0 MB', por_dia: {} }
     }
   end
 end

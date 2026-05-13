@@ -48,23 +48,22 @@ class Atendimentos::DiagnosticoService
   end
 
   def resumo_sessoes
-    historico = @contrato[:historico_sessoes]
-    return 'Sem dados de sessão disponíveis.' if historico.blank?
+    h = @contrato[:historico_sessoes]
+    return 'Sem dados de sessão disponíveis.' if h.blank?
 
     linhas = []
-    linhas << "Sessão atual iniciada em: #{historico[:sessao_atual_inicio] || 'offline'}"
-    linhas << "Sessões nos últimos 7 dias: #{historico[:sessoes_7_dias]}"
-    linhas << "Quedas inesperadas (7 dias): #{historico[:quedas_7_dias]}"
-    linhas << "Padrão instável: #{historico[:padrao_instavel] ? 'SIM' : 'não'}"
-    if historico[:ultima_queda]
-      linhas << "Última queda: #{historico[:ultima_queda] || 'nenhuma'} (#{historico[:ultima_causa]})"
+    linhas << "Sessão atual iniciada em: #{h[:sessao_atual_inicio] || 'offline'}"
+    linhas << "Sessões nos últimos 7 dias: #{h[:sessoes_7_dias]}"
+    linhas << "Quedas no lado do cliente (Lost-Carrier/Lost-Service): #{h[:quedas_cliente]}"
+    linhas << "Quedas por reinício do NAS: #{h[:quedas_nas]}" if h[:quedas_nas] > 0
+    linhas << "Padrão instável: #{h[:padrao_instavel] ? 'SIM' : 'não'}"
+    linhas << "Última queda (cliente): #{h[:ultima_queda]} (#{h[:ultima_causa]})" if h[:ultima_queda]
+
+    if h[:sessoes_por_dia].present?
+      linhas << "Sessões por dia: #{h[:sessoes_por_dia].map { |d, n| "#{d}:#{n}" }.join(', ')}"
     end
 
-    if historico[:sessoes_por_dia].present?
-      linhas << "Sessões por dia: #{historico[:sessoes_por_dia].map { |d, n| "#{d}:#{n}" }.join(', ')}"
-    end
-
-    t = historico[:transferencia_7_dias]
+    t = h[:transferencia_7_dias]
     if t.present?
       linhas << "Transferência 7 dias: #{t[:download_mb]} MB download / #{t[:upload_mb]} MB upload"
       if t[:por_dia].present?

@@ -56,7 +56,9 @@
   - if h.present?
     .mb-2
       small.text-muted
-        | Sessões 7 dias: #{h[:sessoes_7_dias]} / Quedas: #{h[:quedas_7_dias]}
+        | Sessões 7 dias: #{h[:sessoes_7_dias]} / Quedas cliente: #{h[:quedas_cliente]}
+      - if h[:quedas_nas] > 0
+        small.d-block.text-warning = "Reinícios NAS: #{h[:quedas_nas]}"
       - if h[:sessao_atual_inicio]
         small.d-block.text-muted = "Online desde: #{h[:sessao_atual_inicio]}"
       - t = h[:transferencia_7_dias]

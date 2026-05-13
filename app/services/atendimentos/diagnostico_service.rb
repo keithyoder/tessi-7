@@ -134,12 +134,22 @@ class Atendimentos::DiagnosticoService
     linhas << "  - #{qr[:conexoes_com_quedas]} de #{qr[:total_conexoes_rede]} conexões em outras caixas tiveram quedas coincidentes"
     linhas << "  - #{qr[:quedas_coincidentes]} de #{qr[:total_quedas_cliente]} quedas do cliente coincidem com outras caixas (±1 hora)"
     linhas << "  - Proporção: #{(qr[:proporcao_coincidente] * 100).round}%"
-    linhas << "  - PROBLEMA UPSTREAM: #{qr[:problema_upstream] ? 'SIM — verificar OLT ou fibra principal' : 'não — problema isolado na caixa'}"
 
     if qr[:caixas_afetadas].present?
-      linhas << '  Caixas com quedas coincidentes:'
+      afetadas     = qr[:caixas_afetadas].map { |c| c[:nome] }
+      nao_afetadas = qr[:caixas_sem_quedas] || []
+
+      linhas << '  Caixas COM quedas coincidentes:'
       qr[:caixas_afetadas].each do |c|
-        linhas << "    - #{c[:nome]}: #{c[:quedas_coincidentes]} quedas coincidentes"
+        percentual = (c[:proporcao_coincidente] * 100).round
+        linhas << "    - #{c[:nome]}: #{c[:quedas_coincidentes]}/#{qr[:total_quedas_cliente]} quedas do cliente / #{percentual}% das quedas da caixa coincidem"
+      end
+      linhas << "  Caixas SEM quedas coincidentes: #{nao_afetadas.join(', ')}" if nao_afetadas.any?
+
+      if nao_afetadas.any? && afetadas.any?
+        linhas << '  CONCLUSÃO: problema num segmento intermediário — NÃO é a OLT.'
+      elsif nao_afetadas.empty?
+        linhas << '  CONCLUSÃO: todas as caixas afetadas — verificar OLT ou fibra principal.'
       end
     end
 
@@ -211,10 +221,15 @@ class Atendimentos::DiagnosticoService
       - Se todos os vizinhos do ponto aparecem offline: pode ser falha de autenticação RADIUS no ponto, não necessariamente queda de sinal. Verificar se o ponto está autenticando antes de acionar equipe de campo.
 
       INTERPRETAÇÃO DO PING:
-      - Inacessível com roteador online: roteador pode estar bloqueando ICMP — não necessariamente um problema.
-      - Latência média > 50ms: pode indicar problema de roteamento ou congestionamento.
-      - Jitter > 10ms: conexão instável mesmo que "online".
+      - ICMP bloqueado + TCP 8087 acessível: roteador DEFINITIVAMENTE online — ignorar resultado do ICMP.
+      - ICMP ok + TCP 8087 acessível: roteador online, acesso remoto configurado.
+      - ICMP ok + TCP 8087 porta fechada: roteador online, acesso remoto não configurado nesta porta.
+      - ICMP bloqueado + TCP 8087 timeout: roteador provavelmente offline — não é possível confirmar.
+      - Ambos inacessíveis: roteador offline.
+      - Latência ICMP média > 50ms: possível problema de roteamento ou congestionamento.
+      - Jitter > 10ms: conexão instável mesmo que online.
       - Perda de pacotes > 0%: problema intermitente, mesmo que pequeno.
+      - Latência TCP muito maior que ICMP: possível firewall ou QoS afetando tráfego de gerência.
 
       INTERPRETAÇÃO DO HISTÓRICO DE SESSÕES:
       - Conexão saudável: ~7 sessões em 7 dias, todas Session-Timeout ou User-Request.
@@ -222,6 +237,12 @@ class Atendimentos::DiagnosticoService
       - Múltiplas sessões por dia com Lost-Carrier (radio): quedas frequentes, investigar alinhamento da antena ou interferência.
       - Zero transferência nas últimas 24h com sessão ativa: conexão "zumbi" — autenticada mas sem tráfego real.
       - Padrão de quedas concentrado num horário: pode ser congestionamento de rede ou interferência de rádio.
+
+      INTERPRETAÇÃO DA ANÁLISE DE REDE:
+      - Se TODAS as caixas da rede têm quedas coincidentes: problema na OLT ou fibra principal upstream.
+      - Se ALGUMAS caixas têm quedas coincidentes e outras não: problema num segmento intermediário que alimenta apenas as caixas afetadas — NÃO é a OLT. Verificar a fibra entre a OLT e o splitter que serve as caixas afetadas.
+      - Se APENAS a caixa do cliente tem quedas: problema no cabo feeder ou splitter daquela caixa específica.
+      - Sempre mencionar quais caixas estão afetadas e quais não estão — isso ajuda a localizar o segmento com problema.
     PROMPT
   end
 

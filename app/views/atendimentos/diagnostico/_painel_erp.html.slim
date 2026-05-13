@@ -26,6 +26,9 @@
         td.text-muted.w-40 Usuário
         td = conexao[:usuario]
       tr
+        td.text-muted IP
+        td = conexao[:ip]
+      tr
         td.text-muted Plano
         td = conexao[:plano]
       tr
@@ -43,13 +46,19 @@
   - ping = conexao[:ping]
   - if ping.present?
     .mb-2
-      - if ping[:acessivel]
+      - icmp_ok = ping[:acessivel]
+      - tcp_ok  = ping[:tcp_acessivel]
+      - if icmp_ok
         small.text-muted
           | Ping: #{ping[:latencia_avg_ms]}ms avg / #{ping[:jitter_ms]}ms jitter
           - if ping[:perda_percentual] > 0
             span.text-warning.ms-1 = "#{ping[:perda_percentual]}% perda"
+      - elsif tcp_ok
+        small.text-success
+          | Router online (ICMP bloqueado) — TCP #{ping[:tcp_porta]}: #{ping[:tcp_latencia_ms]}ms
       - else
-        small.text-muted = "Ping: #{ping[:erro]}"
+        small.text-danger
+          | Router offline — ICMP: #{ping[:erro]} / TCP: #{ping[:tcp_erro]}
 
   / Sessions summary
   - h = conexao[:historico_sessoes]
@@ -88,7 +97,7 @@
                 ul.mb-0.mt-1
                   - qr[:caixas_afetadas].each do |c|
                     li
-                      small = "#{c[:nome]}: #{c[:quedas_coincidentes]} quedas coincidentes"
+                      small = "#{c[:nome]}: #{c[:quedas_coincidentes]}/#{qr[:total_quedas_cliente]} do cliente · #{(c[:proporcao_coincidente] * 100).round}% da caixa"
           - else
             small.text-muted
               | Outras caixas da rede: #{qr[:conexoes_com_quedas]}/#{qr[:total_conexoes_rede]} com quedas coincidentes

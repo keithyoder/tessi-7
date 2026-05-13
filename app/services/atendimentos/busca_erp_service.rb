@@ -149,6 +149,7 @@ class Atendimentos::BuscaErpService
         id: conexao.id,
         usuario: conexao.usuario,
         contrato_id: conexao.contrato_id,
+        ip: conexao.ip&.to_s,
         endereco: conexao.endereco,
         plano: conexao.plano.nome,
         tecnologia: conexao.ponto&.tecnologia || 'desconhecida',
@@ -447,27 +448,44 @@ class Atendimentos::BuscaErpService
     end
 
     caixas_afetadas = drops_por_caixa.map do |caixa_id, timestamps|
-      quedas_coin = raw_quedas.count do |start, _, _, _, _|
+      # How many of the customer's drops coincide with this caixa
+      quedas_coin_cliente = raw_quedas.count do |start, _, _, _, _|
         timestamps.any? { |t| (t - start).abs <= janela }
       end
 
-      next nil if quedas_coin == 0
+      next nil if quedas_coin_cliente == 0
+
+      # How many of this caixa's drops coincide with the customer
+      quedas_coin_vizinho = timestamps.count do |t|
+        raw_quedas.any? { |start, _, _, _, _| (t - start).abs <= janela }
+      end
+
+      proporcao_vizinho = timestamps.count > 0 ? quedas_coin_vizinho.to_f / timestamps.count : 0.0
 
       {
         caixa_id: caixa_id,
         nome: nomes_caixa[caixa_id] || caixa_id.to_s,
-        quedas_coincidentes: quedas_coin
+        total_quedas: timestamps.count,
+        quedas_coincidentes: quedas_coin_cliente,
+        proporcao_coincidente: proporcao_vizinho.round(2)
       }
-    end.compact.sort_by { |c| -c[:quedas_coincidentes] }
+    end.compact.sort_by { |c| -c[:proporcao_coincidente] }
+
+    # After building caixas_afetadas
+    todas_caixas_nomes = nomes_caixa.values
+    nomes_afetadas     = caixas_afetadas.map { |c| c[:nome] }
+    caixas_sem_quedas  = todas_caixas_nomes - nomes_afetadas
 
     {
       total_conexoes_rede: ids_outras_caixas.count,
+      total_caixas_rede: caixa_ids.count,
       conexoes_com_quedas: drops_rede.map(&:first).uniq.count,
       quedas_coincidentes: quedas_coincidentes,
       total_quedas_cliente: total,
       proporcao_coincidente: proporcao.round(2),
       problema_upstream: proporcao >= 0.5,
-      caixas_afetadas: caixas_afetadas
+      caixas_afetadas: caixas_afetadas,
+      caixas_sem_quedas: caixas_sem_quedas
     }
   end
 end

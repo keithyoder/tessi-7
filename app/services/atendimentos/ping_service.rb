@@ -2,9 +2,10 @@
 
 module Atendimentos
   class PingService
-    PACOTES   = 10
-    INTERVALO = 0.2
-    TIMEOUT   = 2
+    PACOTES      = 10
+    INTERVALO    = 0.2
+    TIMEOUT      = 2
+    PORTA_ACESSO = 8087
 
     INACESSIVEL = {
       acessivel: false,
@@ -15,6 +16,8 @@ module Atendimentos
       latencia_avg_ms: nil,
       latencia_max_ms: nil,
       jitter_ms: nil,
+      tcp_porta: nil,
+      tcp_acessivel: nil,
       erro: 'Host inacessível'
     }.freeze
 
@@ -29,8 +32,9 @@ module Atendimentos
     def call
       return { acessivel: false, erro: 'IP não configurado' } if @ip.blank?
 
-      saida = executar_ping
-      parsear_resultado(saida)
+      icmp   = icmp_ping
+      tcp    = tcp_check
+      icmp.merge(tcp)
     rescue StandardError => e
       Rails.logger.error("[PingService] Erro ao pingar #{@ip}: #{e.message}")
       { acessivel: false, erro: e.message }
@@ -38,16 +42,31 @@ module Atendimentos
 
     private
 
+    def icmp_ping
+      saida = executar_ping
+      parsear_resultado(saida)
+    end
+
+    def tcp_check
+      inicio = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+      Socket.tcp(@ip, PORTA_ACESSO, connect_timeout: TIMEOUT) {}
+      latencia = ((Process.clock_gettime(Process::CLOCK_MONOTONIC) - inicio) * 1000).round(2)
+      { tcp_porta: PORTA_ACESSO, tcp_acessivel: true, tcp_latencia_ms: latencia }
+    rescue Errno::ECONNREFUSED
+      # Port closed but host is UP — router is reachable, just port not open
+      { tcp_porta: PORTA_ACESSO, tcp_acessivel: false, tcp_erro: 'Porta fechada (router online)' }
+    rescue Errno::ETIMEDOUT, Errno::EHOSTUNREACH, SocketError
+      { tcp_porta: PORTA_ACESSO, tcp_acessivel: false, tcp_erro: 'Timeout' }
+    end
+
     def executar_ping
       `#{comando_ping} 2>&1`
     end
 
     def comando_ping
       if macos?
-        # macOS: -W em milissegundos, -t timeout total
         "ping -c #{PACOTES} -i #{INTERVALO} -W #{TIMEOUT * 1000} #{@ip}"
       else
-        # Linux: -W em segundos, -w timeout total
         "ping -c #{PACOTES} -i #{INTERVALO} -W #{TIMEOUT} -w #{((PACOTES * INTERVALO) + (TIMEOUT * 2)).ceil} #{@ip}"
       end
     end
@@ -59,14 +78,11 @@ module Atendimentos
     def parsear_resultado(saida)
       perda = parsear_perda(saida)
 
-      # Host completamente inacessível
       if perda >= 100.0 || saida.include?('Communication prohibited') || saida.include?('Network unreachable')
         return INACESSIVEL.dup.tap { |h| h[:erro] = diagnosticar_erro(saida) }
       end
 
       estatisticas = parsear_estatisticas(saida)
-
-      # Respondeu parcialmente mas sem linha de estatísticas
       return INACESSIVEL.merge(erro: 'Resposta insuficiente') if estatisticas.nil?
 
       min, avg, max, jitter = estatisticas
@@ -85,9 +101,6 @@ module Atendimentos
       }
     end
 
-    # Handles both:
-    # Linux:  rtt min/avg/max/mdev = 10.1/15.4/22.7/3.0 ms
-    # macOS:  round-trip min/avg/max/stddev = 10.1/15.4/22.7/3.0 ms
     def parsear_estatisticas(saida)
       match = saida.match(%r{(?:rtt|round-trip)\s+min/avg/max/(?:mdev|stddev)\s+=\s+(\d+\.\d+)/(\d+\.\d+)/(\d+\.\d+)/(\d+\.\d+)})
       return nil unless match

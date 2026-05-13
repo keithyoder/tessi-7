@@ -19,7 +19,6 @@ window.Chart = Chart;
 // import "leaflet/dist/leaflet.css"
 import "./faturas"
 import "./fibra_caixas"
-import "./os"
 import "./phone-type-formatter.br"
 import "./servidores"
 

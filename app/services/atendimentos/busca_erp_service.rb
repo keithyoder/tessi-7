@@ -142,6 +142,9 @@ class Atendimentos::BuscaErpService
         referencia_id         = conexao.ponto&.nome
       end
 
+      historico  = historico_sessoes(conexao)
+      raw_quedas = historico.delete(:_quedas_cliente_raw)
+
       {
         id: conexao.id,
         usuario: conexao.usuario,
@@ -164,6 +167,7 @@ class Atendimentos::BuscaErpService
         vizinhos_amplos_total: vizinhos_amplos[:total],
         historico_sessoes: historico_sessoes(conexao),
         quedas_vizinhos: quedas_vizinhos(conexao, raw_quedas, mapa_vizinhos),
+        quedas_rede: quedas_rede(conexao, raw_quedas, mapa_vizinhos),
         ping: ping_conexao(conexao)
       }
     end
@@ -387,6 +391,83 @@ class Atendimentos::BuscaErpService
       total_quedas_cliente: total,
       proporcao_coincidente: proporcao.round(2),
       infraestrutura_provavel: proporcao >= 0.5
+    }
+  end
+
+  def quedas_rede(conexao, raw_quedas, mapa_vizinhos)
+    return nil if raw_quedas.nil? || raw_quedas.count <= 5
+    return nil unless conexao.ponto&.tecnologia_Fibra?
+    return nil if conexao.caixa&.fibra_rede_id.nil?
+
+    caixas_da_rede    = mapa_vizinhos[:rede][conexao.caixa.fibra_rede_id] || []
+    ids_outras_caixas = caixas_da_rede - (mapa_vizinhos[:caixa][conexao.caixa_id] || [])
+    ids_outras_caixas -= [conexao.id]
+    return nil if ids_outras_caixas.empty?
+
+    # Map conexao_id → caixa_id and usuario for grouping
+    vizinhos = Conexao.where(id: ids_outras_caixas)
+      .pluck(:id, :usuario, :caixa_id)
+      .reject { |_, u, _| u.blank? }
+
+    return nil if vizinhos.empty?
+
+    usuario_para_caixa = vizinhos.each_with_object({}) do |(_, usuario, caixa_id), h|
+      h[usuario] = caixa_id
+    end
+
+    # Load caixa names
+    caixa_ids   = vizinhos.map(&:last).uniq
+    nomes_caixa = FibraCaixa.where(id: caixa_ids).pluck(:id, :nome).to_h
+
+    usernames = vizinhos.map { |_, u, _| u }
+
+    drops_rede = RadAcct
+      .where(username: usernames)
+      .where(acctterminatecause: CAUSAS_CLIENTE)
+      .where('acctstarttime > ?', 7.days.ago)
+      .where.not(acctstoptime: nil)
+      .pluck(:username, :acctstarttime)
+
+    return nil if drops_rede.empty?
+
+    janela          = 1.hour
+    timestamps_rede = drops_rede.map(&:last)
+
+    quedas_coincidentes = raw_quedas.count do |start, _, _, _, _|
+      timestamps_rede.any? { |t| (t - start).abs <= janela }
+    end
+
+    total     = raw_quedas.count
+    proporcao = total > 0 ? quedas_coincidentes.to_f / total : 0.0
+
+    # Per-caixa breakdown: which caixas have coincident drops
+    drops_por_caixa = drops_rede.each_with_object(Hash.new { |h, k| h[k] = [] }) do |(usuario, timestamp), h|
+      caixa_id = usuario_para_caixa[usuario]
+      h[caixa_id] << timestamp if caixa_id
+    end
+
+    caixas_afetadas = drops_por_caixa.map do |caixa_id, timestamps|
+      quedas_coin = raw_quedas.count do |start, _, _, _, _|
+        timestamps.any? { |t| (t - start).abs <= janela }
+      end
+
+      next nil if quedas_coin == 0
+
+      {
+        caixa_id: caixa_id,
+        nome: nomes_caixa[caixa_id] || caixa_id.to_s,
+        quedas_coincidentes: quedas_coin
+      }
+    end.compact.sort_by { |c| -c[:quedas_coincidentes] }
+
+    {
+      total_conexoes_rede: ids_outras_caixas.count,
+      conexoes_com_quedas: drops_rede.map(&:first).uniq.count,
+      quedas_coincidentes: quedas_coincidentes,
+      total_quedas_cliente: total,
+      proporcao_coincidente: proporcao.round(2),
+      problema_upstream: proporcao >= 0.5,
+      caixas_afetadas: caixas_afetadas
     }
   end
 end

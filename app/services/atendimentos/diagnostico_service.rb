@@ -125,6 +125,27 @@ class Atendimentos::DiagnosticoService
     linhas.join("\n")
   end
 
+  def resumo_rede
+    qr = @contrato[:quedas_rede]
+    return '' if qr.nil?
+
+    linhas = []
+    linhas << 'Análise de outras caixas na mesma rede:'
+    linhas << "  - #{qr[:conexoes_com_quedas]} de #{qr[:total_conexoes_rede]} conexões em outras caixas tiveram quedas coincidentes"
+    linhas << "  - #{qr[:quedas_coincidentes]} de #{qr[:total_quedas_cliente]} quedas do cliente coincidem com outras caixas (±1 hora)"
+    linhas << "  - Proporção: #{(qr[:proporcao_coincidente] * 100).round}%"
+    linhas << "  - PROBLEMA UPSTREAM: #{qr[:problema_upstream] ? 'SIM — verificar OLT ou fibra principal' : 'não — problema isolado na caixa'}"
+
+    if qr[:caixas_afetadas].present?
+      linhas << '  Caixas com quedas coincidentes:'
+      qr[:caixas_afetadas].each do |c|
+        linhas << "    - #{c[:nome]}: #{c[:quedas_coincidentes]} quedas coincidentes"
+      end
+    end
+
+    linhas.join("\n")
+  end
+
   def build_system_prompt
     escopo       = escopo_falha
     motivo_label = MOTIVOS[@motivo] || @motivo
@@ -161,6 +182,9 @@ class Atendimentos::DiagnosticoService
 
       ANÁLISE DE VIZINHOS:
       #{resumo_vizinhos}
+
+      ANÁLISE DA REDE:
+      #{resumo_rede}
 
       MOTIVO DO CONTATO: #{motivo_label}
 

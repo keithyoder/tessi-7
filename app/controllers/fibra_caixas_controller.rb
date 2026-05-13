@@ -26,9 +26,7 @@ class FibraCaixasController < ApplicationController
 
     @params = conexoes_params(params)
 
-    @conexoes = @q
-      .result
-      .page(params[:conexoes_page])
+    @pagy_conexoes, @conexoes = pagy(@q.result, page_param: :conexoes_page)
 
     @conexoes_status = Conexao.status_conexoes(@conexoes)
   end

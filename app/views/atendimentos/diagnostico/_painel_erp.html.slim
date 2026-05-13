@@ -76,6 +76,22 @@
           - else
             small.text-muted
               | Vizinhos: #{qv[:vizinhos_com_quedas]}/#{qv[:total_vizinhos]} com quedas / #{(qv[:proporcao_coincidente] * 100).round}% coincidência
+      - qr = conexao[:quedas_rede]
+      - if qr.present?
+        .mt-1
+          - if qr[:problema_upstream]
+            .alert.alert-danger.py-1.px-2
+              small
+                strong Problema upstream provável
+                |  — #{qr[:quedas_coincidentes]}/#{qr[:total_quedas_cliente]} quedas coincidem com outras caixas
+              - if qr[:caixas_afetadas].present?
+                ul.mb-0.mt-1
+                  - qr[:caixas_afetadas].each do |c|
+                    li
+                      small = "#{c[:nome]}: #{c[:quedas_coincidentes]} quedas coincidentes"
+          - else
+            small.text-muted
+              | Outras caixas da rede: #{qr[:conexoes_com_quedas]}/#{qr[:total_conexoes_rede]} com quedas coincidentes
 
   / Overdue invoices
   - if conexao[:faturas_abertas].present?

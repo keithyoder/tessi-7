@@ -1,19 +1,47 @@
-.card
-  = render '/shared/table_header', {object: @fibra_redes, search_string: :nome_cont, params: @params, titulo: "Redes de Fibra"}
-  .card-body
-    .table-responsive
-      table.table.table-striped
-        thead
+/ Header
+.d-flex.flex-column.flex-md-row.justify-content-between.align-items-start.align-items-md-center.mb-4.gap-3
+  div
+    h2.mb-1 Redes de Fibra
+    p.text-muted.mb-0
+      = @pagy.count
+      |  redes encontradas
+
+  .d-flex.gap-2
+    = link_to new_fibra_rede_path, class: 'btn btn-primary'
+      i.bi.bi-plus-lg.me-1
+      | Nova Rede
+
+/ Search
+.card.border-0.shadow-sm.mb-4
+  .card-body.py-3
+    = search_form_for(@q, url: request.original_url, html: { class: 'd-flex gap-3' }) do |f|
+      .flex-grow-1
+        = f.search_field :nome_cont, class: 'form-control', placeholder: 'Buscar por nome...'
+      = button_tag class: 'btn btn-primary'
+        i.bi.bi-search
+
+/ Table
+.card.border-0.shadow-sm
+  .table-responsive
+    table.table.table-hover.align-middle.mb-0
+      thead
+        tr.text-muted.small.text-uppercase
+          th.ps-4 Rede
+          th Ponto de Acesso
+          th.text-center Conexões
+          th.text-center Ativas
+      tbody
+        - @fibra_redes.each do |rede|
           tr
-            th Rede
-            th Ponto de Acesso
-            th Conexões
-            th Ativas
-        tbody
-          - @fibra_redes.each do |rede|
-            tr
-              td= link_to rede.nome, rede
-              td= link_to rede.ponto.nome, rede.ponto
-              td= rede.conexoes.count
-              td= rede.conexoes.conectada.count
-  = paginate @fibra_redes
+            td.ps-4
+              .fw-semibold = link_to rede.nome, rede, class: 'text-decoration-none'
+            td
+              = link_to rede.ponto.nome, rede.ponto, class: 'text-decoration-none text-muted'
+            td.text-center
+              span.badge.rounded-pill.bg-primary = @total_por_rede[rede.id] || 0
+            td.text-center
+              span.badge.rounded-pill.bg-success = @online_por_rede[rede.id] || 0
+
+  - if @pagy.pages > 1
+    .card-footer.bg-transparent.border-top.d-flex.justify-content-center.py-3
+      == pagy_bootstrap_nav(@pagy)

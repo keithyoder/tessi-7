@@ -1,10 +1,55 @@
-.card
-  = render 'shared/show_header', {object: @fibra_rede, titulo: "Rede #{@fibra_rede.nome}"}
-  .card-body
-    .row.row-cols-1.row-cols-sm-2.row-cols-md-3.row-cols-lg-4.g-4.pt-3
-      = render 'shared/field_card', {campo: "Rede", valor: @fibra_rede.nome}
-      = render 'shared/field_card', {campo: "Ponto de Acesso", valor: @fibra_rede.ponto.nome, link: @fibra_rede.ponto}
-      = render 'shared/field_card', {campo: "Cor da Fibra", valor: @fibra_rede.fibra_cor}
-      = render 'shared/field_card', {campo: "Conexões", valor: @fibra_rede.conexoes.count}
-.card
-  = render 'fibra_caixas/table'
+/ Hero
+.card.border-0.shadow-sm.mb-4
+  .card-body.p-4
+    .d-flex.justify-content-between.align-items-start.flex-wrap.gap-3
+      div
+        .d-flex.align-items-center.gap-3.mb-2
+          h2.mb-0 = @fibra_rede.nome
+          - if @fibra_rede.fibra_cor.present?
+            span.badge.bg-secondary.fs-6 = @fibra_rede.fibra_cor
+        .text-muted
+          = link_to @fibra_rede.ponto.nome, @fibra_rede.ponto, class: 'text-decoration-none'
+      .d-flex.gap-2.mt-3.mt-md-0
+        = back_button(fibra_redes_path)
+        = edit_button(@fibra_rede)
+        = delete_button(@fibra_rede)
+
+/ Quick Stats
+.row.g-3.mb-4
+  .col-md-4.col-6
+    .card.border-0.shadow-sm.h-100
+      .card-body.text-center
+        .text-muted.small.mb-1 Caixas
+        .fs-3.fw-bold.text-primary = @fibra_caixas.size
+  .col-md-4.col-6
+    .card.border-0.shadow-sm.h-100
+      .card-body.text-center
+        .text-muted.small.mb-1 Ativas
+        .fs-3.fw-bold class=ativas_badge_class(@total_ativas, @total_conexoes).sub('bg-', 'text-')
+          = @total_ativas
+  .col-md-4.col-12
+    .card.border-0.shadow-sm.h-100
+      .card-body
+        .text-muted.small.mb-2.text-center Capacidade
+        - pct = ((@total_conexoes.to_f / 64) * 100).clamp(0, 100).round
+        - bar_class = pct >= 90 ? 'bg-danger' : pct >= 70 ? 'bg-warning' : 'bg-success'
+        .d-flex.align-items-center.gap-2
+          .progress.flex-grow-1 style="height: 8px"
+            .progress-bar class=bar_class style="width: #{pct}%"
+          span.text-muted.small = "#{@total_conexoes}/64"
+
+/ Caixas + Map
+.row.g-4
+  .col-md-7
+    = render 'fibra_caixas/table'
+  .col-md-5
+    .card.border-0.shadow-sm.h-100
+      .card-body.p-0
+        #fibra-rede-map.w-100[
+          style="height: 500px; border-radius: 0.375rem;"
+          data-controller="map"
+          data-map-latitude-value=@map_center.first
+          data-map-longitude-value=@map_center.last
+          data-map-zoom-value="13"
+          data-map-markers-value=@markers.to_json
+        ]

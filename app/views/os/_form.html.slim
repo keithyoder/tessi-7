@@ -1,5 +1,4 @@
-= javascript_include_tag params[:controller]
-= simple_form_for(@os) do |f|
+= simple_form_for(@os, html: { data: { controller: 'os' } }) do |f|
   = f.error_notification
   = f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present?
   = f.hidden_field :aberto_por_id
@@ -12,9 +11,14 @@
         = f.association :classificacao, collection: Classificacao.os, label_method: :nome
     .row
       .col
-        = f.association :pessoa, collection: Pessoa.all, label_method: :nome
+        = f.association :pessoa,
+            collection: Pessoa.all,
+            label_method: :nome,
+            input_html: { data: { os_target: 'pessoa', action: 'change->os#carregarConexoes' } }
       .col-3
-        = f.association :conexao, label_method: :id
+        = f.association :conexao,
+            label_method: :id,
+            input_html: { data: { os_target: 'conexao' } }
     .row
       .col-4
         = f.association :responsavel, label_method: :primeiro_nome
@@ -30,8 +34,8 @@
         = f.input :encerramento
   .form-actions
     = button_tag(:class => "btn btn-primary") do
-      i.fas.fa-save aria-hidden="true" 
+      i.fas.fa-save aria-hidden="true"
       | Salvar
     = submit_tag("Encerrar", {:class => "btn btn-warning"}) do
-      i.fas.fa-door-closed aria-hidden="true" 
+      i.fas.fa-door-closed aria-hidden="true"
       | Encerrar

@@ -1,0 +1,45 @@
+.d-flex.justify-content-between.align-items-center.mb-3
+  h5.mb-0 Caixas de Atendimento
+  - path = (defined?(@fibra_rede) && @fibra_rede) ? new_fibra_caixa_path(fibra_rede_id: @fibra_rede.id) : new_fibra_caixa_path
+  = link_to path, class: 'btn btn-primary btn-sm'
+    i.bi.bi-plus-lg.me-1
+    | Nova Caixa
+
+.card.border-0.shadow-sm
+  .table-responsive
+    table.table.table-hover.align-middle.mb-0
+      thead
+        tr.text-muted.small.text-uppercase
+          th.ps-4 Caixa
+          th Rua
+          th Rede
+          th Ocupação
+          th.text-center Ativas
+      tbody
+        - @fibra_caixas.each do |caixa|
+          - total = @total_por_caixa[caixa.id] || 0
+          - ativas = @online_por_caixa[caixa.id] || 0
+          tr
+            td.ps-4
+              .fw-semibold = link_to caixa.nome, caixa, class: 'text-decoration-none'
+            td
+              - if caixa.logradouro.present?
+                = link_to caixa.logradouro.nome, caixa.logradouro, class: 'text-decoration-none text-muted'
+              - else
+                span.text-muted —
+            td
+              = link_to caixa.fibra_rede.nome, caixa.fibra_rede, class: 'text-decoration-none text-muted'
+            td style="min-width: 150px"
+              - pct = caixa.capacidade.to_i > 0 ? (total * 100 / caixa.capacidade).clamp(0, 100) : 0
+              - bar_class = pct >= 90 ? 'bg-danger' : pct >= 70 ? 'bg-warning' : 'bg-success'
+              .d-flex.align-items-center.gap-2
+                .progress.flex-grow-1 style="height: 6px"
+                  .progress-bar class=bar_class style="width: #{pct}%"
+                small.text-muted = "#{total}/#{caixa.capacidade}"
+            td.text-center
+              - badge_class = total > 0 ? ativas_badge_class(ativas, total) : 'bg-secondary'
+              span.badge.rounded-pill class=badge_class = ativas
+
+  - if defined?(@pagy_caixas) && @pagy_caixas&.pages.to_i > 1
+    .card-footer.bg-transparent.border-top.d-flex.justify-content-center.py-3
+      == pagy_bootstrap_nav(@pagy_caixas)

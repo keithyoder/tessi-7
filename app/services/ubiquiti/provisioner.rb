@@ -20,7 +20,7 @@ module Ubiquiti
 
     def apply!
       config = config_manager.download_config
-      UbiquitiBackup.store(ponto, config)
+      # DeviceBackup.store(ponto.device, config)
       desired = desired_settings
 
       return unless needs_update?(config, desired)

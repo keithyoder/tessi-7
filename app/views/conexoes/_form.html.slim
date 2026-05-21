@@ -2,148 +2,110 @@
   = f.error_notification
   = f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present?
 
-  .form-inputs
-    .row
-      .col
-        = f.association :pessoa, label_method: :nome
-      .col
-        = f.association :plano,
-          collection: Plano.ativos(@contrato&.plano).order(:nome),
-          label_method: :nome
-      .col-4
-        = f.input :tipo, collection: Conexao.tipos.keys
+  - current_ip    = @conexao.ip.to_s
+  - current_ipv6  = @conexao.ipv6.to_s
+  - current_caixa = @conexao.caixa_id.to_i
+  - map           = conexao_map_center(@conexao)
+  - pessoa        = @conexao.pessoa
 
-    .row
-      .col-6
-        = f.association :logradouro,
-          collection: Logradouro.includes([:bairro, :cidade, :estado]).order(:nome),
-          hint: @conexao&.pessoa.logradouro.endereco,
-          label_method: :endereco
-      .col
-        = f.input :numero, hint: @conexao&.pessoa.numero
-      .col
-        = f.input :complemento, hint: @conexao&.pessoa.complemento
+  div[data-controller="conexao" data-conexao-current-ip-value=current_ip data-conexao-current-ipv6-value=current_ipv6 data-conexao-current-caixa-id-value=current_caixa]
 
-    / ---------- Conexao controller ----------
-    .row data-controller="conexao"
-      .col-2
-        = f.association :contrato,
-          collection: @contratos,
-          label_method: :id
+    / ── Identificação ───────────────────────────────────────────────────
+    .card.mb-3
+      .card-header Identificação
+      .card-body
+        .row.g-3
+          .col-12.col-md
+            .form-group
+              label.form-label Pessoa
+              .position-relative
+                = f.hidden_field :pessoa_id, data: { conexao_target: "pessoaId" }
+                input.form-control type="text" placeholder="Digite para buscar..." value=pessoa&.nome autocomplete="off" data-conexao-target="pessoaInput" data-action="input->conexao#searchPessoa"
+          .col-12.col-md-3
+            = f.input :tipo, collection: Conexao.tipos.keys, input_html: { data: { action: "change->conexao#tipoChanged", conexao_target: "tipo" } }
+          .col-12.col-md-2[data-conexao-target="contratoWrapper"]
+            = f.association :contrato, collection: @contratos, label_method: :id
 
-      .col
-        = f.association :ponto,
-          collection: Ponto.ativo.order(:nome),
-          label_method: :nome,
-          input_html: { data: { action: "change->conexao#carregarIPs", conexao_target: "ponto" } }
+    / ── Conexão ─────────────────────────────────────────────────────────
+    .card.mb-3
+      .card-header Conexão
+      .card-body
+        .row.g-3
+          .col-12.col-md-4
+            = f.association :plano, collection: Plano.ativos(@conexao.contrato&.plano).order(:nome), label_method: :nome
+          .col-12.col-md
+            = f.input :velocidade
+          .col-12.col-md-4
+            = f.association :equipamento, collection: Equipamento.cpe.order(:fabricante, :modelo), label_method: :descricao
 
-      .col-2
-        = f.input :ip.to_s,
-          collection: [@conexao.ip.to_s] + (@conexao.ponto&.ipv4_disponiveis).to_a,
-          input_html: { data: { conexao_target: "ip" } }
+        .row.g-3.mt-1
+          .col-12.col-md-8
+            = f.input :observacao
+          .col-12.col-md
+            = f.input :bloqueado
+            = f.input :inadimplente
+            = f.input :auto_bloqueio
 
-      .col
-        = f.input :usuario
-      .col-2
-        = f.input :senha
+    / ── Rede ────────────────────────────────────────────────────────────
+    .card.mb-3
+      .card-header Rede
+      .card-body
+        .row.g-3
+          .col-12.col-md-4
+            = f.association :ponto, collection: Ponto.ativo.order(:nome), label_method: :nome, input_html: { data: { action: "change->conexao#pontoChanged", conexao_target: "ponto" } }
+          .col-12.col-md-4
+            = f.input :ip, collection: [current_ip] + (@conexao.ponto&.ipv4_disponiveis.to_a.map(&:to_s)), input_html: { data: { conexao_target: "ip" } }
+          .col-12.col-md-4
+            = f.input :ipv6, collection: [current_ipv6] + (@conexao.ponto&.ipv6_disponiveis.to_a.map(&:to_s)), input_html: { data: { conexao_target: "ipv6" } }
 
-    .row data-controller="conexao"
-      .col-3
-        = f.input :mac,
-          input_html: { data: { action: "input->conexao#formatMAC", conexao_target: "mac" } }
+        .row.g-3.mt-1
+          .col-12.col-md-3
+            = f.input :mac, input_html: { data: { action: "input->conexao#formatMAC", conexao_target: "mac" } }
+          .col-12.col-md
+            = f.input :usuario
+          .col-12.col-md-2
+            = f.input :senha
 
-      .col-3
-        = f.input :ipv6,
-          collection: [@conexao.ipv6.to_s] + (@conexao.ponto&.ipv6_disponiveis).to_a
+        .row.g-3.mt-1[data-conexao-target="caixaPortaWrapper"]
+          .col-12.col-md
+            = f.association :caixa, collection: @caixas, label_method: :nome, include_blank: '— nenhuma —', input_html: { data: { conexao_target: "caixa" } }
+          .col-12.col-md-2
+            = f.input :porta, as: :select, collection: opcoes_porta, include_blank: '— nenhuma —'
 
-      .col
-        = f.input :velocidade
+    / ── Localização ─────────────────────────────────────────────────────
+    .card.mb-3
+      .card-header Localização
+      .card-body[data-controller="geolocation"]
+        .row.g-3
+          .col-12.col-md-6
+            .form-group
+              label.form-label Logradouro
+              .position-relative
+                = f.hidden_field :logradouro_id, data: { conexao_target: "logradouroId" }
+                input.form-control type="text" placeholder=pessoa&.logradouro&.endereco value=@conexao.logradouro&.endereco autocomplete="off" data-conexao-target="logradouroInput" data-action="input->conexao#searchLogradouro"
+          .col-12.col-md
+            = f.input :numero, placeholder: pessoa&.numero, hint: false
+          .col-12.col-md
+            = f.input :complemento, placeholder: pessoa&.complemento, hint: false
 
-    .row
-      .col-8
-        = f.input :observacao
-      .col
-        = f.association :caixa, collection: @caixas, label_method: :nome
-      .col
-        = f.input :porta
+        .row.g-3.mt-1
+          .col-12.col-md-3
+            = f.input :latitude, input_html: { id: "conexao_latitude", data: { geolocation_target: "latitude", action: "input->geolocation#updateMap" } }
+          .col-12.col-md-3
+            = f.input :longitude, input_html: { id: "conexao_longitude", data: { geolocation_target: "longitude", action: "input->geolocation#updateMap" } }
 
-    / ---------- Geolocation + Map ----------
-    .row data-controller="geolocation"
-      .col-3
-        = f.input :latitude,
-          input_html: { \
-            id: "conexao_latitude", \
-            data: { \
-              geolocation_target: "latitude", \
-              action: "input->geolocation#updateMap" \
-            } \
-          }
+        .row.mt-3
+          .col
+            .map-container data-controller="map" data-map-latitude-value=map[:lat] data-map-longitude-value=map[:lng] data-map-zoom-value=map[:zoom] data-map-markers-value=conexao_map_markers(@conexao).to_json data-geolocation-target="map"
 
-      .col-3
-        = f.input :longitude,
-          input_html: { \
-            id: "conexao_longitude", \
-            data: { \
-              geolocation_target: "longitude", \
-              action: "input->geolocation#updateMap" \
-            } \
-          }
+        .row.mt-3
+          .col
+            button.btn.btn-secondary type="button" data-action="click->geolocation#getLocation"
+              i.bi.bi-geo-alt-fill aria-hidden="true"
+              |  GPS
 
-      .col-3
-        = f.association :equipamento,
-          collection: Equipamento.cpe.order(:fabricante, :modelo),
-          label_method: :descricao
-
-      .col
-        = f.input :bloqueado
-        = f.input :inadimplente
-        = f.input :auto_bloqueio
-
-      .row
-        .col
-          - center_lat = @conexao.latitude&.to_f || @conexao.ponto&.latitude&.to_f || -8.3594
-          - center_lng = @conexao.longitude&.to_f || @conexao.ponto&.longitude&.to_f || -36.9608
-          - zoom_level = @conexao.latitude.present? ? 18 : 15
-          - markers = []
-          
-          - if @conexao.latitude.present? && @conexao.longitude.present?
-            - markers << { \
-                id: 'current', \
-                lat: @conexao.latitude.to_f, \
-                lng: @conexao.longitude.to_f, \
-                title: @conexao.pessoa&.nome || "Nova Conexão", \
-                color: '#007bff', \
-                draggable: true, \
-                popup: "#{@conexao.pessoa&.nome || 'Nova Conexão'}<br>Latitude: #{@conexao.latitude}<br>Longitude: #{@conexao.longitude}<br><em>Arraste para ajustar</em>" \
-              }
-          - elsif @conexao.ponto.present?
-            - @conexao.ponto.conexoes.georeferenciadas.limit(20).each do |nearby|
-              - markers << { \
-                  id: nearby.id, \
-                  lat: nearby.latitude.to_f, \
-                  lng: nearby.longitude.to_f, \
-                  title: nearby.pessoa.nome, \
-                  color: '#6c757d', \
-                  draggable: false, \
-                  popup: "#{nearby.pessoa.nome}<br>IP: #{nearby.ip}" \
-                }
-
-          .map-container[
-            data-controller="map"
-            data-map-latitude-value=center_lat
-            data-map-longitude-value=center_lng
-            data-map-zoom-value=zoom_level
-            data-map-markers-value=markers.to_json
-            data-geolocation-target="map"
-          ]
-                  
-  .form-actions
-    = button_tag type: "button",
-      class: "btn btn-primary",
-      data: { action: "click->geolocation#getLocation" } do
-      i.fa.fa-location-arrow aria-hidden="true"
-      |  GPS
-
-    = button_tag class: "btn btn-primary" do
-      i.fas.fa-save aria-hidden="true"
+  / ── Actions ─────────────────────────────────────────────────────────
+  .d-flex.gap-2.mt-3
+    button.btn.btn-primary type="submit"
+      i.bi.bi-floppy aria-hidden="true"
       |  Salvar

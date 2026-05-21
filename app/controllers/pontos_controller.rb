@@ -5,7 +5,8 @@ class PontosController < ApplicationController
 
   authorize_resource
   before_action :set_ponto, only: %i[edit update destroy]
-  before_action :set_ponto_with_details, only: %i[show]
+  before_action :set_ponto, only: %i[show], if: -> { request.format.json? }
+  before_action :set_ponto_with_details, only: %i[show], unless: -> { request.format.json? }
   before_action :set_available_devices, only: %i[new edit create update]
 
   def index
@@ -32,20 +33,20 @@ class PontosController < ApplicationController
   end
 
   def show
-    @conexao_q = @ponto
-      .conexoes
-      .includes(:pessoa, :plano)
-      .order(:ip)
-      .ransack(params[:conexao_q])
-
-    @pagy_conexoes, @conexoes = pagy(@conexao_q.result, page_param: :conexoes_page)
-    @conexoes_status = Conexao.status_conexoes(@conexoes)
-    @autenticacoes = @ponto.autenticacoes
-    @ips = @ponto.ipv4_disponiveis if params.key?(:ipv4)
-    @params = conexoes_params(params)
-
     respond_to do |format|
-      format.html
+      format.json
+      format.html do
+        @conexao_q = @ponto
+          .conexoes
+          .includes(:pessoa, :plano)
+          .order(:ip)
+          .ransack(params[:conexao_q])
+
+        @pagy_conexoes, @conexoes = pagy(@conexao_q.result, page_param: :conexoes_page)
+        @conexoes_status = Conexao.status_conexoes(@conexoes)
+        @autenticacoes = @ponto.autenticacoes
+        @params = conexoes_params(params)
+      end
       format.kml
       format.geojson
     end

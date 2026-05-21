@@ -9,10 +9,21 @@ class PessoasController < ApplicationController
   # GET /pessoas
   # GET /pessoas.json
   def index
-    @q = Pessoa.includes(:logradouro, :bairro, :cidade, :estado)
-      .ransack(params[:q])
-    @q.sorts = 'nome'
-    @pessoas = @q.result.page params[:page]
+    respond_to do |format|
+      format.json do
+        @pessoas = Pessoa.accessible_by(current_ability)
+          .where('pessoas.nome ILIKE ?', "%#{params[:search]}%")
+          .includes(:logradouro, :bairro, :cidade, :estado)
+          .order(:nome)
+          .limit(10)
+      end
+      format.html do
+        @q = Pessoa.includes(:logradouro, :bairro, :cidade, :estado)
+          .ransack(params[:q])
+        @q.sorts = 'nome'
+        @pessoas = @q.result.page params[:page]
+      end
+    end
   end
 
   # GET /pessoas/1

@@ -5,19 +5,25 @@ class LogradourosController < ApplicationController
 
   # GET /logradouros
   def index
-    if params[:search].present?
-      @logradouros = Logradouro.accessible_by(current_ability)
-        .name_like("%#{params[:search]}%")
-        .order(:nome)
-    else
-      @q = Logradouro.accessible_by(current_ability)
-        .eager_load(:bairro, :cidade, :estado)
-        .ransack(params[:q])
+    respond_to do |format|
+      format.json do
+        @logradouros = Logradouro.accessible_by(current_ability)
+          .where('logradouros.nome ILIKE ?', "%#{params[:search]}%")
+          .eager_load(:bairro, :cidade, :estado)
+          .order(:nome)
+          .limit(10)
+      end
 
-      @q.sorts = ['nome'] if @q.sorts.empty?
-      @logradouros = @q.result.page(params[:logradouros_page])
+      format.html do
+        @q = Logradouro.accessible_by(current_ability)
+          .eager_load(:bairro, :cidade, :estado)
+          .ransack(params[:q])
+
+        @q.sorts = ['nome'] if @q.sorts.empty?
+        @logradouros = @q.result.page(params[:logradouros_page])
+        @params = {}
+      end
     end
-    @params = {}
   end
 
   # GET /logradouros/1

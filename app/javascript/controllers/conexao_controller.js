@@ -13,6 +13,10 @@ export default class extends Controller {
     document.addEventListener("click", this.boundHideDropdown)
     this.tipoChanged()
     this.caixaPortaWrapperTarget.style.display = "none"
+
+    // On edit, check existing ponto's tecnologia
+    const pontoId = this.pontoTarget.value
+    if (pontoId) this.pontoChanged()
   }
 
   disconnect() {

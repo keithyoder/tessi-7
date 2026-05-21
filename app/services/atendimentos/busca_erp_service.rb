@@ -166,7 +166,7 @@ class Atendimentos::BuscaErpService
         vizinhos_amplos_label: vizinhos_amplos_label,
         vizinhos_amplos_online: vizinhos_amplos[:online],
         vizinhos_amplos_total: vizinhos_amplos[:total],
-        historico_sessoes: historico_sessoes(conexao),
+        historico_sessoes: historico,
         quedas_vizinhos: quedas_vizinhos(conexao, raw_quedas, mapa_vizinhos),
         quedas_rede: quedas_rede(conexao, raw_quedas, mapa_vizinhos),
         ping: ping_conexao(conexao)
@@ -220,8 +220,7 @@ class Atendimentos::BuscaErpService
         pessoa: conexao.pessoa,
         fechamento: primeira_em_aberto.vencimento..
       )
-      .where(atendimento_detalhes: { descricao: 'Acesso Liberado' })
-      .exists?
+      .exists?(atendimento_detalhes: { descricao: 'Acesso Liberado' })
   end
 
   def ping_conexao(conexao)
@@ -231,22 +230,18 @@ class Atendimentos::BuscaErpService
   end
 
   def historico_sessoes(conexao)
-    return sessoes_vazias if conexao.usuario.blank?
-
     sessoes = RadAcct
       .where.not(username: nil)
       .where(username: conexao.usuario)
       .where('acctstarttime > ?', 7.days.ago)
       .order(acctstarttime: :desc)
-      .pluck(
-        :acctstarttime,
-        :acctstoptime,
-        :acctterminatecause,
-        :acctinputoctets,
-        :acctoutputoctets
-      )
+      .pluck(:acctstarttime, :acctstoptime, :acctterminatecause, :acctinputoctets, :acctoutputoctets)
 
-    return sessoes_vazias if sessoes.empty?
+    if sessoes.empty?
+      return sessoes_vazias.merge(
+        alerta: { tipo: 'sem_autenticacao', mensagem: 'Nenhuma autenticação nos últimos 7 dias' }
+      )
+    end
 
     sessoes_validas = sessoes.reject do |start, stop, _, _, _|
       stop.present? && (stop < start || (stop - start) > DURACAO_MAXIMA_HORAS.hours)
@@ -305,7 +300,7 @@ class Atendimentos::BuscaErpService
           }
         end
       },
-      _quedas_cliente_raw: quedas_cliente # private, stripped before serialization
+      _quedas_cliente_raw: quedas_cliente
     }
   end
 
@@ -342,7 +337,8 @@ class Atendimentos::BuscaErpService
       ultima_queda: nil,
       ultima_causa: nil,
       sessoes_por_dia: {},
-      transferencia_7_dias: { download_mb: '0.0 MB', upload_mb: '0.0 MB', por_dia: {} }
+      transferencia_7_dias: { download_mb: '0.0 MB', upload_mb: '0.0 MB', por_dia: {} },
+      _quedas_cliente_raw: []
     }
   end
 
@@ -383,7 +379,7 @@ class Atendimentos::BuscaErpService
     end
 
     total = quedas_cliente.count
-    proporcao = total > 0 ? quedas_coincidentes.to_f / total : 0.0
+    proporcao = total.positive? ? quedas_coincidentes.to_f / total : 0.0
 
     {
       total_vizinhos: vizinho_ids.count,
@@ -439,7 +435,7 @@ class Atendimentos::BuscaErpService
     end
 
     total     = raw_quedas.count
-    proporcao = total > 0 ? quedas_coincidentes.to_f / total : 0.0
+    proporcao = total.positive? ? quedas_coincidentes.to_f / total : 0.0
 
     # Per-caixa breakdown: which caixas have coincident drops
     drops_por_caixa = drops_rede.each_with_object(Hash.new { |h, k| h[k] = [] }) do |(usuario, timestamp), h|
@@ -453,14 +449,14 @@ class Atendimentos::BuscaErpService
         timestamps.any? { |t| (t - start).abs <= janela }
       end
 
-      next nil if quedas_coin_cliente == 0
+      next nil if quedas_coin_cliente.zero?
 
       # How many of this caixa's drops coincide with the customer
       quedas_coin_vizinho = timestamps.count do |t|
         raw_quedas.any? { |start, _, _, _, _| (t - start).abs <= janela }
       end
 
-      proporcao_vizinho = timestamps.count > 0 ? quedas_coin_vizinho.to_f / timestamps.count : 0.0
+      proporcao_vizinho = timestamps.any? ? quedas_coin_vizinho.to_f / timestamps.count : 0.0
 
       {
         caixa_id: caixa_id,
@@ -471,9 +467,8 @@ class Atendimentos::BuscaErpService
       }
     end.compact.sort_by { |c| -c[:proporcao_coincidente] }
 
-    # After building caixas_afetadas
     todas_caixas_nomes = nomes_caixa.values
-    nomes_afetadas     = caixas_afetadas.map { |c| c[:nome] }
+    nomes_afetadas     = caixas_afetadas.pluck(:nome)
     caixas_sem_quedas  = todas_caixas_nomes - nomes_afetadas
 
     {

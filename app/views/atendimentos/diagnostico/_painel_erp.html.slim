@@ -60,9 +60,15 @@
         small.text-danger
           | Router offline — ICMP: #{ping[:erro]} / TCP: #{ping[:tcp_erro]}
 
-  / Sessions summary
-  - h = conexao[:historico_sessoes]
-  - if h.present?
+/ Sessions summary
+- h = conexao[:historico_sessoes]
+- if h.present?
+  - if h[:alerta].present?
+    .mb-2
+      .alert.alert-warning.py-1.px-2
+        small
+          strong = h[:alerta][:mensagem]
+  - else
     .mb-2
       small.text-muted
         | Sessões 7 dias: #{h[:sessoes_7_dias]} / Quedas cliente: #{h[:quedas_cliente]}
@@ -72,7 +78,7 @@
         small.d-block.text-muted = "Online desde: #{h[:sessao_atual_inicio]}"
       - t = h[:transferencia_7_dias]
       - if t.present?
-        small.d-block.text-muted = "Transferência 7d: ↓#{t[:download_mb]} MB ↑#{t[:upload_mb]} MB"
+        small.d-block.text-muted = "Transferência 7d: ↓#{t[:download_mb]} ↑#{t[:upload_mb]}"
 
       - qv = conexao[:quedas_vizinhos]
       - if qv.present?

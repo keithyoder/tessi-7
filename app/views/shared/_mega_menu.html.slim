@@ -16,7 +16,6 @@ nav.navbar.navbar-expand-lg.navbar-light.bg-white.shadow-sm.sticky-top
           | Menu
           = badge_if_positive(atendimentos_abertos, extra_classes: "ms-2")
         
-        / Changed: removed dropdown-menu-end, adjusted width, centered with container
         .dropdown-menu.mega-menu.border-0.shadow-lg
           .container
             .row.g-4.p-4
@@ -48,6 +47,10 @@ nav.navbar.navbar-expand-lg.navbar-light.bg-white.shadow-sm.sticky-top
                     = link_to os_index_path(minhas: 1, abertas: 1), class: "dropdown-item rounded" do
                       i.bi.bi-truck.me-2
                       | Minhas OS
+                  li.mb-2
+                    = link_to atendimentos_diagnostico_path, class: "dropdown-item rounded" do
+                      i.bi.bi-activity.me-2
+                      | Diagnóstico
               
               / Column 2: Financeiro
               .col-lg-3
@@ -148,7 +151,6 @@ nav.navbar.navbar-expand-lg.navbar-light.bg-white.shadow-sm.sticky-top
                       i.bi.bi-router.me-2
                       | Equipamentos
                 
-                / User section
                 h6.text-uppercase.fw-bold.mb-3.mt-4.text-dark
                   i.bi.bi-person-circle.me-2
                   | Conta
@@ -167,7 +169,7 @@ nav.navbar.navbar-expand-lg.navbar-light.bg-white.shadow-sm.sticky-top
       i.bi.bi-list.fs-3
       = badge_if_positive(atendimentos_abertos, extra_classes: "ms-1")
 
-/ MOBILE: Off-canvas sidebar menu (same as before)
+/ MOBILE: Off-canvas sidebar menu
 .offcanvas.offcanvas-end.d-lg-none tabindex="-1" id="mobileMenu"
   .offcanvas-header.bg-light
     h5.mb-0
@@ -208,6 +210,9 @@ nav.navbar.navbar-expand-lg.navbar-light.bg-white.shadow-sm.sticky-top
             = link_to os_index_path(minhas: 1, abertas: 1), class: "d-block py-2 px-3 text-decoration-none text-dark rounded hover-bg-light" do
               i.bi.bi-truck.me-2
               | Minhas OS
+            = link_to atendimentos_diagnostico_path, class: "d-block py-2 px-3 text-decoration-none text-dark rounded hover-bg-light" do
+              i.bi.bi-activity.me-2
+              | Diagnóstico
       
       / Financeiro
       .accordion-item

@@ -1,0 +1,38 @@
+/ app/views/planos/_form.html.slim
+
+= simple_form_for(@plano) do |f|
+  = f.error_notification
+  = f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present?
+
+  / ── Identificação ─────────────────────────────────────────────────────
+  .card.mb-3
+    .card-header Identificação
+    .card-body
+      .row.g-3
+        .col-12.col-md-6
+          = f.input :nome
+        .col-6.col-md-3
+          = currency_input f, :mensalidade
+        .col-6.col-md-3
+          = currency_input f, :desconto
+  / ── Velocidade ────────────────────────────────────────────────────────
+  .card.mb-3
+    .card-header Velocidade
+    .card-body
+      .row.g-3
+        .col-6.col-md-3
+          = f.input :download, as: :integer, input_html: { min: 0, max: 1000 }
+        .col-6.col-md-3
+          = f.input :upload, as: :integer, input_html: { min: 0, max: 1000 }
+        .col-6.col-md-3
+          = f.input :burst, as: :boolean, label: 'Burst'
+
+  / ── Configuração ──────────────────────────────────────────────────────
+  .card.mb-3
+    .card-header Configuração
+    .card-body
+      .row.g-3
+        .col-6.col-md-3
+          = f.input :ativo, as: :boolean, label: 'Ativo'
+
+  = form_actions @plano

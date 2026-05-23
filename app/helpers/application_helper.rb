@@ -119,4 +119,17 @@ module ApplicationHelper
       }
     end
   end
+
+  def currency_input(f, field, options = {})
+    label = options[:label] || f.object.class.human_attribute_name(field)
+    value = format('%.2f', f.object.public_send(field) || 0)
+
+    content_tag(:div, class: 'form-group') do
+      concat label_tag(field, label, class: 'form-label')
+      concat content_tag(:div, class: 'input-group') {
+        concat content_tag(:span, 'R$', class: 'input-group-text')
+        concat f.input_field(field, class: 'form-control text-end', min: 0, step: '0.01', value: value)
+      }
+    end
+  end
 end

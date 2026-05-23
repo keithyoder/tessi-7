@@ -5,18 +5,14 @@ class PlanosController < ApplicationController
 
   # GET /planos
   def index
+    params[:q] ||= {}
+    params[:q][:ativo_eq] = 'true' if params[:q][:ativo_eq].nil?
+
     @q = Plano.accessible_by(current_ability).ransack(params[:q])
     @q.sorts = 'nome' if @q.sorts.empty?
+    @search_params = @q.conditions.to_h { |c| [c.attributes.first, c.values.first] }
 
-    @planos = @q.result.page(params[:page])
-
-    respond_to do |format|
-      format.html
-      format.csv do
-        send_data @planos.except(:limit, :offset).to_csv,
-                  filename: "planos-#{Time.zone.today}.csv"
-      end
-    end
+    @pagy, @planos = pagy(@q.result, limit: 12)
   end
 
   # GET /planos/1
@@ -59,7 +55,7 @@ class PlanosController < ApplicationController
 
   def plano_params
     params.require(:plano).permit(
-      :nome, :mensalidade, :upload, :download, :burst, :page, :desconto, :ativo
+      :nome, :mensalidade, :upload, :download, :burst, :desconto, :ativo
     )
   end
 end

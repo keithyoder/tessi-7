@@ -20,12 +20,12 @@
 #
 #  index_planos_on_nome  (nome) UNIQUE
 #
-require 'csv'
 
 class Plano < ApplicationRecord
   has_many :plano_verificar_atributos, dependent: :destroy
   has_many :plano_enviar_atributos, dependent: :destroy
   has_many :conexoes, dependent: :restrict_with_error
+
   scope :ativos, ->(plano_atual = nil) { where('ativo').or(Plano.where(id: plano_atual)) }
 
   after_save do
@@ -36,29 +36,10 @@ class Plano < ApplicationRecord
   end
 
   after_create do
-    atr = PlanoEnviarAtributo.where(plano: self, atributo: 'Acct-Interim-Interval').first_or_create
-    atr.op = ':='
-    atr.valor = '900'
-    atr.save
-
-    atr = PlanoVerificarAtributo.where(plano: self, atributo: '	Simultaneous-Use').first_or_create
+    atr = PlanoVerificarAtributo.where(plano: self, atributo: 'Simultaneous-Use').first_or_create
     atr.op = ':='
     atr.valor = '1'
     atr.save
-  end
-
-  def self.to_csv
-    attributes = %w[id nome mensalidade download upload burst]
-    CSV.generate(headers: true) do |csv|
-      csv << attributes
-      find_each do |plano|
-        csv << attributes.map { |attr| plano.send(attr) }
-      end
-    end
-  end
-
-  def velocidade
-    "#{download}M ▼ / #{upload}M ▲"
   end
 
   def mikrotik_rate_limit
@@ -73,31 +54,19 @@ class Plano < ApplicationRecord
            upload: upload, download: download, burstup: burstup, burstdown: burstdown)
   end
 
-  def burst_as_string
-    if burst?
-      'Ativiado'
-    else
-      'Desativado'
-    end
-  end
-
   def garantia
-    if upload == download
-      100
-    else
-      30
-    end
+    upload == download ? 100 : 30
   end
 
   def valor_com_desconto
-    if desconto.present?
-      mensalidade - desconto
-    else
-      mensalidade
-    end
+    desconto.present? ? mensalidade - desconto : mensalidade
   end
 
   def self.ransackable_attributes(_auth_object = nil)
-    %w[mensalidade nome]
+    %w[ativo mensalidade nome]
+  end
+
+  def self.ransackable_associations(_auth_object = nil)
+    []
   end
 end

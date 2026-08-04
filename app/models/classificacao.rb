@@ -10,6 +10,7 @@
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #
+
 class Classificacao < ApplicationRecord
   has_many :os, dependent: :restrict_with_error
   has_many :atendimentos, dependent: :restrict_with_error
@@ -24,4 +25,12 @@ class Classificacao < ApplicationRecord
 
   scope :atendimentos, -> { where(tipo: :Atendimento) }
   scope :os, -> { where.not(tipo: :Atendimento) }
+
+  def self.ransackable_attributes(_auth_object = nil)
+    %w[id nome tipo created_at updated_at]
+  end
+
+  def self.ransackable_associations(_auth_object = nil)
+    %w[atendimentos os]
+  end
 end

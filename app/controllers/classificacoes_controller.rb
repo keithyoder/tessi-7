@@ -2,15 +2,15 @@
 
 class ClassificacoesController < ApplicationController
   before_action :set_classificacao, only: %i[show edit update destroy]
-  load_and_authorize_resource
+  authorize_resource
 
   # GET /classificacoes or /classificacoes.json
   def index
-    classificacao = Classificacao
-    classificacao = classificacao.where(tipo: params[:tipo]) if params.key?(:tipo)
-    @q = classificacao.ransack(params[:q])
-    @q.sorts = 'tipo_nome'
-    @classificacoes = @q.result.page params[:page]
+    @q = Classificacao.accessible_by(current_ability).ransack(params[:q])
+    @q.sorts = ['tipo asc', 'nome asc'] if @q.sorts.empty?
+    @search_params = @q.conditions.to_h { |c| [c.attributes.first, c.values.first] }
+
+    @pagy, @classificacoes = pagy(@q.result, limit: 12)
   end
 
   # GET /classificacoes/1 or /classificacoes/1.json
@@ -44,7 +44,7 @@ class ClassificacoesController < ApplicationController
     respond_to do |format|
       if @classificacao.update(classificacao_params)
         format.html { redirect_to @classificacao, notice: t('.notice') }
-        format.json { render :show, status: :ok, location: @classificacoes }
+        format.json { render :show, status: :ok, location: @classificacao }
       else
         format.html { render :edit, status: :unprocessable_content }
         format.json { render json: @classificacao.errors, status: :unprocessable_content }

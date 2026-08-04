@@ -15,7 +15,7 @@
     "esbuild": "^0.17.19",
     "leaflet": "^1.9.4",
     "payment-token-efi": "^3.4.1",
-    "sass": "^1.70.0"
+    "sass": "1.99.0"
   },
   "devDependencies": {}
 }

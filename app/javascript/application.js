@@ -2,10 +2,6 @@
 import "@hotwired/turbo-rails"
 import "./controllers"
 
-import jquery from "jquery"
-window.jQuery = jquery
-window.$ = jquery
-
 import { createPopper } from '@popperjs/core';
 
 // Import Bootstrap and expose globally so data-bs-* attributes work
@@ -17,7 +13,6 @@ Chart.register(...registerables);
 window.Chart = Chart;
 
 // import "leaflet/dist/leaflet.css"
-import "./faturas"
 import "./fibra_caixas"
 import "./phone-type-formatter.br"
 import "./servidores"

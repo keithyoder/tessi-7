@@ -37,6 +37,7 @@ class Atendimento < ApplicationRecord
   belongs_to :pessoa
   belongs_to :classificacao
   belongs_to :responsavel, class_name: 'User'
+  belongs_to :aberto_por, class_name: 'User', optional: true
   belongs_to :contrato, optional: true
   belongs_to :conexao, optional: true
   belongs_to :fatura, optional: true

@@ -7,12 +7,15 @@
 # - Agendar a execução
 # - Apresentar o resultado ao usuário
 #
+
 class RenovarContratosJob < ApplicationJob
   queue_as :default
 
-  def perform(pagamento_perfil_id: 1, meses_por_fatura: 1)
+  def perform(responsavel_id:, aberto_por_id:, pagamento_perfil_id: 1, meses_por_fatura: 1)
     resultado = Contratos::RenovacaoEmLoteService.new(
       pagamento_perfil_id: pagamento_perfil_id,
+      responsavel: User.find(responsavel_id),
+      aberto_por: User.find(aberto_por_id),
       meses_por_fatura: meses_por_fatura
     ).call
 

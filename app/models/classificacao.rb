@@ -12,6 +12,8 @@
 #
 
 class Classificacao < ApplicationRecord
+  ENVIO_BOLETOS_ID = 13
+
   has_many :os, dependent: :restrict_with_error
   has_many :atendimentos, dependent: :restrict_with_error
 

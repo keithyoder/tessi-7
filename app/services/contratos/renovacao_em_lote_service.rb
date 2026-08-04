@@ -18,8 +18,9 @@ module Contratos
   #   resultado.ignorados # => ["Pedro Costa"]
   #   resultado.erros     # => {"Ana Lima" => "Erro ao gerar faturas"}
   #
+
   class RenovacaoEmLoteService
-    attr_reader :pagamento_perfil_id, :meses_por_fatura
+    attr_reader :pagamento_perfil_id, :meses_por_fatura, :responsavel, :aberto_por
 
     Resultado = Struct.new(:sucesso, :ignorados, :erros, keyword_init: true) do
       def total_renovados
@@ -35,8 +36,10 @@ module Contratos
       end
     end
 
-    def initialize(pagamento_perfil_id:, meses_por_fatura: 1)
+    def initialize(pagamento_perfil_id:, responsavel:, aberto_por:, meses_por_fatura: 1)
       @pagamento_perfil_id = pagamento_perfil_id
+      @responsavel = responsavel
+      @aberto_por = aberto_por
       @meses_por_fatura = meses_por_fatura
       @sucesso = []
       @ignorados = []
@@ -86,7 +89,14 @@ module Contratos
         meses_por_fatura: meses_por_fatura
       ).call
 
-      @sucesso << contrato.pessoa.nome if faturas_geradas.present?
+      return if faturas_geradas.blank?
+
+      Contratos::AbrirAtendimentoRenovacaoService.call(
+        contrato: contrato,
+        responsavel: responsavel,
+        aberto_por: aberto_por
+      )
+      @sucesso << contrato.pessoa.nome
     end
   end
 end

@@ -3,6 +3,7 @@
 class AtendimentosController < ApplicationController
   layout -> { turbo_frame_request? ? false : 'application' }
   before_action :set_atendimento, only: %i[show edit update destroy encerrar]
+  before_action :set_params, only: %i[index show new]
   authorize_resource
 
   # Parâmetros pelos quais um atendimento pode ser filtrado quando exibido
@@ -80,6 +81,10 @@ class AtendimentosController < ApplicationController
   end
 
   private
+
+  def set_params
+    @params = params.permit(:abertos, :meus, :responsavel_id, *PARAMETROS_ESCOPO, q: [:pessoa_nome_cont])
+  end
 
   def set_atendimento
     @atendimento = Atendimento.find(params[:id])

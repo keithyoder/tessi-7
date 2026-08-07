@@ -1,20 +1,34 @@
-.card
-  = render '/shared/table_header', {object: @atendimentos, search_string: :pessoa_nome_cont, params: @params}
-  .card-body
-    .table-responsive
-      table.table.table-striped
-        thead
-          tr
-            th Aberto Em
+.card.border-0.shadow-sm
+  .table-responsive
+    table.table.table-hover.align-middle.mb-0
+      thead
+        tr.text-muted.small.text-uppercase
+          th.ps-4 Status
+          th Aberto Em
+          - if mostrar_pessoa
             th Pessoa
-            th Classificação
-            th Responsável
-        tbody
-          - @atendimentos.each do |atendimento|
-            tr
+          th Classificação
+          th Responsável
+          th Aberto Por
+      tbody
+        - atendimentos.each do |atendimento|
+          tr
+            td.ps-4
+              - if atendimento.fechamento.nil?
+                span.badge.bg-warning.text-dark Aberto
+              - else
+                span.badge.bg-secondary Fechado
+            td
+              = link_to l(atendimento.created_at, format: :date_time), atendimento, \
+                class: 'text-decoration-none', data: { turbo_frame: '_top' }
+            - if mostrar_pessoa
               td
-                = link_to l(atendimento.created_at, format: :short), atendimento_path(id: atendimento.id, params: @params), class: 'text-decoration-none'
-              td= link_to atendimento.pessoa.nome, atendimento.pessoa, class: 'text-decoration-none'
-              td= atendimento.classificacao.nome
-              td= atendimento.responsavel.primeiro_nome
-  = paginate @atendimentos
+                = link_to atendimento.pessoa.nome, atendimento.pessoa, \
+                  class: 'text-decoration-none', data: { turbo_frame: '_top' }
+            td= atendimento.classificacao.nome
+            td= atendimento.responsavel.primeiro_nome
+            td= atendimento.aberto_por&.primeiro_nome || '—'
+
+  - if pagy&.pages.to_i > 1
+    .card-footer.bg-transparent.border-top.d-flex.justify-content-center.py-3
+      == pagy_bootstrap_nav(pagy)

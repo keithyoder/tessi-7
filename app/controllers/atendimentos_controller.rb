@@ -1,22 +1,27 @@
 # frozen_string_literal: true
 
 class AtendimentosController < ApplicationController
-  before_action :set_scope, only: %i[index show new]
-  before_action :set_atendimento, only: [:encerrar]
-  load_and_authorize_resource
+  layout -> { turbo_frame_request? ? false : 'application' }
+  before_action :set_atendimento, only: %i[show edit update destroy encerrar]
+  authorize_resource
 
-  # GET /atendimentos or /atendimentos.json
+  # Parâmetros pelos quais um atendimento pode ser filtrado quando exibido
+  # dentro da aba de outro recurso (Pessoa, Contrato, Conexao). A ordem só
+  # importa para nomear o turbo-frame quando mais de um estiver presente.
+  PARAMETROS_ESCOPO = %i[pessoa_id contrato_id conexao_id].freeze
+
+  helper_method :id_frame, :incorporado?
+
+  # GET /atendimentos
   def index
-    @q = build_query.ransack(params[:q])
-    @q.sorts = 'created_at' if @q.sorts.empty?
-    @atendimentos = @q.result.page(params[:page])
+    @q = escopo_base.ransack(params[:q])
+    @q.sorts = 'created_at desc' if @q.sorts.empty?
+    @search_params = @q.conditions.to_h { |c| [c.attributes.first, c.values.first] }
 
-    respond_to do |format|
-      format.html
-    end
+    @pagy, @atendimentos = pagy(@q.result, limit: 15)
   end
 
-  # GET /atendimentos/1 or /atendimentos/1.json
+  # GET /atendimentos/1
   def show; end
 
   # GET /atendimentos/new
@@ -36,67 +41,48 @@ class AtendimentosController < ApplicationController
     authorize! :encerrar, @atendimento
 
     @atendimento.update!(fechamento: Time.current)
-
-    respond_to do |format|
-      format.html { redirect_to @atendimento, notice: t('.notice') }
-      format.json { render :show, status: :ok, location: @atendimento }
-    end
+    redirect_to @atendimento, notice: t('.notice')
   end
 
-  # POST /atendimentos or /atendimentos.json
+  # POST /atendimentos
   def create
-    result = Atendimentos::CriarService.call(
+    resultado = Atendimentos::CriarService.call(
       atendimento_params: atendimento_params.except(:detalhe_tipo, :detalhe_descricao),
       detalhe_tipo: atendimento_params[:detalhe_tipo],
       detalhe_descricao: atendimento_params[:detalhe_descricao],
-      atendente: current_user
+      atendente: current_user,
+      aberto_por: current_user
     )
 
-    @atendimento = result[:atendimento]
-    @detalhe = result[:detalhe]
+    @atendimento = resultado[:atendimento]
+    @detalhe = resultado[:detalhe]
 
-    respond_to do |format|
-      if result[:success]
-        format.html { redirect_to @atendimento, notice: t('.notice') }
-        format.json { render :show, status: :created, location: @atendimento }
-      else
-        format.html { render :new, status: :unprocessable_content }
-        format.json { render json: @atendimento.errors, status: :unprocessable_content }
-      end
+    if resultado[:success]
+      redirect_to @atendimento, notice: t('.notice')
+    else
+      render :new, status: :unprocessable_content
     end
   end
 
-  # PATCH/PUT /atendimentos/1 or /atendimentos/1.json
+  # PATCH/PUT /atendimentos/1
   def update
-    respond_to do |format|
-      if @atendimento.update(atendimento_params.except(:detalhe_tipo, :detalhe_descricao))
-        format.html { redirect_to @atendimento, notice: t('.notice') }
-        format.json { render :show, status: :ok, location: @atendimento }
-      else
-        format.html { render :edit, status: :unprocessable_content }
-        format.json { render json: @atendimento.errors, status: :unprocessable_content }
-      end
+    if @atendimento.update(atendimento_params.except(:detalhe_tipo, :detalhe_descricao))
+      redirect_to @atendimento, notice: t('.notice')
+    else
+      render :edit, status: :unprocessable_content
     end
   end
 
-  # DELETE /atendimentos/1 or /atendimentos/1.json
+  # DELETE /atendimentos/1
   def destroy
     @atendimento.destroy!
-
-    respond_to do |format|
-      format.html { redirect_to atendimentos_url, notice: t('.notice') }
-      format.json { head :no_content }
-    end
+    redirect_to atendimentos_url, notice: t('.notice')
   end
 
   private
 
   def set_atendimento
     @atendimento = Atendimento.find(params[:id])
-  end
-
-  def set_scope
-    @params = params.permit(:abertos, :fechados, :meus, :responsavel)
   end
 
   def atendimento_params
@@ -106,12 +92,35 @@ class AtendimentosController < ApplicationController
     )
   end
 
-  def build_query
-    query = Atendimento.all
-    query = query.abertos if params.key?(:abertos)
-    query = query.fechados if params.key?(:fechados)
-    query = query.por_responsavel(current_user) if params.key?(:meus)
-    query = query.por_responsavel(params[:responsavel]) if params.key?(:responsavel)
-    query
+  # Verdadeiro quando a index está sendo exibida como aba incorporada
+  # (Pessoa, Contrato, Conexao) em vez da página avulsa /atendimentos.
+  def incorporado?
+    PARAMETROS_ESCOPO.any? { |parametro| params[parametro].present? }
+  end
+
+  # Id do turbo-frame da index. Na página avulsa usa um id fixo; quando
+  # incorporada, gera um id compatível com o que as futuras abas vão usar,
+  # por exemplo "pessoa_5_atendimentos" ou "contrato_12_atendimentos".
+  def id_frame
+    escopo = PARAMETROS_ESCOPO.find { |parametro| params[parametro].present? }
+    return 'atendimentos_index' unless escopo
+
+    "#{escopo.to_s.delete_suffix('_id')}_#{params[escopo]}_atendimentos"
+  end
+
+  def escopo_base
+    consulta = Atendimento.includes(:pessoa, :classificacao, :responsavel, :aberto_por)
+    PARAMETROS_ESCOPO.each do |parametro|
+      consulta = consulta.where(parametro => params[parametro]) if params[parametro].present?
+    end
+    consulta = consulta.abertos unless params[:abertos] == '0'
+
+    if params[:responsavel_id].present?
+      consulta = consulta.por_responsavel(params[:responsavel_id])
+    elsif params[:meus].present?
+      consulta = consulta.por_responsavel(current_user)
+    end
+
+    consulta
   end
 end

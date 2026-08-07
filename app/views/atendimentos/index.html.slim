@@ -1,0 +1,36 @@
+turbo-frame id=id_frame
+  - unless incorporado?
+    .d-flex.flex-column.flex-md-row.justify-content-between.align-items-start.align-items-md-center.mb-4.gap-3
+      div
+        h2.mb-1 Atendimentos
+        p.text-muted.mb-0
+          = @pagy.count
+          |  atendimentos encontrados
+
+    .card.border-0.shadow-sm.mb-4
+      .card-body.py-3
+        = search_form_for(@q, url: request.original_url, html: { class: 'd-flex flex-column flex-md-row gap-3 align-items-md-center' }) do |f|
+          - AtendimentosController::PARAMETROS_ESCOPO.each do |parametro|
+            - if params[parametro].present?
+              = hidden_field_tag parametro, params[parametro]
+          - if params[:meus].present?
+            = hidden_field_tag :meus, params[:meus]
+
+          .flex-grow-1
+            = f.search_field :pessoa_nome_cont, class: 'form-control', placeholder: 'Buscar por pessoa...'
+
+          - if current_user.admin?
+            .flex-shrink-0
+              = select_tag :responsavel_id, \
+                options_from_collection_for_select(User.order(:primeiro_nome), :id, :primeiro_nome, params[:responsavel_id]), \
+                include_blank: 'Todos os responsáveis', class: 'form-select form-select-sm'
+
+          .form-check.flex-shrink-0
+            = hidden_field_tag :abertos, '0'
+            = check_box_tag :abertos, '1', params[:abertos] != '0', class: 'form-check-input'
+            = label_tag :abertos, 'Somente abertos', class: 'form-check-label'
+
+          = button_tag class: 'btn btn-sm btn-primary'
+            i.bi.bi-search
+
+  = render 'table', atendimentos: @atendimentos, pagy: @pagy, mostrar_pessoa: !incorporado?

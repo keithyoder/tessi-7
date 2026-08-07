@@ -11,7 +11,8 @@ module Atendimentos
   #     atendimento_params: { pessoa_id: 1, classificacao_id: 2, ... },
   #     detalhe_tipo: 'Presencial',
   #     detalhe_descricao: 'Cliente relatou problema na conexão',
-  #     atendente: current_user
+  #     atendente: current_user,
+  #     aberto_por: current_user
   #   )
   #
   #   if result[:success]
@@ -22,15 +23,16 @@ module Atendimentos
   #   end
   #
   class CriarService
-    def self.call(atendimento_params:, detalhe_tipo:, detalhe_descricao:, atendente:)
-      new(atendimento_params, detalhe_tipo, detalhe_descricao, atendente).call
+    def self.call(atendimento_params:, detalhe_tipo:, detalhe_descricao:, atendente:, aberto_por:)
+      new(atendimento_params, detalhe_tipo, detalhe_descricao, atendente, aberto_por).call
     end
 
-    def initialize(atendimento_params, detalhe_tipo, detalhe_descricao, atendente)
+    def initialize(atendimento_params, detalhe_tipo, detalhe_descricao, atendente, aberto_por)
       @atendimento_params = atendimento_params
       @detalhe_tipo = detalhe_tipo
       @detalhe_descricao = detalhe_descricao
       @atendente = atendente
+      @aberto_por = aberto_por
     end
 
     def call
@@ -39,7 +41,7 @@ module Atendimentos
       success = false
 
       ActiveRecord::Base.transaction do
-        atendimento = Atendimento.create!(atendimento_params)
+        atendimento = Atendimento.create!(atendimento_params.merge(aberto_por: aberto_por))
         detalhe = criar_detalhe_inicial(atendimento)
         success = true
       end
@@ -59,7 +61,7 @@ module Atendimentos
 
     private
 
-    attr_reader :atendimento_params, :detalhe_tipo, :detalhe_descricao, :atendente
+    attr_reader :atendimento_params, :detalhe_tipo, :detalhe_descricao, :atendente, :aberto_por
 
     def criar_detalhe_inicial(atendimento)
       AtendimentoDetalhe.create!(

@@ -34,7 +34,6 @@ class PessoasController < ApplicationController
     load_pessoa_conexoes
     load_pessoa_contratos
     load_pessoa_os
-    load_pessoa_atendimentos
     respond_to do |format|
       format.html
       format.json do
@@ -104,11 +103,6 @@ class PessoasController < ApplicationController
   def load_pessoa_os
     @os_q = @pessoa.os.includes(:pessoa, :classificacao).ransack(params[:os_q])
     @os = @os_q.result.page(params[:page])
-  end
-
-  def load_pessoa_atendimentos
-    @atendimentos_q = @pessoa.atendimentos.includes(:pessoa, :classificacao).ransack(params[:atendimentos_q])
-    @atendimentos = @atendimentos_q.result.page(params[:page])
   end
 
   def set_scope

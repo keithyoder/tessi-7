@@ -43,7 +43,10 @@ ul.nav.nav-pills
   #atendimentos.tab-pane.fade[role="tabpanel" aria-labelledby="atendimentos-tab"]
     h3
       = @pessoa.nome
-    = render 'atendimentos/table', {exclude: "pessoa", params: {pessoa_id: @pessoa}}
+    turbo-frame id="pessoa_#{@pessoa.id}_atendimentos" src=atendimentos_path(pessoa_id: @pessoa.id, abertos: 0) loading="lazy"
+      .text-center.py-4
+        .spinner-border.spinner-border-sm
+        p.text-muted.small.mt-2 Carregando atendimentos...
   #os.tab-pane.fade[role="tabpanel" aria-labelledby="os-tab"]
     h3
       = @pessoa.nome

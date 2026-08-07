@@ -56,4 +56,8 @@ class Atendimento < ApplicationRecord
   def self.ransackable_associations(_auth_object = nil)
     %w[classificacao conexao contrato detalhes fatura pessoa responsavel]
   end
+
+  def dias_aberto
+    ((fechamento || Time.current) - created_at) / 1.day
+  end
 end

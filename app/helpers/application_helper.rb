@@ -3,19 +3,6 @@
 module ApplicationHelper
   include Pagy::Frontend
 
-  # def new_table_header(path)
-  #  link_to '<i class="fa fa-plus" aria-hidden="true"></i>'.html_safe, path, class: "btn btn-sm btn-outline-dark"
-  # end
-
-  # def edit_button(path)
-  #  link_to '<i class="fa fa-pencil fa-lg" aria-hidden="true"></i>'.html_safe, path,
-  #          class: "btn btn-sm btn-outline-dark"
-  # end
-
-  # def index_button(path)
-  #  link_to '<i class="fa fa-arrow-left" aria-hidden="true"></i>'.html_safe, path, class: "btn btn-sm btn-outline-dark"
-  # end
-
   BOOTSTRAP_ALERT_MAP = {
     notice: :success,
     info: :info,
@@ -24,11 +11,7 @@ module ApplicationHelper
   }.freeze
 
   def online_button(up)
-    if up
-      'btn-success'
-    else
-      'btn-danger'
-    end
+    up ? 'btn-success' : 'btn-danger'
   end
 
   def num_to_phone(num)
@@ -68,44 +51,46 @@ module ApplicationHelper
     Rails.root.join('app/assets/stylesheets', name).read
   end
 
-  def edit_button(resource, options = {})
-    return unless can?(:update, resource)
-
-    css_class = options[:class] || 'btn btn-primary'
-    text = options[:text] || 'Editar'
-    icon = options[:icon] || 'bi-pencil'
-
-    link_to edit_polymorphic_path(resource), class: css_class do
-      concat content_tag(:i, '', class: "bi #{icon} me-1")
+  # Botão genérico usado por edit_button, back_button, delete_button e
+  # encerrar_button, garantindo que todos tenham o mesmo layout
+  # (ícone + texto) independente da ação que realizam.
+  def action_button(path, css_class:, text:, icon: nil, data: {})
+    link_to path, class: css_class, data: data do
+      concat content_tag(:i, '', class: "bi #{icon} me-1") if icon
       concat text
     end
   end
 
-  def back_button(path = :back, options = {})
-    css_class = options[:class] || 'btn btn-outline-secondary'
-    text = options[:text] || 'Voltar'
-    icon = options[:icon] || 'bi-arrow-left'
+  def edit_button(resource, options = {})
+    return unless can?(:update, resource)
 
-    link_to path, class: css_class do
-      concat content_tag(:i, '', class: "bi #{icon} me-1")
-      concat text
-    end
+    action_button(
+      edit_polymorphic_path(resource),
+      css_class: options[:class] || 'btn btn-primary',
+      text: options[:text] || 'Editar',
+      icon: options[:icon] || 'bi-pencil'
+    )
+  end
+
+  def back_button(path = :back, options = {})
+    action_button(
+      path,
+      css_class: options[:class] || 'btn btn-outline-secondary',
+      text: options[:text] || 'Voltar',
+      icon: options[:icon] || 'bi-arrow-left'
+    )
   end
 
   def delete_button(resource, options = {})
     return unless can?(:destroy, resource)
 
-    css_class = options[:class] || 'btn btn-danger'
-    text = options[:text] || 'Excluir'
-    icon = options[:icon] || 'bi-trash'
-    confirm_message = options[:confirm] || 'Tem certeza?'
-
-    link_to polymorphic_path(resource),
-            data: { turbo_method: :delete, turbo_confirm: confirm_message },
-            class: css_class do
-      concat content_tag(:i, '', class: "bi #{icon} me-1")
-      concat text
-    end
+    action_button(
+      polymorphic_path(resource),
+      css_class: options[:class] || 'btn btn-danger',
+      text: options[:text] || 'Excluir',
+      icon: options[:icon] || 'bi-trash',
+      data: { turbo_method: :delete, turbo_confirm: options[:confirm] || 'Tem certeza?' }
+    )
   end
 
   def form_actions(object)

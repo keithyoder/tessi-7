@@ -1,23 +1,89 @@
-.row
-  .card.col-sm
-    = render 'shared/show_header', {object: @atendimento, titulo: 'Atendimento', params: @params}
-    .card-body
-      .card-columns style=("column-count: 3") 
-        = link_to @atendimento.pessoa do
-          = render 'shared/field_card', {campo: "Pessoa", valor: @atendimento.pessoa.nome}
-        = render 'shared/field_card', {campo: "Classificação", valor: @atendimento.classificacao.nome}
-        = render 'shared/field_card', {campo: "Responsável", valor: @atendimento.responsavel.primeiro_nome}
-        = render 'shared/field_card', {campo: "Aberto Em", valor: l(@atendimento.created_at, format: :short) }
-        = render 'shared/field_card', {campo: "Fechado Em", valor: @atendimento.fechamento}
-        - if @atendimento.contrato.present?
-          = render 'shared/field_card', {campo: "Contrato", valor: @atendimento.contrato&.id}
-        - if @atendimento.conexao.present?
-          = link_to @atendimento.conexao do
-            = render 'shared/field_card', {campo: "Conexão", valor: @atendimento.conexao&.ip.to_s}
-        - if @atendimento.fatura.present?
-          = render 'shared/field_card', {campo: "Fatura", valor: @atendimento.fatura&.id}
-      - if can? :encerrar, @atendimento
-        = button_to encerrar_atendimento_path(@atendimento), method: :patch, class: "btn btn-warning", data: { confirm: "Tem certeza que deseja encerrar este atendimento?" } do
-          i.fas.fa-door-closed aria-hidden="true" 
-          |  Encerrar
-  = render 'atendimento_detalhes/table'
+/ app/views/atendimentos/show.html.slim
+
+/ Hero Section
+.row.mb-4
+  .col-12
+    .card.border-0.shadow-sm
+      .card-body.p-4
+        .d-flex.justify-content-between.align-items-start.flex-wrap
+          div
+            .text-muted.small.text-uppercase.mb-1 Atendimento ##{@atendimento.id}
+            .d-flex.align-items-center.gap-3.mb-2
+              h2.mb-0 = @atendimento.classificacao.nome
+              - if @atendimento.fechamento.nil?
+                span.badge.bg-warning.text-dark.fs-6 Aberto
+              - else
+                span.badge.bg-secondary.fs-6 Fechado
+            .text-muted
+              = link_to @atendimento.pessoa.nome, @atendimento.pessoa, class: "text-decoration-none"
+              = " • Aberto em "
+              = l(@atendimento.created_at, format: :date_time)
+
+          .d-flex.gap-2.mt-3.mt-md-0
+            = back_button(atendimentos_path)
+            - if can? :encerrar, @atendimento
+              = action_button encerrar_atendimento_path(@atendimento), \
+                css_class: 'btn btn-warning', text: 'Encerrar', icon: 'bi-door-closed', \
+                data: { turbo_method: :patch, turbo_confirm: 'Tem certeza que deseja encerrar este atendimento?' }
+            = edit_button(@atendimento)
+            = delete_button(@atendimento)
+
+/ Detalhes principais
+.row.g-3.mb-4
+  .col-md-3.col-6
+    .card.border-0.shadow-sm.h-100
+      .card-body.text-center
+        .text-muted.small.mb-1 Responsável
+        .fs-5.fw-bold = @atendimento.responsavel.primeiro_nome
+  .col-md-3.col-6
+    .card.border-0.shadow-sm.h-100
+      .card-body.text-center
+        .text-muted.small.mb-1 Aberto Por
+        .fs-5.fw-bold = @atendimento.aberto_por&.primeiro_nome || "—"
+  .col-md-3.col-6
+    .card.border-0.shadow-sm.h-100
+      .card-body.text-center
+        .text-muted.small.mb-1 Dias Aberto
+        .fs-5.fw-bold class=cor_dias_aberto(@atendimento)
+          = @atendimento.dias_aberto.to_i
+
+/ Vínculos (contrato/conexão/fatura), só quando presentes
+- if @atendimento.contrato.present? || @atendimento.conexao.present? || @atendimento.fatura.present?
+  .row.g-3.mb-4
+    - if @atendimento.contrato.present?
+      .col-md-4
+        .card.border-0.shadow-sm.h-100
+          .card-body
+            = link_to @atendimento.contrato, class: "text-decoration-none"
+              .text-muted.small.mb-1 Contrato ##{@atendimento.contrato.id}
+              .fw-bold = @atendimento.contrato.plano.nome
+              .small.text-muted
+                = number_to_currency(@atendimento.contrato.mensalidade)
+                | /mês
+            .small.mt-1
+              - faturas_abertas = @atendimento.contrato.faturas.em_aberto.count
+              span.text-muted
+                = "#{faturas_abertas} #{'fatura'.pluralize(faturas_abertas)} em aberto"
+              - if faturas_abertas.positive?
+                | ·
+                = link_to "Ver carnê", boletos_contrato_path(@atendimento.contrato, format: :pdf), \
+                  class: "text-decoration-none", target: "_blank", rel: "noopener", data: { turbo: false }
+    - if @atendimento.conexao.present?
+          .col-md-4
+            = link_to @atendimento.conexao, class: "text-decoration-none"
+              .card.border-0.shadow-sm.h-100
+                .card-body
+                  .text-muted.small.mb-1 Conexão
+                  .fw-bold = @atendimento.conexao.ip.to_s
+                  .small.text-muted = @atendimento.conexao.usuario
+                  .small.text-muted = @atendimento.conexao.ponto.nome
+                  .small.text-muted = @atendimento.conexao.endereco
+    - if @atendimento.fatura.present?
+      .col-md-4
+        = link_to @atendimento.fatura, class: "text-decoration-none"
+          .card.border-0.shadow-sm.h-100
+            .card-body
+              .text-muted.small.mb-1 Fatura
+              .fw-bold = "##{@atendimento.fatura.id}"
+
+= render 'atendimento_detalhes/table'

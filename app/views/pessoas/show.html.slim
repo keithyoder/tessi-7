@@ -41,8 +41,12 @@ ul.nav.nav-pills
       = @pessoa.nome
     = render 'conexoes/table', {exclude: ["pessoa", "equipamento"], params: {pessoa_id: @pessoa}}
   #atendimentos.tab-pane.fade[role="tabpanel" aria-labelledby="atendimentos-tab"]
-    h3
-      = @pessoa.nome
+    .d-flex.justify-content-between.align-items-center.mb-3
+      h3.mb-0 = @pessoa.nome
+      - if can? :create, Atendimento
+        = link_to new_atendimento_path(pessoa_id: @pessoa.id), class: "btn btn-primary btn-sm"
+          i.bi.bi-plus-lg.me-1
+          | Novo Atendimento
     turbo-frame id="pessoa_#{@pessoa.id}_atendimentos" src=atendimentos_path(pessoa_id: @pessoa.id, abertos: 0) loading="lazy"
       .text-center.py-4
         .spinner-border.spinner-border-sm

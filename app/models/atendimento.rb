@@ -50,7 +50,7 @@ class Atendimento < ApplicationRecord
   attr_accessor :detalhe_tipo, :detalhe_atendente, :detalhe_descricao
 
   def self.ransackable_attributes(_auth_object = nil)
-    %w[fechamento id pessoa_id responsavel_id]
+    %w[created_at fechamento id pessoa_id responsavel_id]
   end
 
   def self.ransackable_associations(_auth_object = nil)

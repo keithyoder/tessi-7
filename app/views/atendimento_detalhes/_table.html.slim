@@ -1,18 +1,42 @@
-.card
-  = render '/shared/table_header', {object: @atendimento.detalhes, titulo: 'Detalhe', params: {atendimento_id: @atendimento.id}}
-  .card-body
+/ app/views/atendimento_detalhes/_table.html.slim
+.card.border-0.shadow-sm.mt-4
+  .card-header.bg-white
+    h5.mb-0 Histórico do Atendimento
+
+  - detalhes = atendimento.detalhes.includes(:atendente).order(:created_at)
+  .card-body.p-0
     .table-responsive
-      table.table.table-striped
+      table.table.table-hover.align-middle.mb-0
         thead
-          tr
-            th Data
+          tr.text-muted.small.text-uppercase
+            th.ps-4 Data
             th Atendente
             th Tipo
             th Descrição
+            - if atendimento.fechamento.nil?
+              th.text-end.pe-4
         tbody
-          - @atendimento.detalhes.each do |detalhe|
+          - if detalhes.empty?
             tr
-              td= l(detalhe.created_at, format: :short)
+              td.ps-4.text-muted colspan=(atendimento.fechamento.nil? ? 5 : 4) Nenhum registro ainda.
+          - detalhes.each do |detalhe|
+            tr
+              td.ps-4 = l(detalhe.created_at, format: :date_time)
               td= detalhe.atendente.primeiro_nome
-              td= detalhe.tipo
+              td
+                span.badge.bg-light.text-dark = detalhe.tipo
               td= detalhe.descricao
+
+          - if atendimento.fechamento.nil?
+            = simple_form_for(AtendimentoDetalhe.new(atendimento: atendimento), url: atendimento_detalhes_path, html: { class: "contents" }) do |f|
+              = hidden_field_tag :atendimento_id, atendimento.id
+              tr
+                td.ps-4.text-muted.small = l(Time.current, format: :date_time)
+                td.text-muted.small = current_user.primeiro_nome
+                td
+                  = f.input_field :tipo, collection: AtendimentoDetalhe.tipos.keys, include_blank: false, class: "form-select form-select-sm"
+                td
+                  = f.input_field :descricao, class: "form-control form-control-sm", placeholder: "Descrição..."
+                td.text-end.pe-4
+                  button.btn.btn-primary.btn-sm type="submit"
+                    i.bi.bi-plus-lg aria-hidden="true"

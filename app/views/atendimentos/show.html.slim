@@ -86,4 +86,4 @@
               .text-muted.small.mb-1 Fatura
               .fw-bold = "##{@atendimento.fatura.id}"
 
-= render 'atendimento_detalhes/table'
+= render 'atendimento_detalhes/table', atendimento: @atendimento

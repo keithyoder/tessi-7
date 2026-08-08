@@ -12,6 +12,16 @@
 #  atendente_id   :bigint
 #  atendimento_id :bigint
 #
+# Indexes
+#
+#  index_atendimento_detalhes_on_atendente_id    (atendente_id)
+#  index_atendimento_detalhes_on_atendimento_id  (atendimento_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (atendente_id => users.id)
+#  fk_rails_...  (atendimento_id => atendimentos.id)
+#
 class AtendimentoDetalhe < ApplicationRecord
   belongs_to :atendimento
   belongs_to :atendente, class_name: 'User'
@@ -28,6 +38,7 @@ class AtendimentoDetalhe < ApplicationRecord
   validates :descricao, presence: true
   validates :tipo, presence: true
   validate :nao_contem_dados_de_cartao?
+  validate :atendimento_deve_estar_aberto, on: :create
 
   # Scopes
   scope :recentes, -> { order(created_at: :desc) }
@@ -51,6 +62,12 @@ class AtendimentoDetalhe < ApplicationRecord
   end
 
   private
+
+  def atendimento_deve_estar_aberto
+    return if atendimento.blank? || atendimento.fechamento.blank?
+
+    errors.add(:atendimento, 'está encerrado, não é possível adicionar novos registros')
+  end
 
   def nao_contem_dados_de_cartao?
     return false if descricao.blank?

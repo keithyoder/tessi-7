@@ -113,7 +113,7 @@ Rails.application.routes.draw do # rubocop:disable Metrics/BlockLength
     patch :encerrar, on: :member
   end
 
-  resources :atendimento_detalhes, only: %i[new create index]
+  resources :atendimento_detalhes, only: %i[create]
   resources :os do
     get :impressao, on: :member
   end

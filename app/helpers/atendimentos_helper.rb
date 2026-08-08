@@ -13,4 +13,16 @@ module AtendimentosHelper
       'text-danger'
     end
   end
+
+  def label_fatura(fatura)
+    "##{fatura.id} — #{l(fatura.vencimento)} — #{number_to_currency(fatura.valor)}"
+  end
+
+  def label_contrato(contrato)
+    "##{contrato.id} — Adesão #{l(contrato.adesao)}"
+  end
+
+  def label_conexao_form(conexao)
+    "#{conexao.ip} — #{conexao.usuario} — #{conexao.ponto.nome}"
+  end
 end

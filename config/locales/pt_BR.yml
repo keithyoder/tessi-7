@@ -2,6 +2,14 @@ pt-BR:
   hello: "Olá Mundo"
 
   activerecord:
+    attributes:
+      atendimento:
+        pessoa: "Pessoa"
+        classificacao: "Classificação"
+        responsavel: "Responsável"
+        contrato: "Contrato"
+        conexao: "Conexão"
+        fatura: "Fatura"
     errors:
       messages:
         record_invalid: "A validação falhou: %{errors}"

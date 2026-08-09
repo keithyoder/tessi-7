@@ -1,0 +1,51 @@
+.d-flex.justify-content-between.align-items-center.mb-4
+  h2.mb-0 = "Painel de #{@usuario.primeiro_nome}"
+  - if current_user.admin?
+    = back_button(atendimentos_painel_path)
+
+.row.g-3.mb-4
+  .col-md-3.col-6
+    .card.border-0.shadow-sm.h-100
+      .card-body.text-center
+        .text-muted.small.mb-1 Abertos Hoje
+        .fs-3.fw-bold = @stats[:abertos_hoje]
+  .col-md-3.col-6
+    .card.border-0.shadow-sm.h-100
+      .card-body.text-center
+        .text-muted.small.mb-1 Abertos na Semana
+        .fs-3.fw-bold = @stats[:abertos_semana]
+  .col-md-3.col-6
+    .card.border-0.shadow-sm.h-100
+      .card-body.text-center
+        .text-muted.small.mb-1 Total em Aberto
+        .fs-3.fw-bold = @stats[:total_abertos]
+  .col-md-3.col-6
+    .card.border-0.shadow-sm.h-100
+      .card-body.text-center
+        .text-muted.small.mb-1 Fechados Hoje
+        .fs-3.fw-bold = @stats[:fechados_hoje]
+
+.card.border-0.shadow-sm
+  .card-header.bg-white
+    h5.mb-0 Mais Antigos em Aberto
+  - if @mais_antigos.empty?
+    .card-body.text-center.text-muted.py-4
+      | Nenhum atendimento em aberto.
+  - else
+    .table-responsive
+      table.table.table-hover.align-middle.mb-0
+        thead
+          tr.text-muted.small.text-uppercase
+            th.ps-4 Dias Aberto
+            th Pessoa
+            th Classificação
+            th Aberto Em
+        tbody
+          - @mais_antigos.each do |atendimento|
+            tr
+              td.ps-4
+                span class=cor_dias_aberto(atendimento)
+                  = "#{atendimento.dias_aberto.to_i} dias"
+              td= link_to atendimento.pessoa.nome, atendimento.pessoa, class: "text-decoration-none"
+              td= atendimento.classificacao.nome
+              td= link_to l(atendimento.created_at, format: :date_time), atendimento, class: "text-decoration-none"

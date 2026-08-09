@@ -107,6 +107,9 @@ Rails.application.routes.draw do # rubocop:disable Metrics/BlockLength
     resource :diagnostico, only: %i[show create], controller: 'diagnostico' do
       post :buscar, on: :collection
     end
+
+    get 'painel', to: 'painel#index', as: :painel
+    get 'painel/:id', to: 'painel#show', as: :painel_usuario
   end
 
   resources :atendimentos do

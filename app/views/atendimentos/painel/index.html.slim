@@ -1,0 +1,56 @@
+.d-flex.justify-content-between.align-items-center.mb-4
+  h2.mb-0 Painel de Atendimentos
+
+.card.border-0.shadow-sm.mb-4
+  .card-header.bg-white
+    h5.mb-0 Por Categoria (em aberto)
+  .table-responsive
+    table.table.table-hover.align-middle.mb-0
+      thead
+        tr.text-muted.small.text-uppercase
+          th.ps-4 Classificação
+          th.text-end.pe-4 Em Aberto
+      tbody
+        - @resumo_por_categoria.each do |linha|
+          tr
+            td.ps-4
+              = link_to linha[:classificacao].nome, atendimentos_path(abertos: 1, q: { classificacao_id_eq: linha[:classificacao].id }), class: "text-decoration-none"
+            td.text-end.pe-4
+              - if linha[:total_abertos].positive?
+                span.badge.bg-warning.text-dark = linha[:total_abertos]
+              - else
+                span.text-muted 0
+
+.card.border-0.shadow-sm
+  .card-header.bg-white
+    h5.mb-0 Atividade por Usuário
+  .table-responsive
+    table.table.table-hover.align-middle.mb-0
+      thead
+        tr.text-muted.small.text-uppercase
+          th.ps-4 Usuário
+          th.text-center Abertos Hoje
+          th.text-center Abertos na Semana
+          th.text-center Total em Aberto
+          th.text-center Fechados Hoje
+          th Mais Antigo Aberto
+      tbody
+        - @resumo_por_usuario.each do |linha|
+          tr
+            td.ps-4
+              = link_to linha[:usuario].primeiro_nome, atendimentos_painel_usuario_path(linha[:usuario]), class: "text-decoration-none fw-semibold"
+            td.text-center = linha[:abertos_hoje]
+            td.text-center = linha[:abertos_semana]
+            td.text-center
+              - if linha[:total_abertos].positive?
+                span.badge.bg-warning.text-dark = linha[:total_abertos]
+              - else
+                span.text-muted 0
+            td.text-center = linha[:fechados_hoje]
+            td
+              - if linha[:mais_antigo]
+                = link_to linha[:mais_antigo], class: "text-decoration-none"
+                  span class=cor_dias_aberto(linha[:mais_antigo])
+                    = "#{linha[:mais_antigo].dias_aberto.to_i} dias"
+              - else
+                span.text-muted —

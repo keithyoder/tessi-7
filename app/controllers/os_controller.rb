@@ -2,6 +2,8 @@
 
 class OsController < ApplicationController
   before_action :set_os, only: %i[show edit update destroy]
+  before_action :set_params_for_legacy_header, only: %i[show]
+
   layout -> { turbo_frame_request? ? false : 'application' }
   authorize_resource
 
@@ -71,6 +73,10 @@ class OsController < ApplicationController
 
   def set_os
     @os = Os.find(params[:id])
+  end
+
+  def set_params_for_legacy_header
+    @params = params
   end
 
   # Verdadeiro quando a index está sendo exibida como aba incorporada

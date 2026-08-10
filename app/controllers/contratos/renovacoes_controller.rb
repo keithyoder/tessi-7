@@ -3,6 +3,7 @@
 module Contratos
   class RenovacoesController < BaseController
     RESPONSAVEL_PADRAO_ID = 5
+    PERFIS_COM_ATENDIMENTO = %w[Boleto API].freeze
 
     # POST /contratos/:contrato_id/renovacao
     def create
@@ -14,11 +15,7 @@ module Contratos
       ).call
 
       if faturas_geradas.present?
-        Contratos::AbrirAtendimentoRenovacaoService.call(
-          contrato: @contrato,
-          responsavel: responsavel_renovacao,
-          aberto_por: current_user
-        )
+        abrir_atendimento_se_boleto
 
         count = faturas_geradas.count
         notice = "#{count} #{'fatura'.pluralize(count)} gerada#{'s' if count > 1} com sucesso."
@@ -32,6 +29,19 @@ module Contratos
     end
 
     private
+
+    # Só abre atendimento de envio de boleto quando o contrato é cobrado
+    # por boleto (registrado via banco ou via API). Débito Automático não
+    # precisa desse acompanhamento.
+    def abrir_atendimento_se_boleto
+      return unless PERFIS_COM_ATENDIMENTO.include?(@contrato.pagamento_perfil.tipo)
+
+      Contratos::AbrirAtendimentoRenovacaoService.call(
+        contrato: @contrato,
+        responsavel: responsavel_renovacao,
+        aberto_por: current_user
+      )
+    end
 
     # Se for um admin renovando, o responsável pela entrega do boleto
     # é fixo (id 5). Qualquer outra pessoa é responsável pela própria renovação.

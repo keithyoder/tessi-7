@@ -38,7 +38,6 @@ class Ability
 
     can :mapa, Servidor
     can %i[create update], [Bairro, Logradouro, Conexao, Pessoa, Os, Atendimento, AtendimentoDetalhe]
-    can :impressao, Os
     can :create, Excecao
     can :update, Os, fechamento: nil
   end

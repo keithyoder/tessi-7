@@ -2,24 +2,28 @@
 
 class OsController < ApplicationController
   before_action :set_os, only: %i[show edit update destroy]
-  before_action :set_scope, only: %i[index show new]
-  layout 'print', only: [:impressao]
-  load_and_authorize_resource
+  layout -> { turbo_frame_request? ? false : 'application' }
+  authorize_resource
 
-  # GET /os or /os.json
+  # Parâmetros pelos quais uma OS pode ser filtrada quando exibida dentro
+  # da aba de outro recurso (Pessoa, Conexao).
+  PARAMETROS_ESCOPO = %i[pessoa_id conexao_id].freeze
+
+  helper_method :id_frame, :incorporado?
+
+  # GET /os
   def index
-    @os_q = build_os_query.includes(:pessoa, :classificacao).order(created_at: :asc).ransack(params[:os_q])
-    @os = @os_q.result.page params[:page]
-    respond_to do |format|
-      format.html
-    end
+    @q = escopo_base.includes(:pessoa, :classificacao).ransack(params[:q])
+    @q.sorts = 'created_at asc' if @q.sorts.empty?
+    @search_params = params.fetch(:q, {}).permit(:pessoa_nome_cont, :tipo_eq, :cidade, :fechamento_null).to_h
+
+    @pagy, @os = pagy(@q.result, limit: 15)
   end
 
-  # GET /os/1 or /os/1.json
+  # GET /os/1
   def show
     respond_to do |format|
       format.html { render :show }
-      format.json { render :show }
       format.pdf do
         render pdf: 'show', encoding: 'UTF-8', zoom: 1.2, margin: { top: 15, bottom: 15, left: 15, right: 15 },
                page_size: 'A4'
@@ -29,79 +33,73 @@ class OsController < ApplicationController
 
   # GET /os/new
   def new
-    @os = Os.new
-    @os.pessoa_id = params[:pessoa_id] if params.key?(:pessoa_id)
-    @os.aberto_por = @current_user
-    @os.responsavel = @current_user
+    @os = Os.new(pessoa_id: params[:pessoa_id], aberto_por: current_user, responsavel: current_user)
   end
 
   # GET /os/1/edit
   def edit; end
 
-  # POST /os or /os.json
+  # POST /os
   def create
     @os = Os.new(os_params)
 
-    respond_to do |format|
-      if @os.save
-        format.html { redirect_to @os, notice: t('.notice') }
-        format.json { render :show, status: :created, location: @os }
-      else
-        format.html { render :new, status: :unprocessable_content }
-        format.json { render json: @os.errors, status: :unprocessable_content }
-      end
+    if @os.save
+      redirect_to @os, notice: t('.notice')
+    else
+      render :new, status: :unprocessable_content
     end
   end
 
-  # PATCH/PUT /os/1 or /os/1.json
+  # PATCH/PUT /os/1
   def update
-    @os.fechamento = Time.zone.now if params[:commit].present? && params[:commit] == 'Encerrar'
-    respond_to do |format|
-      if @os.update(os_params.except(:fechamento))
-        format.html { redirect_to @os, notice: t('.notice') }
-        format.json { render :show, status: :ok, location: @os }
-      else
-        format.html { render :edit, status: :unprocessable_content }
-        format.json { render json: @os.errors, status: :unprocessable_content }
-      end
+    @os.fechamento = Time.current if params[:commit] == 'Encerrar'
+
+    if @os.update(os_params.except(:fechamento))
+      redirect_to @os, notice: t('.notice')
+    else
+      render :edit, status: :unprocessable_content
     end
   end
 
-  # DELETE /os/1 or /os/1.json
+  # DELETE /os/1
   def destroy
-    @os.destroy
-    respond_to do |format|
-      format.html { redirect_to os_index_url, notice: t('.notice') }
-      format.json { head :no_content }
-    end
+    @os.destroy!
+    redirect_to os_index_url, notice: t('.notice')
   end
 
   private
 
-  # Use callbacks to share common setup or constraints between actions.
   def set_os
     @os = Os.find(params[:id])
   end
 
-  def build_os_query
-    os = Os
-    os = os.abertas if params.key?(:abertas)
-    os = os.fechadas if params.key?(:fechadas)
-    os = os.por_responsavel(current_user) if params.key?(:minhas)
-    os = os.por_responsavel(params[:responsavel]) if params.key?(:responsavel)
-    os
+  # Verdadeiro quando a index está sendo exibida como aba incorporada
+  # (Pessoa, Conexao) em vez da página avulsa /os.
+  def incorporado?
+    PARAMETROS_ESCOPO.any? { |parametro| params[parametro].present? }
   end
 
-  def set_scope
-    @params = params.permit(:abertas, :fechadas, :minhas, :responsavel)
+  # Id do turbo-frame da index. Na página avulsa usa um id fixo; quando
+  # incorporada, gera um id compatível com a aba, ex. "pessoa_5_os".
+  def id_frame
+    escopo = PARAMETROS_ESCOPO.find { |parametro| params[parametro].present? }
+    return 'os_index' unless escopo
+
+    "#{escopo.to_s.delete_suffix('_id')}_#{params[escopo]}_os"
   end
 
-  # Only allow a list of trusted parameters through.
+  def escopo_base
+    consulta = Os.all
+    PARAMETROS_ESCOPO.each do |parametro|
+      consulta = consulta.where(parametro => params[parametro]) if params[parametro].present?
+    end
+    consulta
+  end
+
   def os_params
     params.require(:os).permit(
-      :tipo, :classificacao_id, :pessoa_id, :conexao_id, :aberto_por_id,
-      :responsavel_id, :tecnico_1_id, :tecnico_2_id, :fechamento,
-      :descricao, :encerramento
+      :aberto_por_id, :classificacao_id, :conexao_id, :descricao, :encerramento,
+      :fechamento, :pessoa_id, :responsavel_id, :tecnico_1_id, :tecnico_2_id, :tipo
     )
   end
 end

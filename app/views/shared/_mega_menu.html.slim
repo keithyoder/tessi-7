@@ -7,7 +7,7 @@ nav.navbar.navbar-expand-lg.navbar-light.bg-white.shadow-sm.sticky-top
     = link_to "/", class: "navbar-brand d-flex align-items-center" do
       = image_tag("logo-cores.svg", height: "32", class: "me-2")
       span.d-none.d-md-inline.text-dark Tessi Telecom
-    
+
     / DESKTOP: Mega Menu Dropdown (hidden on mobile)
     .d-none.d-lg-block.ms-auto
       .dropdown.position-static
@@ -15,7 +15,7 @@ nav.navbar.navbar-expand-lg.navbar-light.bg-white.shadow-sm.sticky-top
           i.bi.bi-grid-3x3-gap.me-1
           | Menu
           = badge_if_positive(atendimentos_abertos, extra_classes: "ms-2")
-        
+
         .dropdown-menu.mega-menu.border-0.shadow-lg
           .container
             .row.g-4.p-4
@@ -33,7 +33,7 @@ nav.navbar.navbar-expand-lg.navbar-light.bg-white.shadow-sm.sticky-top
                     = link_to excecoes_path, class: "dropdown-item rounded" do
                       i.bi.bi-exclamation-triangle.me-2
                       | Exceções
-                
+
                 h6.text-uppercase.fw-bold.mb-3.mt-4.text-info
                   i.bi.bi-headset.me-2
                   | Atendimento
@@ -44,20 +44,20 @@ nav.navbar.navbar-expand-lg.navbar-light.bg-white.shadow-sm.sticky-top
                       | Meus Atendimentos
                       = badge_if_positive(atendimentos_abertos, extra_classes: "position-absolute top-50 end-0 translate-middle-y me-2")
                   li.mb-2
-                    = link_to os_index_path(minhas: 1, abertas: 1), class: "dropdown-item rounded" do
+                    = link_to os_index_path(q: { fechamento_null: 1, responsavel_id_eq: current_user.id }), class: "dropdown-item rounded" do
                       i.bi.bi-truck.me-2
                       | Minhas OS
                   li.mb-2
                     = link_to atendimentos_diagnostico_path, class: "dropdown-item rounded" do
                       i.bi.bi-activity.me-2
                       | Diagnóstico
-              
+
               / Column 2: Financeiro
               .col-lg-3
                 h6.text-uppercase.fw-bold.mb-3.text-success
                   i.bi.bi-cash-coin.me-2
                   | Financeiro
-                
+
                 small.text-muted.text-uppercase.fw-bold.d-block.mb-2 Pagamentos
                 ul.list-unstyled.mb-3
                   li.mb-2
@@ -68,7 +68,7 @@ nav.navbar.navbar-expand-lg.navbar-light.bg-white.shadow-sm.sticky-top
                     = link_to faturamento_path, class: "dropdown-item rounded" do
                       i.bi.bi-chart-bar.me-2
                       | Faturamento
-                
+
                 small.text-muted.text-uppercase.fw-bold.d-block.mb-2 Contratos
                 ul.list-unstyled
                   li.mb-2
@@ -87,24 +87,24 @@ nav.navbar.navbar-expand-lg.navbar-light.bg-white.shadow-sm.sticky-top
                     = link_to pendencias_contratos_path, class: "dropdown-item rounded" do
                       i.bi.bi-file-earmark-text.me-2
                       | Termos Pendentes
-              
+
               / Column 3: Técnico
               .col-lg-3
                 h6.text-uppercase.fw-bold.mb-3.text-warning
                   i.bi.bi-ethernet.me-2
                   | Técnico
-                
+
                 small.text-muted.text-uppercase.fw-bold.d-block.mb-2 Operações
                 ul.list-unstyled.mb-3
                   li.mb-2
-                    = link_to os_index_path(abertas: 1), class: "dropdown-item rounded" do
+                    = link_to os_index_path(q: { fechamento_null: 1 }), class: "dropdown-item rounded" do
                       i.bi.bi-clipboard-check.me-2
                       | Ordens de Serviço
                   li.mb-2
                     = link_to conexoes_path, class: "dropdown-item rounded" do
                       i.bi.bi-router.me-2
                       | Conexões
-                
+
                 small.text-muted.text-uppercase.fw-bold.d-block.mb-2 Infraestrutura
                 ul.list-unstyled
                   li.mb-2
@@ -123,7 +123,7 @@ nav.navbar.navbar-expand-lg.navbar-light.bg-white.shadow-sm.sticky-top
                     = link_to ip_redes_path, class: "dropdown-item rounded" do
                       i.bi.bi-sort-numeric-down.me-2
                       | Redes IP
-              
+
               / Column 4: Configurações & Conta
               .col-lg-3
                 h6.text-uppercase.fw-bold.mb-3.text-secondary
@@ -150,7 +150,7 @@ nav.navbar.navbar-expand-lg.navbar-light.bg-white.shadow-sm.sticky-top
                     = link_to equipamentos_path, class: "dropdown-item rounded" do
                       i.bi.bi-router.me-2
                       | Equipamentos
-                
+
                 h6.text-uppercase.fw-bold.mb-3.mt-4.text-dark
                   i.bi.bi-person-circle.me-2
                   | Conta
@@ -163,7 +163,7 @@ nav.navbar.navbar-expand-lg.navbar-light.bg-white.shadow-sm.sticky-top
                     = button_to destroy_user_session_path, method: :delete, class: "dropdown-item rounded border-0 bg-transparent w-100 text-start text-danger", data: { turbo: "false" } do
                       i.bi.bi-box-arrow-right.me-2
                       | Desconectar
-    
+
     / MOBILE: Hamburger button (hidden on desktop)
     button.btn.btn-link.nav-link.text-dark.d-lg-none type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu"
       i.bi.bi-list.fs-3
@@ -176,7 +176,7 @@ nav.navbar.navbar-expand-lg.navbar-light.bg-white.shadow-sm.sticky-top
       i.bi.bi-grid-3x3-gap.me-2
       | Menu
     button.btn-close type="button" data-bs-dismiss="offcanvas"
-  
+
   .offcanvas-body.p-0
     .accordion.accordion-flush#mobileMenuAccordion
       / Assinantes
@@ -193,7 +193,7 @@ nav.navbar.navbar-expand-lg.navbar-light.bg-white.shadow-sm.sticky-top
             = link_to excecoes_path, class: "d-block py-2 px-3 text-decoration-none text-dark rounded hover-bg-light" do
               i.bi.bi-exclamation-triangle.me-2
               | Exceções
-      
+
       / Atendimento
       .accordion-item
         h2.accordion-header
@@ -207,13 +207,13 @@ nav.navbar.navbar-expand-lg.navbar-light.bg-white.shadow-sm.sticky-top
               i.bi.bi-telephone.me-2
               | Meus Atendimentos
               = badge_if_positive(atendimentos_abertos, extra_classes: "position-absolute top-50 end-0 translate-middle-y me-3")
-            = link_to os_index_path(minhas: 1, abertas: 1), class: "d-block py-2 px-3 text-decoration-none text-dark rounded hover-bg-light" do
+            = link_to os_index_path(q: { fechamento_null: 1, responsavel_id_eq: current_user.id }), class: "d-block py-2 px-3 text-decoration-none text-dark rounded hover-bg-light" do
               i.bi.bi-truck.me-2
               | Minhas OS
             = link_to atendimentos_diagnostico_path, class: "d-block py-2 px-3 text-decoration-none text-dark rounded hover-bg-light" do
               i.bi.bi-activity.me-2
               | Diagnóstico
-      
+
       / Financeiro
       .accordion-item
         h2.accordion-header
@@ -229,7 +229,7 @@ nav.navbar.navbar-expand-lg.navbar-light.bg-white.shadow-sm.sticky-top
             = link_to faturamento_path, class: "d-block py-2 px-3 text-decoration-none text-dark rounded hover-bg-light" do
               i.bi.bi-chart-bar.me-2
               | Faturamento
-            
+
             small.text-muted.text-uppercase.fw-bold.d-block.px-3.mb-1.mt-3 Contratos
             = link_to contratos_path(renovaveis: 1), class: "d-block py-2 px-3 text-decoration-none text-dark rounded hover-bg-light" do
               i.bi.bi-arrow-clockwise.me-2
@@ -243,7 +243,7 @@ nav.navbar.navbar-expand-lg.navbar-light.bg-white.shadow-sm.sticky-top
             = link_to pendencias_contratos_path, class: "d-block py-2 px-3 text-decoration-none text-dark rounded hover-bg-light" do
               i.bi.bi-file-earmark-text.me-2
               | Termos Pendentes
-      
+
       / Técnico
       .accordion-item
         h2.accordion-header
@@ -253,13 +253,13 @@ nav.navbar.navbar-expand-lg.navbar-light.bg-white.shadow-sm.sticky-top
         #mobileTecnico.accordion-collapse.collapse data-bs-parent="#mobileMenuAccordion"
           .accordion-body.py-2
             small.text-muted.text-uppercase.fw-bold.d-block.px-3.mb-1 Operações
-            = link_to os_index_path(abertas: 1), class: "d-block py-2 px-3 text-decoration-none text-dark rounded hover-bg-light" do
+            = link_to os_index_path(q: { fechamento_null: 1 }), class: "d-block py-2 px-3 text-decoration-none text-dark rounded hover-bg-light" do
               i.bi.bi-clipboard-check.me-2
               | Ordens de Serviço
             = link_to conexoes_path, class: "d-block py-2 px-3 text-decoration-none text-dark rounded hover-bg-light" do
               i.bi.bi-router.me-2
               | Conexões
-            
+
             small.text-muted.text-uppercase.fw-bold.d-block.px-3.mb-1.mt-3 Infraestrutura
             = link_to servidores_path, class: "d-block py-2 px-3 text-decoration-none text-dark rounded hover-bg-light" do
               i.bi.bi-server.me-2
@@ -273,7 +273,7 @@ nav.navbar.navbar-expand-lg.navbar-light.bg-white.shadow-sm.sticky-top
             = link_to ip_redes_path, class: "d-block py-2 px-3 text-decoration-none text-dark rounded hover-bg-light" do
               i.bi.bi-sort-numeric-down.me-2
               | Redes IP
-      
+
       / Configurações
       .accordion-item
         h2.accordion-header
@@ -297,7 +297,7 @@ nav.navbar.navbar-expand-lg.navbar-light.bg-white.shadow-sm.sticky-top
             = link_to equipamentos_path, class: "d-block py-2 px-3 text-decoration-none text-dark rounded hover-bg-light" do
               i.bi.bi-router.me-2
               | Equipamentos
-    
+
     / User section at bottom
     .border-top.p-3.mt-auto
       .mb-2.text-muted.small

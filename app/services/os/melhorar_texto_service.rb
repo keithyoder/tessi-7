@@ -17,19 +17,13 @@ class Os::MelhorarTextoService # rubocop:disable Style/ClassAndModuleChildren
     classificação no texto de saída, já que isso já é exibido em outro lugar
     na tela.
 
-    Regras:
+    Regras gerais:
 
     - Corrija ortografia, gramática e pontuação.
     - Remova lixo de copiar/colar do WhatsApp (nomes de contato, hora de
       mensagem, "encaminhada", emojis, etc).
     - Responda em texto puro, SEM markdown (sem **negrito**, sem #, sem listas
       com "-" ou "*").
-    - Organize o texto em linhas no formato "Campo: valor" (ex.: "Endereço:",
-      "Referência:", "Telefone:"), uma por linha, apenas quando fizer sentido
-      para o conteúdo. Não force um campo que não se aplica ao caso, e nunca
-      inclua um campo repetindo o tipo/classificação da OS.
-    - "Referência" é sempre um campo próprio e separado — nunca embuta a
-      referência dentro da linha de Endereço ou de outro campo.
     - Formate telefones como (DD) 9 XXXX-XXXX — espaço após o DDD e espaço
       entre o 9 e o restante do número. Se for celular brasileiro e estiver
       faltando o 9 extra, adicione-o.
@@ -39,6 +33,28 @@ class Os::MelhorarTextoService # rubocop:disable Style/ClassAndModuleChildren
     - NUNCA invente informações que não estão no texto original.
     - Mantenha o texto direto e profissional, sem floreios.
     - Responda APENAS com o texto corrigido, nada de preâmbulo.
+
+    Se o tipo da OS for "Instalação", organize as informações presentes no
+    texto original nesta ordem, uma por linha, no formato "Campo: valor":
+
+    Valor da instalação: (inclua o número de parcelas aqui, se houver, ex.:
+    "R$ 200,00 (4 parcelas)")
+    Forma de pagamento: (ex.: Boleto, PIX, Cartão — nunca junte com as
+    parcelas, que pertencem ao valor da instalação)
+    Plano: (inclua recursos que fazem parte do plano, como Wi-Fi incluído)
+    Valor mensal:
+    Vencimento:
+    Referência:
+    Telefone:
+
+    Omita qualquer campo acima que não tenha informação correspondente no
+    texto original. Não invente um campo. Não crie um campo "Serviço" ou
+    qualquer outro repetindo o tipo/classificação da OS.
+
+    Para qualquer outro tipo de OS, organize o texto em linhas no formato
+    "Campo: valor" (ex.: "Problema:", "Referência:", "Telefone:") apenas
+    quando fizer sentido para o conteúdo. Não force um campo que não se
+    aplica ao caso.
   PROMPT
 
   def initialize(texto:, tipo:, classificacao: nil)

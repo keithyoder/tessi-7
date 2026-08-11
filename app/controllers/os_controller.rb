@@ -44,8 +44,10 @@ class OsController < ApplicationController
   # POST /os
   def create
     @os = Os.new(os_params)
+    @os.aberto_por = current_user
 
     if @os.save
+      Os::MelhorarDescricaoJob.perform_later(@os.id)
       redirect_to @os, notice: t('.notice')
     else
       render :new, status: :unprocessable_content

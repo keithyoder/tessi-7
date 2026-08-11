@@ -3,39 +3,67 @@
   = f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present?
   = f.hidden_field :aberto_por_id
   = f.hidden_field :fechamento
-  .form-inputs
-    .row
-      .col
-        = f.input :tipo, collection: Os.tipos.keys
-      .col
-        = f.association :classificacao, collection: Classificacao.os, label_method: :nome
-    .row
-      .col
-        = f.association :pessoa,
-            collection: Pessoa.all,
-            label_method: :nome,
-            input_html: { data: { os_target: 'pessoa', action: 'change->os#carregarConexoes' } }
-      .col-3
-        = f.association :conexao,
-            label_method: :id,
-            input_html: { data: { os_target: 'conexao' } }
-    .row
-      .col-4
-        = f.association :responsavel, label_method: :primeiro_nome
-      .col-4
-        = f.association :tecnico_1, label_method: :primeiro_nome
-      .col-4
-        = f.association :tecnico_2, label_method: :primeiro_nome
-    .row
-      .col
-        = f.input :descricao
-    .row
-      .col
-        = f.input :encerramento
-  .form-actions
-    = button_tag(:class => "btn btn-primary") do
-      i.fas.fa-save aria-hidden="true"
+
+  - pessoa = f.object.pessoa
+
+  / ── Ordem de Serviço ────────────────────────────────────────────────
+  .card.mb-3
+    .card-header Ordem de Serviço
+    .card-body
+      .row.g-3
+        .col
+          = f.input :tipo, collection: Os.tipos.keys, \
+              input_html: { data: { os_target: 'tipo', action: 'change->os#carregarClassificacoes' } }
+        .col
+          = f.association :classificacao, collection: [f.object.classificacao].compact, label_method: :nome, \
+              input_html: { data: { os_target: 'classificacao' } }
+
+  / ── Vínculos ─────────────────────────────────────────────────────────
+  .card.mb-3
+    .card-header Vínculos
+    .card-body
+      .row.g-3
+        .col-12.col-md[data-controller="busca" data-busca-url-value="/pessoas.json" data-busca-campos-meta-value='["cpf","endereco"]' data-action="busca:selecionada->os#carregarConexoes"]
+          .form-group
+            label.form-label Pessoa
+            .position-relative
+              = f.hidden_field :pessoa_id, data: { busca_target: 'id', os_target: 'pessoa' }
+              input.form-control type="text" placeholder="Digite para buscar..." value=pessoa&.nome autocomplete="off" data-busca-target="input" data-action="input->busca#buscar"
+        .col-3
+          = f.association :conexao,
+              collection: [f.object.conexao].compact,
+              label_method: ->(conexao) { label_conexao_form(conexao) },
+              input_html: { data: { os_target: 'conexao' } }
+
+  / ── Equipe ───────────────────────────────────────────────────────────
+  .card.mb-3
+    .card-header Equipe
+    .card-body
+      .row.g-3
+        .col-4
+          = f.association :responsavel, label_method: :primeiro_nome
+        - if f.object.persisted?
+          .col-4
+            = f.association :tecnico_1, label_method: :primeiro_nome
+          .col-4
+            = f.association :tecnico_2, label_method: :primeiro_nome
+
+  / ── Detalhes ─────────────────────────────────────────────────────────
+  .card.mb-3
+    .card-header Detalhes
+    .card-body
+      .row.g-3
+        .col-12
+          = f.input :descricao, input_html: { rows: 5 }
+        - if f.object.persisted?
+          .col-12
+            = f.input :encerramento, input_html: { rows: 5 }
+
+  .d-flex.gap-2.mt-3
+    = button_tag(class: 'btn btn-primary') do
+      i.bi.bi-floppy.me-1
       | Salvar
-    = submit_tag("Encerrar", {:class => "btn btn-warning"}) do
-      i.fas.fa-door-closed aria-hidden="true"
-      | Encerrar
+    - if f.object.persisted?
+      = button_tag(name: 'commit', value: 'Encerrar', class: 'btn btn-warning') do
+        i.bi.bi-door-closed.me-1
+        | Encerrar

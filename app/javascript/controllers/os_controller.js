@@ -1,11 +1,14 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["pessoa", "conexao"]
+  static targets = ["pessoa", "conexao", "tipo", "classificacao"]
 
   connect() {
     if (this.hasPessoaTarget && this.pessoaTarget.value) {
       this.carregarConexoes()
+    }
+    if (this.hasTipoTarget && this.tipoTarget.value) {
+      this.carregarClassificacoes()
     }
   }
 
@@ -25,10 +28,9 @@ export default class extends Controller {
       this.conexaoTarget.innerHTML = '<option value="">--Escolher Conexão--</option>'
 
       for (const conexao of conexoes) {
-        const ip = this.num2dot(conexao.ip.addr)
         const option = document.createElement('option')
         option.value = conexao.id
-        option.textContent = `${ip} - ${conexao.usuario}`
+        option.textContent = `${conexao.ip} - ${conexao.usuario}`
         this.conexaoTarget.appendChild(option)
       }
 
@@ -38,14 +40,31 @@ export default class extends Controller {
     }
   }
 
-  num2dot(num) {
-    let d = num % 256
-    let i = 3
-    while (i > 0) {
-      num = Math.floor(num / 256)
-      d = (num % 256) + '.' + d
-      i--
+  async carregarClassificacoes() {
+    const tipo = this.tipoTarget.value
+    if (!tipo) return
+
+    try {
+      const response = await fetch(`/classificacoes.json?tipo=${encodeURIComponent(tipo)}`, {
+        headers: { 'Accept': 'application/json' }
+      })
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
+
+      const classificacoes = await response.json()
+      const classificacaoSalva = this.classificacaoTarget.value
+
+      this.classificacaoTarget.innerHTML = '<option value="">--Escolher Classificação--</option>'
+
+      for (const classificacao of classificacoes) {
+        const option = document.createElement('option')
+        option.value = classificacao.id
+        option.textContent = classificacao.nome
+        this.classificacaoTarget.appendChild(option)
+      }
+
+      this.classificacaoTarget.value = classificacaoSalva
+    } catch (error) {
+      console.error('AJAX Error:', error)
     }
-    return d
   }
 }

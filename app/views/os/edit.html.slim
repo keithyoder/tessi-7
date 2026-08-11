@@ -1,4 +1,14 @@
-.card
-  = render 'shared/edit_header', {object: @os, titulo: "OS"}
-  .card-body
-    = render 'form', os: @os
+/ app/views/os/edit.html.slim
+.row.mb-4
+  .col-12
+    .card.border-0.shadow-sm
+      .card-body.p-4
+        .d-flex.justify-content-between.align-items-center
+          h2.mb-0 Editar OS ##{@os.id}
+          = back_button(os_path(@os))
+
+.row
+  .col-12
+    .card.border-0.shadow-sm
+      .card-body
+        = render 'form', os: @os

@@ -10,7 +10,14 @@ class ClassificacoesController < ApplicationController
     @q.sorts = ['tipo asc', 'nome asc'] if @q.sorts.empty?
     @search_params = @q.conditions.to_h { |c| [c.attributes.first, c.values.first] }
 
-    @pagy, @classificacoes = pagy(@q.result, limit: 12)
+    respond_to do |format|
+      format.html { @pagy, @classificacoes = pagy(@q.result, limit: 12) }
+      format.json do
+        classificacoes = Classificacao.accessible_by(current_ability)
+        classificacoes = classificacoes.where(tipo: params[:tipo]) if params[:tipo].present?
+        render json: classificacoes.order(:nome).select(:id, :nome, :tipo)
+      end
+    end
   end
 
   # GET /classificacoes/1 or /classificacoes/1.json

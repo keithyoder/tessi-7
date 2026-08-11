@@ -41,12 +41,12 @@
     .card-body
       .row.g-3
         .col-4
-          = f.association :responsavel, label_method: :primeiro_nome
+          = f.association :responsavel, collection: usuarios_atendentes_collection, label_method: :primeiro_nome
         - if f.object.persisted?
           .col-4
-            = f.association :tecnico_1, label_method: :primeiro_nome
+            = f.association :tecnico_1, collection: usuarios_campo_collection, label_method: :primeiro_nome
           .col-4
-            = f.association :tecnico_2, label_method: :primeiro_nome
+            = f.association :tecnico_2, collection: usuarios_campo_collection, label_method: :primeiro_nome
 
   / ── Detalhes ─────────────────────────────────────────────────────────
   .card.mb-3

@@ -117,4 +117,12 @@ module ApplicationHelper
       }
     end
   end
+
+  def usuarios_atendentes_collection
+    User.atendentes.order(:primeiro_nome)
+  end
+
+  def usuarios_campo_collection
+    User.campo.order(:primeiro_nome)
+  end
 end

@@ -6,7 +6,7 @@ class Ability
   def initialize(user)
     return if user.blank?
 
-    general_permissions(user) if user.role?
+    general_permissions(user) if user.atendente?
 
     if user.admin?
       admin_permissions

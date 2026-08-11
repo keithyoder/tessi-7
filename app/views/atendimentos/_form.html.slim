@@ -17,7 +17,7 @@
         .col-12.col-md
           = f.association :classificacao, collection: Classificacao.atendimentos.order(:nome), label_method: :nome
         .col-12.col-md
-          = f.association :responsavel, collection: User.order(:primeiro_nome), label_method: :primeiro_nome
+          = f.association :responsavel, collection: usuarios_atendentes_collection, label_method: :primeiro_nome
 
   / ── Vínculos (opcional) ─────────────────────────────────────────────
   .card.mb-3

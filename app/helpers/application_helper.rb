@@ -54,8 +54,8 @@ module ApplicationHelper
   # Botão genérico usado por edit_button, back_button, delete_button e
   # encerrar_button, garantindo que todos tenham o mesmo layout
   # (ícone + texto) independente da ação que realizam.
-  def action_button(path, css_class:, text:, icon: nil, data: {})
-    link_to path, class: css_class, data: data do
+  def action_button(path, css_class:, text:, icon: nil, data: {}, target: nil) # rubocop:disable Metrics/ParameterLists
+    link_to path, class: css_class, data: data, target: target do
       concat content_tag(:i, '', class: "bi #{icon} me-1") if icon
       concat text
     end

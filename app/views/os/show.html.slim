@@ -1,21 +1,103 @@
-.row
-  .card.col-lg
-    = render 'shared/show_header', {object: @os, titulo: "OS #{@os.id}", params: @params}
-    .card-body
-      .card-columns style=("column-count: 2") 
-        = link_to @os.pessoa do
-          = render 'shared/field_card', {campo: "Assinante", valor: @os.pessoa.nome}
-        = link_to @os.conexao do
-          = render 'shared/field_card', {campo: "Conexão", valor: @os.conexao&.id}
-        = render 'shared/field_card', {campo: "Tipo", valor: @os.tipo}
-        = render 'shared/field_card', {campo: "Classificação", valor: @os.classificacao&.nome}
-        = render 'shared/field_card', {campo: "Aberto Por", valor: @os.aberto_por.primeiro_nome}
-        = render 'shared/field_card', {campo: "Responsável", valor: @os.responsavel.primeiro_nome}
-        = render 'shared/field_card', {campo: "Técnico 1", valor: @os.tecnico_1&.primeiro_nome}
-        = render 'shared/field_card', {campo: "Técnico 2", valor: @os.tecnico_2&.primeiro_nome}
-        = render 'shared/field_card', {campo: "Aberta em", valor: @os.created_at}
-        = render 'shared/field_card', {campo: "Fechada em", valor: @os.fechamento}
-        = render 'shared/field_card', {campo: "Descrição", valor: @os.descricao}
-        = render 'shared/field_card', {campo: "Encerramento", valor: @os.encerramento}
-        - if @os.conexao&.link_google_maps
-          = render 'shared/field_card', {campo: @os.pessoa.nome, valor: link_to(@os.conexao.link_google_maps)}
+/ app/views/os/show.html.slim
+
+/ Hero Section
+.row.mb-4
+  .col-12
+    .card.border-0.shadow-sm
+      .card-body.p-4
+        .d-flex.justify-content-between.align-items-start.flex-wrap
+          div
+            .d-flex.align-items-center.gap-3.mb-2
+              h2.mb-0 OS ##{@os.id}
+              - if @os.fechamento.nil?
+                span.badge.bg-warning.text-dark.fs-6 Aberta
+              - else
+                span.badge.bg-secondary.fs-6 Fechada
+            .text-muted
+              = @os.tipo
+              - if @os.classificacao
+                = " • "
+                = @os.classificacao.nome
+
+          .d-flex.gap-2.mt-3.mt-md-0
+            = back_button(os_index_path)
+            - if @os.fechamento.nil?
+              = action_button os_path(@os, format: :pdf), \
+                css_class: 'btn btn-outline-secondary', text: 'Imprimir', icon: 'bi-printer', \
+                data: { turbo: false }, target: '_blank'
+            = edit_button(@os)
+            = delete_button(@os)
+
+/ Vínculos
+- if @os.conexao.present?
+  .row.mb-4
+    .col-md-4
+      = link_to @os.conexao, class: 'text-decoration-none'
+        .card.border-0.shadow-sm.h-100
+          .card-body
+            .text-muted.small.mb-1 Conexão
+            .fw-bold= @os.conexao.ip.to_s
+            .small.text-muted= @os.conexao.usuario
+            .small.text-muted= @os.conexao.ponto.nome
+            .small.text-muted= @os.conexao.endereco
+
+/ Detalhes
+.row.mb-4
+  .col-12
+    .card.border-0.shadow-sm
+      .card-body
+        .row.g-4
+          .col-md-4
+            .text-muted.small Assinante
+            .fw-medium= link_to @os.pessoa.nome, @os.pessoa, class: 'text-decoration-none'
+          .col-md-4
+            .text-muted.small Aberto Por
+            .fw-medium= @os.aberto_por.primeiro_nome
+
+          .col-md-4
+            .text-muted.small Responsável
+            .fw-medium= @os.responsavel.primeiro_nome
+          - if @os.tecnico_1
+            .col-md-4
+              .text-muted.small Técnico 1
+              .fw-medium= @os.tecnico_1.primeiro_nome
+          - if @os.tecnico_2
+            .col-md-4
+              .text-muted.small Técnico 2
+              .fw-medium= @os.tecnico_2.primeiro_nome
+
+          .col-md-4
+            .text-muted.small Aberta em
+            .fw-medium= l(@os.created_at, format: :date_time)
+          - if @os.fechamento.present?
+            .col-md-4
+              .text-muted.small Fechada em
+              .fw-medium= l(@os.fechamento, format: :date_time)
+          - if @os.conexao&.link_google_maps
+            .col-md-4
+              .text-muted.small Localização
+              .d-flex.align-items-center.gap-2
+                .fw-medium= link_to 'Ver no Google Maps', @os.conexao.link_google_maps, target: '_blank', class: 'text-decoration-none'
+                button.btn.btn-sm.btn-outline-secondary type="button" title="Copiar link" data-controller="clipboard" data-clipboard-text-value=@os.conexao.link_google_maps data-action="clipboard#copy"
+                  i.bi.bi-clipboard
+
+/ Descrição & Encerramento
+.row.g-4
+  .col-md-6
+    .card.border-0.shadow-sm.h-100
+      .card-header.bg-white.border-bottom
+        h5.mb-0
+          i.bi.bi-file-text.me-2
+          | Descrição
+      .card-body
+        = simple_format(@os.descricao)
+        / p.mb-0.text-break= @os.descricao
+  - if @os.encerramento.present?
+    .col-md-6
+      .card.border-0.shadow-sm.h-100
+        .card-header.bg-white.border-bottom
+          h5.mb-0
+            i.bi.bi-check-circle.me-2
+            | Encerramento
+        .card-body
+          p.mb-0.text-break= @os.encerramento

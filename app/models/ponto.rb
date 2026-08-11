@@ -118,7 +118,7 @@ class Ponto < ApplicationRecord
   #
   # @return [Array<IPAddr>]
   def ipv6_disponiveis
-    ip_redes.ipv6.flat_map(&:ips_disponiveis)
+    ip_redes.ipv6.flat_map(&:blocos_ipv6_disponiveis)
   end
 
   def snmp_reader

@@ -95,6 +95,27 @@ class IpRede < ApplicationRecord
     para_array - ocupados
   end
 
+  BLOCO_IPV6_PADRAO = 56
+
+  # Retorna os blocos /56 (ou outro tamanho) ainda não atribuídos a um cliente
+  # dentro desta faixa IPv6. NUNCA enumera endereços individuais — isso
+  # explodiria em pools IPv6 (um /48 tem 2^80 endereços).
+  def blocos_ipv6_disponiveis(prefixo_bloco = BLOCO_IPV6_PADRAO) # rubocop:disable Metrics/AbcSize
+    return [] if rede.blank? || familia != 'IPv6'
+    raise ArgumentError, "bloco /#{prefixo_bloco} não cabe num pool /#{prefixo}" if prefixo_bloco < prefixo
+
+    total_blocos = 2**(prefixo_bloco - prefixo)
+    incremento   = 2**(128 - prefixo_bloco)
+    inicio       = rede.to_range.first.to_i
+
+    ocupados = Conexao.where.not(ipv6: nil).where('ipv6 << ?', cidr).pluck(:ipv6).map { |ip| IPAddr.new(ip.to_s) }
+
+    (0...total_blocos).each_with_object([]) do |i, blocos|
+      bloco = IPAddr.new(inicio + (i * incremento), Socket::AF_INET6).mask(prefixo_bloco)
+      blocos << "#{bloco}/#{prefixo_bloco}" unless ocupados.any? { |ip| bloco.include?(ip) }
+    end
+  end
+
   # Mantém compatibilidade com código legado que usa `to_a`
   alias to_a para_array
 

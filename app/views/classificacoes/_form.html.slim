@@ -1,0 +1,18 @@
+= simple_form_for @classificacao do |f|
+  = f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present?
+
+  .card.mb-3
+    .card-header Classificação
+    .card-body
+      .row.g-3
+        .col-12.col-md
+          = f.input :tipo, collection: Classificacao.tipos.keys
+        .col-12.col-md
+          = f.input :nome
+        .col-12.col-md
+          = f.input :sla_dias, label: 'SLA (dias)', hint: 'Deixe em branco se não houver SLA definido'
+
+  .d-flex.gap-2.mt-3
+    button.btn.btn-primary type="submit"
+      i.bi.bi-floppy aria-hidden="true"
+      |  Salvar

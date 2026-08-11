@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 class ClassificacoesController < ApplicationController
-  before_action :set_classificacao, only: %i[show edit update destroy]
+  before_action :set_classificacao, only: %i[edit update destroy]
   authorize_resource
 
   # GET /classificacoes or /classificacoes.json
-  def index
+  def index # rubocop:disable Metrics/AbcSize
     @q = Classificacao.accessible_by(current_ability).ransack(params[:q])
     @q.sorts = ['tipo asc', 'nome asc'] if @q.sorts.empty?
     @search_params = @q.conditions.to_h { |c| [c.attributes.first, c.values.first] }
@@ -19,9 +19,6 @@ class ClassificacoesController < ApplicationController
       end
     end
   end
-
-  # GET /classificacoes/1 or /classificacoes/1.json
-  def show; end
 
   # GET /classificacoes/new
   def new
@@ -37,8 +34,8 @@ class ClassificacoesController < ApplicationController
 
     respond_to do |format|
       if @classificacao.save
-        format.html { redirect_to @classificacao, notice: t('.notice') }
-        format.json { render :show, status: :created, location: @classificacao }
+        format.html { redirect_to classificacoes_path, notice: t('.notice') }
+        format.json { render json: @classificacao, status: :created }
       else
         format.html { render :new, status: :unprocessable_content }
         format.json { render json: @classificacao.errors, status: :unprocessable_content }
@@ -50,8 +47,8 @@ class ClassificacoesController < ApplicationController
   def update
     respond_to do |format|
       if @classificacao.update(classificacao_params)
-        format.html { redirect_to @classificacao, notice: t('.notice') }
-        format.json { render :show, status: :ok, location: @classificacao }
+        format.html { redirect_to classificacoes_path, notice: t('.notice') }
+        format.json { render json: @classificacao, status: :ok }
       else
         format.html { render :edit, status: :unprocessable_content }
         format.json { render json: @classificacao.errors, status: :unprocessable_content }
@@ -77,6 +74,6 @@ class ClassificacoesController < ApplicationController
 
   # Only allow a list of trusted parameters through.
   def classificacao_params
-    params.require(:classificacao).permit(:tipo, :nome)
+    params.require(:classificacao).permit(:tipo, :nome, :sla_dias)
   end
 end

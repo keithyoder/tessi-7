@@ -6,9 +6,10 @@
       |  classificações encontradas
 
   .d-flex.gap-2
-    = link_to new_classificacao_path, class: 'btn btn-primary'
-      i.bi.bi-plus-lg.me-1
-      | Nova Classificação
+    - if can? :create, Classificacao
+      = link_to new_classificacao_path, class: 'btn btn-primary'
+        i.bi.bi-plus-lg.me-1
+        | Nova Classificação
 
 .card.border-0.shadow-sm.mb-4
   .card-body.py-3
@@ -30,6 +31,7 @@
         tr.text-muted.small.text-uppercase
           th.ps-4 Tipo
           th Classificação
+          th.text-center SLA
       tbody
         - @classificacoes.each do |classificacao|
           tr
@@ -37,7 +39,16 @@
               span.badge.bg-secondary= classificacao.tipo
             td
               .fw-semibold
-                = link_to classificacao.nome, edit_classificacao_path(classificacao), class: 'text-decoration-none'
+                - if can? :update, classificacao
+                  = link_to classificacao.nome, edit_classificacao_path(classificacao), class: 'text-decoration-none'
+                - else
+                  = classificacao.nome
+            td.text-center
+              - if classificacao.sla_dias.present?
+                span.badge.bg-light.text-dark
+                  = "#{classificacao.sla_dias} #{'dia'.pluralize(classificacao.sla_dias)}"
+              - else
+                span.text-muted.small — 
 
   - if @pagy.pages > 1
     .card-footer.bg-transparent.border-top.d-flex.justify-content-center.py-3

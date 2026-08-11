@@ -1,5 +1,7 @@
-<h1>New Classificacao</h1>
+.d-flex.justify-content-between.align-items-center.mb-4
+  h2.mb-0 Nova Classificação
+  = link_to classificacoes_path, class: 'btn btn-outline-secondary'
+    i.bi.bi-arrow-left.me-1
+    | Voltar
 
-<%= render 'form', classificacao: @classificacao %>
-
-<%= link_to 'Back', classificacoes_path %>
+= render 'form', classificacao: @classificacao

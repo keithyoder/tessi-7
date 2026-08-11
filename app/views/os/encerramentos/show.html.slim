@@ -1,0 +1,65 @@
+/ app/views/os/encerramentos/show.html.slim
+
+.d-flex.justify-content-between.align-items-center.mb-4
+  h2.mb-0 Encerrar OS ##{@os.id}
+  = link_to @os, class: 'btn btn-outline-secondary'
+    i.bi.bi-arrow-left.me-1
+    | Voltar
+
+.card.mb-3
+  .card-header Informações da OS
+  .card-body
+    .row.g-3
+      .col-12.col-md-6
+        .small.text-muted Cliente
+        .fw-semibold= @os.pessoa.nome
+      .col-12.col-md-3
+        .small.text-muted Tipo
+        span.badge.bg-secondary= @os.tipo
+      .col-12.col-md-3
+        .small.text-muted Classificação
+        .fw-semibold= @os.classificacao.nome
+      .col-12
+        .small.text-muted Descrição original
+        p.mb-0= @os.descricao
+      .col-12.col-md-4
+        .small.text-muted Aberta em
+        .fw-semibold= l(@os.created_at, format: :short)
+      .col-12.col-md-4
+        .small.text-muted Agendada para
+        .fw-semibold= @os.agendado_em.present? ? l(@os.agendado_em) : '—'
+      .col-12.col-md-4
+        .small.text-muted Status do SLA
+        - status = @os.sla_status
+        - badge_class = { sem_sla: 'bg-light text-dark', no_prazo: 'bg-success', em_risco: 'bg-warning text-dark', atrasado: 'bg-danger' }[status]
+        span.badge class="#{badge_class}"
+          = { sem_sla: 'Sem SLA', no_prazo: 'No prazo', em_risco: 'Em risco', atrasado: 'Atrasado' }[status]
+
+= simple_form_for @os, url: os_encerramento_path(@os), method: :patch, as: :encerramento do |f|
+  = f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present?
+
+  .card.mb-3
+    .card-header Equipe que atendeu
+    .card-body
+      .row.g-3
+        .col-12.col-md-6
+          = f.input :tecnico_1_id, collection: usuarios_campo_collection, label_method: :primeiro_nome, value_method: :id, label: 'Técnico 1', include_blank: 'Selecione...'
+        .col-12.col-md-6
+          = f.input :tecnico_2_id, collection: usuarios_campo_collection, label_method: :primeiro_nome, value_method: :id, label: 'Técnico 2 (opcional)', include_blank: 'Nenhum'
+
+  .card.mb-3
+    .card-header Resultado do atendimento
+    .card-body
+      .row.g-3
+        .col-12
+          = f.input :resultado, \
+            collection: [['Resolvido', 'resolvido'], ['Sem problema encontrado', 'sem_problema_encontrado'], ['Não despachado', 'nao_despachado'], ['Não resolvido', 'nao_resolvido'], ['Cliente ausente', 'cliente_ausente']], \
+            include_blank: 'Selecione...', \
+            label: 'Resultado'
+        .col-12
+          = f.input :encerramento, label: 'Descrição do atendimento', input_html: { rows: 4 }
+
+  .d-flex.gap-2.mt-3
+    button.btn.btn-primary type="submit"
+      i.bi.bi-check-circle aria-hidden="true"
+      |  Encerrar OS

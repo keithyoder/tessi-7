@@ -2,7 +2,6 @@
   = f.error_notification
   = f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present?
   = f.hidden_field :aberto_por_id
-  = f.hidden_field :fechamento
 
   - pessoa = f.object.pessoa
 
@@ -55,15 +54,8 @@
       .row.g-3
         .col-12
           = f.input :descricao, input_html: { rows: 5 }
-        - if f.object.persisted?
-          .col-12
-            = f.input :encerramento, input_html: { rows: 5 }
 
   .d-flex.gap-2.mt-3
     = button_tag(class: 'btn btn-primary') do
       i.bi.bi-floppy.me-1
       | Salvar
-    - if f.object.persisted?
-      = button_tag(name: 'commit', value: 'Encerrar', class: 'btn btn-warning') do
-        i.bi.bi-door-closed.me-1
-        | Encerrar

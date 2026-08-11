@@ -118,9 +118,9 @@ Rails.application.routes.draw do # rubocop:disable Metrics/BlockLength
 
   resources :atendimento_detalhes, only: %i[create]
   resources :os do
-    get :impressao, on: :member
+    resource :encerramento, only: %i[show update], controller: 'os/encerramentos'
   end
-  resources :classificacoes
+  resources :classificacoes, except: [:show]
   resources :clasificacoes
   resources :excecoes
 

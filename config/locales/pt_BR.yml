@@ -443,6 +443,9 @@ pt-BR:
       notice: "OS atualizada com sucesso."
     destroy:
       notice: "OS excluída com sucesso."
+    encerramentos:
+      update:
+        notice: 'OS encerrada com sucesso.'
   pessoas:
     create:
       notice: "Pessoa criada com sucesso."

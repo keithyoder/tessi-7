@@ -13,6 +13,12 @@
                 span.badge.bg-warning.text-dark.fs-6 Aberta
               - else
                 span.badge.bg-secondary.fs-6 Fechada
+              - sla_status = @os.sla_status
+              - if sla_status != :sem_sla
+                - sla_badge = { no_prazo: 'bg-success', em_risco: 'bg-warning text-dark', atrasado: 'bg-danger' }[sla_status]
+                - sla_label = { no_prazo: 'No prazo', em_risco: 'Em risco', atrasado: 'Atrasado' }[sla_status]
+                span.badge class="#{sla_badge} fs-6"
+                  = sla_label
             .text-muted
               = @os.tipo
               - if @os.classificacao
@@ -22,6 +28,8 @@
           .d-flex.gap-2.mt-3.mt-md-0
             = back_button(os_index_path)
             - if @os.fechamento.nil?
+              = action_button os_encerramento_path(@os), \
+                css_class: 'btn btn-primary', text: 'Encerrar OS', icon: 'bi-check-circle'
               = action_button os_path(@os, format: :pdf), \
                 css_class: 'btn btn-outline-secondary', text: 'Imprimir', icon: 'bi-printer', \
                 data: { turbo: false }, target: '_blank'
@@ -57,14 +65,11 @@
           .col-md-4
             .text-muted.small Responsável
             .fw-medium= @os.responsavel.primeiro_nome
-          - if @os.tecnico_1
+          - tecnicos = [@os.tecnico_1, @os.tecnico_2].compact
+          - if tecnicos.any?
             .col-md-4
-              .text-muted.small Técnico 1
-              .fw-medium= @os.tecnico_1.primeiro_nome
-          - if @os.tecnico_2
-            .col-md-4
-              .text-muted.small Técnico 2
-              .fw-medium= @os.tecnico_2.primeiro_nome
+              .text-muted.small= 'Técnico'.pluralize(tecnicos.size)
+              .fw-medium= tecnicos.map(&:primeiro_nome).join(', ')
 
           .col-md-4
             .text-muted.small Aberta em
@@ -91,7 +96,6 @@
           | Descrição
       .card-body
         = simple_format(@os.descricao)
-        / p.mb-0.text-break= @os.descricao
   - if @os.encerramento.present?
     .col-md-6
       .card.border-0.shadow-sm.h-100
@@ -100,4 +104,9 @@
             i.bi.bi-check-circle.me-2
             | Encerramento
         .card-body
+          - if @os.resultado.present?
+            - resultado_labels = { 'resolvido' => 'Resolvido', 'sem_problema_encontrado' => 'Sem problema encontrado', 'nao_despachado' => 'Não despachado', 'nao_resolvido' => 'Não resolvido', 'cliente_ausente' => 'Cliente ausente' }
+            - resultado_badges = { 'resolvido' => 'bg-success', 'sem_problema_encontrado' => 'bg-info', 'nao_despachado' => 'bg-secondary', 'nao_resolvido' => 'bg-danger', 'cliente_ausente' => 'bg-warning text-dark' }
+            span.badge class="#{resultado_badges[@os.resultado]} mb-2"
+              = resultado_labels[@os.resultado]
           p.mb-0.text-break= @os.encerramento

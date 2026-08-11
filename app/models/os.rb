@@ -46,6 +46,8 @@
 #  fk_rails_...  (tecnico_2_id => users.id)
 #
 class Os < ApplicationRecord
+  REQUER_REAGENDAMENTO = %w[nao_resolvido cliente_ausente].freeze
+
   belongs_to :classificacao
   belongs_to :pessoa
   has_one :logradouro, through: :pessoa
@@ -66,8 +68,20 @@ class Os < ApplicationRecord
   validates :conexao, presence: true, if: :reparo?
   validate :tecnicos_diferentes
 
+  enum :resultado, {
+    resolvido: 0,
+    sem_problema_encontrado: 1,
+    nao_despachado: 2,
+    nao_resolvido: 3,
+    cliente_ausente: 4
+  }
+
   def reparo?
     tipo == 'Reparo'
+  end
+
+  def requer_reagendamento?
+    resultado.in?(REQUER_REAGENDAMENTO)
   end
 
   def self.ransackable_scopes(_auth_object = nil)
@@ -101,11 +115,11 @@ class Os < ApplicationRecord
   def sla_status
     return :sem_sla if sla_prazo.nil?
 
-    referencia = fechamento || Time.current
-
-    if referencia > sla_prazo
+    if fechamento.present?
+      fechamento > sla_prazo ? :atrasado : :no_prazo
+    elsif Time.current > sla_prazo
       :atrasado
-    elsif referencia > sla_prazo - 1.day
+    elsif Time.current > sla_prazo - 1.day
       :em_risco
     else
       :no_prazo

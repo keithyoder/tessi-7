@@ -54,9 +54,7 @@ class OsController < ApplicationController
 
   # PATCH/PUT /os/1
   def update
-    @os.fechamento = Time.current if params[:commit] == 'Encerrar'
-
-    if @os.update(os_params.except(:fechamento))
+    if @os.update(os_params)
       redirect_to @os, notice: t('.notice')
     else
       render :edit, status: :unprocessable_content
@@ -104,8 +102,8 @@ class OsController < ApplicationController
 
   def os_params
     params.require(:os).permit(
-      :aberto_por_id, :classificacao_id, :conexao_id, :descricao, :encerramento,
-      :fechamento, :pessoa_id, :responsavel_id, :tecnico_1_id, :tecnico_2_id, :tipo
+      :aberto_por_id, :classificacao_id, :conexao_id, :descricao,
+      :pessoa_id, :responsavel_id, :tecnico_1_id, :tecnico_2_id, :tipo
     )
   end
 end

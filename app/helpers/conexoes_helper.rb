@@ -51,10 +51,10 @@ module ConexoesHelper
     markers
   end
 
-  def conexao_map_center(conexao) # rubocop:disable Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
+  def conexao_map_center(conexao)
     {
-      lat: conexao.latitude&.to_f  || conexao.ponto&.latitude&.to_f  || -8.3594,
-      lng: conexao.longitude&.to_f || conexao.ponto&.longitude&.to_f || -36.9608,
+      lat: conexao.latitude&.to_f || -8.3594,
+      lng: conexao.longitude&.to_f || -36.9608,
       zoom: conexao.latitude.present? ? 18 : 15
     }
   end

@@ -162,12 +162,11 @@ class Ponto < ApplicationRecord
   end
 
   def device_id=(id)
-    # Unlink current device if any
-    device&.update!(deviceable: nil)
+    new_id = id.presence&.to_i
+    return if device&.id == new_id
+    return if new_id.blank?
 
-    return if id.blank?
-
-    Device.find(id).update!(deviceable: self)
+    Device.find(new_id).update!(deviceable: self)
     reload_device
   end
 end

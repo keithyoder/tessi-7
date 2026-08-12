@@ -90,9 +90,9 @@
 
         .row.g-3.mt-1
           .col-12.col-md-3
-            = f.input :latitude, input_html: { id: "conexao_latitude", data: { geolocation_target: "latitude", action: "input->geolocation#updateMap" } }
+            = f.input :latitude, required: false, input_html: { id: "conexao_latitude", data: { geolocation_target: "latitude", action: "input->geolocation#updateMap" } }
           .col-12.col-md-3
-            = f.input :longitude, input_html: { id: "conexao_longitude", data: { geolocation_target: "longitude", action: "input->geolocation#updateMap" } }
+            = f.input :longitude, required: false, input_html: { id: "conexao_longitude", data: { geolocation_target: "longitude", action: "input->geolocation#updateMap" } }
 
         .row.mt-3
           .col

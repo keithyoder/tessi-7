@@ -36,7 +36,7 @@ module ConexoesHelper
         popup: "#{conexao.pessoa&.nome || 'Nova Conexão'}<br>Lat: #{conexao.latitude}<br>Lng: #{conexao.longitude}<br><em>Arraste para ajustar</em>"
       }
     elsif conexao.ponto.present?
-      conexao.ponto.conexoes.georeferencidas.limit(20).each do |nearby|
+      conexao.ponto.conexoes.georeferenciadas.limit(20).each do |nearby|
         markers << {
           id: nearby.id,
           lat: nearby.latitude.to_f,

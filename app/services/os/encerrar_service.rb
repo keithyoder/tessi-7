@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 class Os::EncerrarService # rubocop:disable Style/ClassAndModuleChildren
-  def initialize(os:, resultado:, encerramento: nil, tecnico_1_id: nil, tecnico_2_id: nil)
+  def initialize(os:, resultado:, encerramento: nil, tecnico_1_id: nil, tecnico_2_id: nil, fechamento: nil) # rubocop:disable Metrics/ParameterLists
     @os = os
     @resultado = resultado
     @encerramento = encerramento
     @tecnico_1_id = tecnico_1_id
     @tecnico_2_id = tecnico_2_id
+    @fechamento = fechamento
   end
 
   def call
@@ -16,7 +17,7 @@ class Os::EncerrarService # rubocop:disable Style/ClassAndModuleChildren
         encerramento: encerramento,
         tecnico_1_id: tecnico_1_id,
         tecnico_2_id: tecnico_2_id,
-        fechamento: DateTime.now
+        fechamento: fechamento.presence || DateTime.now
       )
       criar_os_reagendada if os.requer_reagendamento?
     end
@@ -25,7 +26,7 @@ class Os::EncerrarService # rubocop:disable Style/ClassAndModuleChildren
 
   private
 
-  attr_reader :os, :resultado, :encerramento, :tecnico_1_id, :tecnico_2_id
+  attr_reader :os, :resultado, :encerramento, :tecnico_1_id, :tecnico_2_id, :fechamento
 
   def criar_os_reagendada
     Os.create!(
@@ -35,7 +36,7 @@ class Os::EncerrarService # rubocop:disable Style/ClassAndModuleChildren
       tipo: os.tipo,
       aberto_por: os.responsavel,
       responsavel: os.responsavel,
-      descricao: "Reagendamento da OS ##{os.id}",
+      descricao: "Reagendamento da OS ##{os.id}\n\n#{os.descricao}",
       os_origem_id: os.id
     )
   end

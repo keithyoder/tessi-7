@@ -17,7 +17,8 @@ class Os::EncerramentosController < ApplicationController # rubocop:disable Styl
       resultado: encerramento_params[:resultado],
       encerramento: encerramento_params[:encerramento],
       tecnico_1_id: encerramento_params[:tecnico_1_id],
-      tecnico_2_id: encerramento_params[:tecnico_2_id]
+      tecnico_2_id: encerramento_params[:tecnico_2_id],
+      fechamento: encerramento_params[:fechamento]
     ).call
 
     redirect_to @os, notice: t('.notice')
@@ -32,6 +33,6 @@ class Os::EncerramentosController < ApplicationController # rubocop:disable Styl
   end
 
   def encerramento_params
-    params.require(:encerramento).permit(:resultado, :encerramento, :tecnico_1_id, :tecnico_2_id)
+    params.require(:encerramento).permit(:resultado, :encerramento, :tecnico_1_id, :tecnico_2_id, :fechamento)
   end
 end

@@ -39,13 +39,17 @@
   = f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present?
 
   .card.mb-3
-    .card-header Equipe que atendeu
+    .card-header Equipe e horário do atendimento
     .card-body
       .row.g-3
         .col-12.col-md-6
           = f.input :tecnico_1_id, collection: usuarios_campo_collection, label_method: :primeiro_nome, value_method: :id, label: 'Técnico 1', include_blank: 'Selecione...'
         .col-12.col-md-6
           = f.input :tecnico_2_id, collection: usuarios_campo_collection, label_method: :primeiro_nome, value_method: :id, label: 'Técnico 2 (opcional)', include_blank: 'Nenhum'
+      .row.g-3.mt-1
+        .col-12.col-md-6
+          = f.input :fechamento, as: :string, label: 'Data e hora do encerramento',
+                    input_html: { type: 'datetime-local', value: (f.object.fechamento || Time.current).strftime('%Y-%m-%dT%H:%M'), class: 'form-control' }
 
   .card.mb-3
     .card-header Resultado do atendimento

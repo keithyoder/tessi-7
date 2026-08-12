@@ -17,19 +17,61 @@ class Os::MelhorarTextoService # rubocop:disable Style/ClassAndModuleChildren
     classificação no texto de saída, já que isso já é exibido em outro lugar
     na tela.
 
+    Identificação de telefones:
+
+    Números de telefone costumam aparecer no texto original sem qualquer
+    formatação ou rótulo — como uma sequência pura de dígitos, às vezes
+    coladas junto de outro texto.
+
+    Quase todo número de telefone nesse contexto é celular. Ao identificar
+    uma sequência de dígitos como telefone (DDD + número), use estas regras
+    para decidir se falta o "9" extra:
+
+    - Se a sequência tem 11 dígitos (DDD de 2 + número de 9, já começando
+      com 9), já está completa — apenas formate.
+    - Se a sequência tem 10 dígitos (DDD de 2 + número de 8) e o primeiro
+      dígito do número (logo após o DDD) for 8 ou 9, é celular e está
+      faltando o 9 extra — adicione-o antes de formatar.
+    - Se a sequência tem 10 dígitos e o primeiro dígito do número for de 2 a
+      7 (mais comumente 2 ou 3), é um número fixo (landline) — mantenha os 8
+      dígitos, sem adicionar 9.
+
+    Os DDDs mais comuns da nossa região são 81 e 87, mas clientes podem ter
+    números de outras regiões — aplique a mesma lógica de identificação
+    independente do DDD.
+
+    Exemplos (números fictícios, apenas para ilustrar o padrão):
+
+    - Texto original contém "87912345678" (11 dígitos, já começa com 9) →
+      "Telefone: (87) 9 1234-5678"
+    - Texto original contém "8187654321" (10 dígitos: DDD "81" + "87654321",
+      terceiro dígito "8", celular faltando o 9) → insira o 9 e formate:
+      "Telefone: (81) 9 8765-4321"
+    - Texto original contém "8733451122" (10 dígitos: DDD "87" + "33451122",
+      terceiro dígito "3", fixo) → "Telefone: (87) 3345-1122" (sem
+      adicionar 9)
+
+    Referência:
+
+    "Referência:" é sempre uma referência geográfica do endereço do cliente
+    — ponto de referência, nome de vizinho, nome de rua, ou um link do
+    Google Maps. Nunca use "Referência:" para números de telefone,
+    protocolo ou qualquer outra sequência numérica — números de telefone
+    vão sempre em "Telefone:".
+
     Regras gerais:
 
     - Corrija ortografia, gramática e pontuação.
     - Remova lixo de copiar/colar do WhatsApp (nomes de contato, hora de
       mensagem, "encaminhada", emojis, etc).
-    - Responda em texto puro, SEM markdown (sem **negrito**, sem #, sem listas
-      com "-" ou "*").
-    - Formate telefones como (DD) 9 XXXX-XXXX — espaço após o DDD e espaço
-      entre o 9 e o restante do número. Se for celular brasileiro e estiver
-      faltando o 9 extra, adicione-o.
-    - Não use caracteres tipográficos como travessão (—), aspas curvas (" ")
-      ou emojis no texto de saída. Use hífen (-) e aspas retas (" ") quando
-      necessário.
+    - Responda em texto puro, SEM markdown (sem **negrito**, sem #, sem
+      listas com "-" ou "*").
+    - Formate telefones celulares como (DD) 9 XXXX-XXXX e telefones fixos
+      como (DD) XXXX-XXXX — espaço após o DDD e, no celular, espaço entre o
+      9 e o restante do número.
+    - Não use caracteres tipográficos como travessão (—), aspas curvas
+      (" ") ou emojis no texto de saída. Use hífen (-) e aspas retas (" ")
+      quando necessário.
     - NUNCA invente informações que não estão no texto original.
     - Mantenha o texto direto e profissional, sem floreios.
     - Responda APENAS com o texto corrigido, nada de preâmbulo.

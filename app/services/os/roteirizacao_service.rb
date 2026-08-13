@@ -86,29 +86,51 @@ class Os::RoteirizacaoService # rubocop:disable Style/ClassAndModuleChildren
   end
 
   def agrupar_por_proximidade(pontos)
-    clusters = pontos.each_index.map { |i| [i] }
+    n = pontos.size
+    return [] if n.zero?
 
-    loop do
-      melhor_par = nil
-      melhor_dist = Float::INFINITY
-
-      clusters.combination(2).each do |c1, c2|
-        dist = distancia_maxima(c1, c2, pontos)
-        if dist <= RAIO_KM && dist < melhor_dist
-          melhor_dist = dist
-          melhor_par = [c1, c2]
-        end
+    distancias = Array.new(n) { Array.new(n, 0.0) }
+    (0...n).each do |i|
+      ((i + 1)...n).each do |j|
+        d = haversine(pontos[i][:lat], pontos[i][:lng], pontos[j][:lat], pontos[j][:lng])
+        distancias[i][j] = d
+        distancias[j][i] = d
       end
-
-      break if melhor_par.nil?
-
-      c1, c2 = melhor_par
-      clusters.delete(c1)
-      clusters.delete(c2)
-      clusters << (c1 + c2)
     end
 
-    clusters.map { |indices| indices.map { |i| pontos[i][:os] } }
+    clusters = {}
+    n.times { |i| clusters[i] = [i] }
+
+    cluster_dist = {}
+    clusters.keys.combination(2).each do |a, b|
+      cluster_dist[[a, b]] = clusters[a].product(clusters[b]).map { |i, j| distancias[i][j] }.max
+    end
+
+    next_id = n
+
+    loop do
+      candidatos = cluster_dist.select { |_, d| d <= RAIO_KM }
+      break if candidatos.empty?
+
+      (a, b), = candidatos.min_by { |_, d| d }
+
+      novo_id = next_id
+      next_id += 1
+      clusters[novo_id] = clusters[a] + clusters[b]
+
+      cluster_dist.reject! { |(x, y), _| [x, y].include?(a) || [x, y].include?(b) }
+      clusters.delete(a)
+      clusters.delete(b)
+
+      clusters.each_key do |outro_id|
+        next if outro_id == novo_id
+
+        d = clusters[novo_id].product(clusters[outro_id]).map { |i, j| distancias[i][j] }.max
+        cluster_dist[[novo_id, outro_id].sort] = d
+      end
+    end
+
+    clusters.values.map { |indices| indices.map { |i| pontos[i][:os] } }
   end
 
   def distancia_maxima(c1, c2, pontos)

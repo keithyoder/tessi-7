@@ -24,6 +24,11 @@
               - if @os.classificacao
                 = " • "
                 = @os.classificacao.nome
+              - if @os.os_origem.present?
+                = " • "
+                | Reagendamento de
+                = " "
+                = link_to "OS ##{@os.os_origem.id}", @os.os_origem, class: 'text-decoration-none'
 
           .d-flex.gap-2.mt-3.mt-md-0
             = back_button(os_index_path)
@@ -74,6 +79,10 @@
           .col-md-4
             .text-muted.small Aberta em
             .fw-medium= l(@os.created_at, format: :date_time)
+          - if @os.agendado_em.present?
+            .col-md-4
+              .text-muted.small Agendada para
+              .fw-medium= l(@os.agendado_em)
           - if @os.fechamento.present?
             .col-md-4
               .text-muted.small Fechada em

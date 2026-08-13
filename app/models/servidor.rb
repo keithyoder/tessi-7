@@ -10,6 +10,8 @@
 #  equipamento     :string
 #  ip              :inet
 #  ipv6            :inet
+#  latitude        :decimal(10, 6)
+#  longitude       :decimal(10, 6)
 #  nome            :string
 #  radius_porta    :integer
 #  radius_secret   :string
@@ -43,7 +45,7 @@ class Servidor < ApplicationRecord
     CSV.generate(headers: true) do |csv|
       csv << attributes
 
-      all.find_each do |servidor|
+      find_each do |servidor|
         csv << attributes.map { |attr| servidor.send(attr) }
       end
     end
@@ -114,7 +116,7 @@ class Servidor < ApplicationRecord
   end
 
   def autenticando?
-    autenticacoes.where('authdate > ?', 12.hours.ago).count.positive?
+    autenticacoes.where('authdate > ?', 12.hours.ago).any?
   end
 
   def copiar_backup

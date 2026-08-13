@@ -10,6 +10,8 @@
 #  frequencia    :string
 #  ip            :inet
 #  ipv6          :inet
+#  latitude      :decimal(10, 6)
+#  longitude     :decimal(10, 6)
 #  nome          :string
 #  senha         :string
 #  sistema       :integer
@@ -35,7 +37,7 @@ class Ponto < ApplicationRecord
   has_many :conexoes, dependent: :restrict_with_exception
   has_many :ip_redes, dependent: :restrict_with_exception
   has_many :redes, class_name: 'FibraRede', dependent: :restrict_with_exception
-  has_many :caixas, through: :redes, source: :fibra_caixas
+  has_many :caixas, through: :redes
   has_many :autenticacoes, through: :conexoes
   has_one :device, as: :deviceable, dependent: :destroy
 

@@ -23,11 +23,19 @@ class FibraRede < ApplicationRecord
   include Ransackable
 
   belongs_to :ponto
-  has_many :fibra_caixas
-  has_many :conexoes, through: :fibra_caixas
+  has_many :caixas, class_name: 'FibraCaixa', dependent: :restrict_with_exception
+  has_many :conexoes, through: :caixas
   enum :fibra_cor, { verde: 0, amarela: 1, branca: 2, azul: 3, vermelha: 4, violeta: 5, marrom: 6,
                      rosa: 7, preta: 8, cinza: 9, laranja: 10, aqua: 11 }
 
   RANSACK_ATTRIBUTES = %w[nome].freeze
   RANSACK_ASSOCIATIONS = %w[].freeze
+
+  def latitude
+    caixas.average(:latitude)
+  end
+
+  def longitude
+    caixas.average(:longitude)
+  end
 end

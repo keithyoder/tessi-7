@@ -120,6 +120,7 @@ Rails.application.routes.draw do # rubocop:disable Metrics/BlockLength
   resources :os do
     resource :encerramento, only: %i[show update], controller: 'os/encerramentos'
   end
+  resources :agendamentos, only: %i[new create], controller: 'os/agendamentos'
   resources :classificacoes, except: [:show]
   resources :clasificacoes
   resources :excecoes

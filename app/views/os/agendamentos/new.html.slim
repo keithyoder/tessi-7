@@ -1,0 +1,89 @@
+/ app/views/os/agendamentos/new.html.slim
+
+h2.mb-4 Agendamento de OS
+
+= simple_form_for :agendamento, url: agendamentos_path, method: :post, html: { data: { controller: "agendamento" } } do |f|
+  .card.mb-4
+    .card-header Data e equipe
+    .card-body
+      .row.g-3
+        .col-12.col-md-4
+          = f.input :agendado_em, as: :date, label: 'Data agendada', html5: true
+        .col-12.col-md-4
+          = f.input :tecnico_1_id, collection: usuarios_campo_collection, label_method: :primeiro_nome, value_method: :id, label: 'Técnico 1', include_blank: 'Selecione...'
+        .col-12.col-md-4
+          = f.input :tecnico_2_id, collection: usuarios_campo_collection, label_method: :primeiro_nome, value_method: :id, label: 'Técnico 2 (opcional)', include_blank: 'Nenhum'
+
+  h4.mb-3 Grupos por proximidade
+
+  - sla_badge_class = { atrasado: 'bg-danger', em_risco: 'bg-warning text-dark', no_prazo: 'bg-success', sem_sla: 'bg-light text-dark' }
+  - sla_label = { atrasado: 'Atrasado', em_risco: 'Em risco', no_prazo: 'No prazo', sem_sla: 'Sem SLA' }
+
+  - @grupos.each_with_index do |grupo, idx|
+    .card.mb-2
+      .card-header
+        button.btn.btn-link.text-decoration-none.w-100.text-start.d-flex.justify-content-between.align-items-center type="button" data-bs-toggle="collapse" data-bs-target="#grupo-#{idx}"
+          span
+            strong= grupo[:nome]
+            |  
+            span.text-muted= "(#{grupo[:os_list].size} OS)"
+          span.badge class="#{sla_badge_class[grupo[:sla_status]]}"
+            = sla_label[grupo[:sla_status]]
+      div id="grupo-#{idx}" class="collapse"
+        .card-body.p-0
+          table.table.table-sm.mb-0
+            tbody
+              - grupo[:os_list].each do |os|
+                - ja_agendado = os.agendado_em.present?
+                tr
+                  td.ps-3 style="width: 40px"
+                    = check_box_tag 'agendamento[os_ids][]', os.id, false, disabled: ja_agendado, data: { agendamento_target: "checkbox" }
+                  td
+                    = link_to "OS ##{os.id}", os_path(os), target: '_blank'
+                    |  -
+                    = os.pessoa.nome
+                  td.text-muted.small= os.endereco_estimado
+                  td.text-muted.small= os.tipo
+                  td.text-muted.small= os.classificacao&.nome
+                  td
+                    span.badge class="#{sla_badge_class[os.sla_status]}"
+                      = sla_label[os.sla_status]
+                  td.text-end.pe-3
+                    - if ja_agendado
+                      span.badge.bg-info.me-2
+                        = "Agendado: #{l(os.agendado_em)} — #{[os.tecnico_1&.primeiro_nome, os.tecnico_2&.primeiro_nome].compact.join('/')}"
+                      button.btn.btn-sm.btn-link type="button" data-action="agendamento#permitirReagendar"
+                        | Reagendar
+
+  - if @sem_coordenadas.any?
+    .card.mb-2
+      .card-header Sem coordenadas (verificar endereço manualmente)
+      .card-body.p-0
+        table.table.table-sm.mb-0
+          tbody
+            - @sem_coordenadas.each do |os|
+              - ja_agendado = os.agendado_em.present?
+              tr
+                td.ps-3 style="width: 40px"
+                  = check_box_tag 'agendamento[os_ids][]', os.id, false, disabled: ja_agendado, data: { agendamento_target: "checkbox" }
+                td
+                  = link_to "OS ##{os.id}", os_path(os), target: '_blank'
+                  |  -
+                  = os.pessoa.nome
+                td.text-muted.small= os.endereco_estimado
+                td.text-muted.small= os.tipo
+                td.text-muted.small= os.classificacao&.nome
+                td
+                  span.badge class="#{sla_badge_class[os.sla_status]}"
+                    = sla_label[os.sla_status]
+                td.text-end.pe-3
+                  - if ja_agendado
+                    span.badge.bg-info.me-2
+                      = "Agendado: #{l(os.agendado_em)} — #{[os.tecnico_1&.primeiro_nome, os.tecnico_2&.primeiro_nome].compact.join('/')}"
+                    button.btn.btn-sm.btn-link type="button" data-action="agendamento#permitirReagendar"
+                      | Reagendar
+
+  .d-flex.gap-2.mt-3.sticky-bottom.bg-white.py-3
+    button.btn.btn-primary type="submit"
+      i.bi.bi-calendar-check.me-1
+      | Agendar selecionadas

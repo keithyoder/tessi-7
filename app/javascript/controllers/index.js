@@ -1,6 +1,7 @@
 import { application } from "./application"
 
 // Manually import each controller for esbuild
+import AgendamentoController from "./agendamento_controller"
 import BuscaController from "./busca_controller"
 import ClipboardController from "./clipboard_controller"
 import ConexaoController from "./conexao_controller"
@@ -14,6 +15,7 @@ import OsController from "./os_controller"
 import PieChartController from "./pie_chart_controller"
 
 // Register controllers
+application.register("agendamento", AgendamentoController)
 application.register("busca", BuscaController)
 application.register("clipboard", ClipboardController)
 application.register("conexao", ConexaoController)

@@ -131,4 +131,10 @@ class Os < ApplicationRecord
 
     errors.add(:tecnico_2, 'não pode ser o mesmo que o técnico 1') if tecnico_1_id == tecnico_2_id
   end
+
+  def endereco_estimado
+    return conexao.endereco if conexao.present?
+
+    [pessoa.endereco.presence, pessoa.bairro&.nome_cidade_uf].compact.join(' - ')
+  end
 end

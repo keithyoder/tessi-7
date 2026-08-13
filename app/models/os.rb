@@ -69,6 +69,20 @@ class Os < ApplicationRecord
   validates :conexao, presence: true, if: :reparo?
   validate :tecnicos_diferentes
 
+  scope :com_endereco_carregado, lambda {
+    includes(
+      pessoa: [
+        { logradouro: { bairro: { cidade: :estado } } },
+        { bairro: { cidade: :estado } },
+        { cidade: :estado }
+      ],
+      conexao: [
+        { logradouro: { bairro: { cidade: :estado } } },
+        { pessoa: { logradouro: { bairro: { cidade: :estado } } } }
+      ]
+    )
+  }
+
   enum :resultado, {
     resolvido: 0,
     sem_problema_encontrado: 1,

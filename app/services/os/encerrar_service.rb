@@ -12,12 +12,15 @@ class Os::EncerrarService # rubocop:disable Style/ClassAndModuleChildren
 
   def call
     ApplicationRecord.transaction do
+      fechamento_final = fechamento.presence || DateTime.now
+
       os.update!(
         resultado: resultado,
         encerramento: encerramento,
         tecnico_1_id: tecnico_1_id,
         tecnico_2_id: tecnico_2_id,
-        fechamento: fechamento.presence || DateTime.now
+        fechamento: fechamento_final,
+        agendado_em: fechamento_final.to_date
       )
       criar_os_reagendada if os.requer_reagendamento?
     end

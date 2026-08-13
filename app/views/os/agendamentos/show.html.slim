@@ -1,0 +1,82 @@
+/ app/views/os/agendamentos/show.html.slim
+
+.d-flex.justify-content-between.align-items-center.mb-4
+  h2.mb-0 Agenda do dia
+  .d-flex.align-items-center.gap-2
+    = link_to agendamento_dia_os_index_path(data: (@data - 1.day).to_s), class: 'btn btn-outline-secondary'
+      i.bi.bi-chevron-left
+
+    = form_tag agendamento_dia_os_index_path(data: @data.to_s), method: :get, class: 'd-inline' do
+      input type="date" name="data" value=@data.to_s onchange="this.form.action = this.form.action.replace(/\/[^\/]+$/, '/' + this.value); this.form.submit();" class="form-control"
+
+    = link_to agendamento_dia_os_index_path(data: (@data + 1.day).to_s), class: 'btn btn-outline-secondary'
+      i.bi.bi-chevron-right
+
+  = link_to new_agendamento_path, class: 'btn btn-primary'
+    i.bi.bi-calendar-plus.me-1
+    | Agendar OS
+
+h4.mb-3
+  = l(@data, format: :long)
+
+- resultado_labels = { 'resolvido' => 'Resolvido', 'sem_problema_encontrado' => 'Sem problema encontrado', 'nao_despachado' => 'Não despachado', 'nao_resolvido' => 'Não resolvido', 'cliente_ausente' => 'Cliente ausente' }
+- resultado_badges = { 'resolvido' => 'bg-success', 'sem_problema_encontrado' => 'bg-info', 'nao_despachado' => 'bg-secondary', 'nao_resolvido' => 'bg-danger', 'cliente_ausente' => 'bg-warning text-dark' }
+
+- if @os_do_dia.empty?
+  .alert.alert-light.text-center.py-5
+    i.bi.bi-calendar-x.fs-1.text-muted.d-block.mb-2
+    | Nenhuma OS agendada para este dia.
+
+- else
+  - por_tecnico = @os_do_dia.group_by { |os| [os.tecnico_1&.primeiro_nome, os.tecnico_2&.primeiro_nome].compact.sort.join(' / ').presence || 'Sem técnico definido' }
+
+  .row.g-3.mb-4
+    .col-6.col-md-3
+      .card.text-center.border-0.shadow-sm
+        .card-body
+          .fs-3.fw-bold= @os_do_dia.size
+          .text-muted.small Total agendadas
+    .col-6.col-md-3
+      .card.text-center.border-0.shadow-sm
+        .card-body
+          .fs-3.fw-bold.text-success= @concluidas.size
+          .text-muted.small Concluídas
+    .col-6.col-md-3
+      .card.text-center.border-0.shadow-sm
+        .card-body
+          .fs-3.fw-bold.text-warning= @pendentes.size
+          .text-muted.small Pendentes
+
+  .card.mb-3
+    .card-body.p-0
+      table.table.table-sm.mb-0
+        tbody
+          - por_tecnico.each do |tecnico, os_list|
+            - concluidas_tecnico, pendentes_tecnico = os_list.partition { |os| os.fechamento.present? }
+            tr.table-light
+              td.ps-3 colspan="6"
+                .d-flex.justify-content-between.align-items-center
+                  strong= tecnico
+                  span.text-muted.small= "#{concluidas_tecnico.size}/#{os_list.size} concluídas"
+            - os_list.each do |os|
+              tr
+                td.ps-3
+                  - if os.fechamento.present?
+                    i.bi.bi-check-circle-fill.text-success
+                  - else
+                    i.bi.bi-clock.text-muted
+                td
+                  = link_to "OS ##{os.id}", os_path(os), target: '_blank'
+                  |  -
+                  = os.pessoa.nome
+                td.text-muted.small= os.endereco_estimado
+                td.text-muted.small= os.tipo
+                td.text-muted.small= os.classificacao&.nome
+                td.pe-3
+                  - if os.fechamento.present? && os.resultado.present?
+                    span.badge class="#{resultado_badges[os.resultado]}"
+                      = resultado_labels[os.resultado]
+                  - elsif os.fechamento.present?
+                    span.badge.bg-secondary Fechada
+                  - else
+                    span.badge.bg-light.text-dark Pendente

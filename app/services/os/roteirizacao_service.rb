@@ -18,18 +18,7 @@ class Os::RoteirizacaoService # rubocop:disable Style/ClassAndModuleChildren
 
   def coletar_pontos
     @sem_coordenadas = []
-    os_list = Os.abertas.includes(
-      :classificacao,
-      pessoa: [
-        { logradouro: { bairro: { cidade: :estado } } },
-        { bairro: { cidade: :estado } },
-        :cidade
-      ],
-      conexao: [
-        { logradouro: { bairro: { cidade: :estado } } },
-        { pessoa: { logradouro: { bairro: { cidade: :estado } } } }
-      ]
-    ).to_a
+    os_list = Os.abertas.com_endereco_carregado.includes(:classificacao).to_a
 
     carregar_medias_por_logradouro(os_list)
 

@@ -119,8 +119,13 @@ Rails.application.routes.draw do # rubocop:disable Metrics/BlockLength
   resources :atendimento_detalhes, only: %i[create]
   resources :os do
     resource :encerramento, only: %i[show update], controller: 'os/encerramentos'
+
+    collection do
+      resource :agendamento, only: %i[new create], controller: 'os/agendamentos'
+      get 'agendamento/:data', to: 'os/agendamentos#show', as: :agendamento_dia,
+                               constraints: { data: /\d{4}-\d{2}-\d{2}/ }
+    end
   end
-  resources :agendamentos, only: %i[new create], controller: 'os/agendamentos'
   resources :classificacoes, except: [:show]
   resources :clasificacoes
   resources :excecoes

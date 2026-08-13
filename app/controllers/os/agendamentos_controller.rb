@@ -3,6 +3,17 @@
 class Os::AgendamentosController < ApplicationController # rubocop:disable Style/ClassAndModuleChildren
   skip_authorization_check
 
+  def show
+    @data = parse_data
+
+    @os_do_dia = Os
+      .com_endereco_carregado
+      .includes(:classificacao, :tecnico_1, :tecnico_2)
+      .where(agendado_em: @data)
+      .order(:tecnico_1_id, :id)
+    @concluidas, @pendentes = @os_do_dia.partition { |os| os.fechamento.present? }
+  end
+
   def new
     resultado = Os::RoteirizacaoService.new.call
     @grupos = resultado[:grupos]
@@ -34,5 +45,11 @@ class Os::AgendamentosController < ApplicationController # rubocop:disable Style
 
   def agendamento_params
     params.require(:agendamento).permit(:agendado_em, :tecnico_1_id, :tecnico_2_id, os_ids: [])
+  end
+
+  def parse_data
+    params[:data].present? ? Date.parse(params[:data]) : Date.current
+  rescue ArgumentError
+    Date.current
   end
 end

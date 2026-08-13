@@ -15,7 +15,7 @@ class FibraRedesController < ApplicationController
   end
 
   def show
-    @fibra_caixas = @fibra_rede.fibra_caixas.includes(:logradouro, :fibra_rede).order(:nome)
+    @fibra_caixas = @fibra_rede.caixas.includes(:logradouro, :fibra_rede).order(:nome)
 
     caixa_ids = @fibra_caixas.map(&:id)
 

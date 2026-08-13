@@ -1,0 +1,25 @@
+/ app/views/os/agendamentos/_os_row.html.slim
+- ja_agendado = os.agendado_em.present?
+tr
+  td.ps-3 style="width: 40px"
+    = check_box_tag 'agendamento[os_ids][]', os.id, false, disabled: ja_agendado, data: { agendamento_target: "checkbox" }
+  td
+    = link_to "OS ##{os.id}", os_path(os), target: '_blank'
+    |  -
+    = os.pessoa.nome
+  td.text-muted.small= os.endereco_estimado
+  td.text-muted.small= os.tipo
+  td.text-muted.small= os.classificacao&.nome
+  td
+    - if ja_agendado
+      span.badge.bg-info
+        = "Agendado: #{l(os.agendado_em)}"
+    - else
+      span.badge class="#{sla_badge_class[os.sla_status]}"
+        = sla_label[os.sla_status]
+  td.text-end.pe-3
+    - if ja_agendado
+      span.text-muted.small.me-2
+        = [os.tecnico_1&.primeiro_nome, os.tecnico_2&.primeiro_nome].compact.join('/')
+      button.btn.btn-sm.btn-link type="button" data-action="agendamento#permitirReagendar"
+        | Reagendar

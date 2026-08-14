@@ -33,6 +33,7 @@ class Servidor < ApplicationRecord
   has_many :pontos, dependent: :restrict_with_exception
   has_many :conexoes, through: :pontos
   has_many :autenticacoes, through: :pontos
+  has_many :os, as: :infraestrutura, dependent: :nullify
   has_one_attached :backup
 
   scope :ativo, -> { where('ativo') }

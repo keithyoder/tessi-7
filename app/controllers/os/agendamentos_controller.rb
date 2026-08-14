@@ -9,8 +9,9 @@ class Os::AgendamentosController < ApplicationController # rubocop:disable Style
     @os_do_dia = Os
       .com_endereco_carregado
       .includes(:classificacao, :tecnico_1, :tecnico_2)
-      .where(agendado_em: @data)
-      .order(:tecnico_1_id, :id)
+      .where(agendado_em: @data.all_day)
+      .order(:tecnico_1_id, :agendado_em, :id)
+
     @concluidas, @pendentes = @os_do_dia.partition { |os| os.fechamento.present? }
   end
 

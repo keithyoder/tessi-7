@@ -25,6 +25,7 @@ class FibraRede < ApplicationRecord
   belongs_to :ponto
   has_many :caixas, class_name: 'FibraCaixa', dependent: :restrict_with_exception
   has_many :conexoes, through: :caixas
+  has_many :os, as: :infraestrutura, dependent: :nullify
   enum :fibra_cor, { verde: 0, amarela: 1, branca: 2, azul: 3, vermelha: 4, violeta: 5, marrom: 6,
                      rosa: 7, preta: 8, cinza: 9, laranja: 10, aqua: 11 }
 

@@ -20,7 +20,7 @@ class Os::EncerrarService # rubocop:disable Style/ClassAndModuleChildren
         tecnico_1_id: tecnico_1_id,
         tecnico_2_id: tecnico_2_id,
         fechamento: fechamento_final,
-        agendado_em: fechamento_final.to_date
+        agendado_em: fechamento_final
       )
       criar_os_reagendada if os.requer_reagendamento?
     end

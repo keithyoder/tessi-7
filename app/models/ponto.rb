@@ -39,6 +39,7 @@ class Ponto < ApplicationRecord
   has_many :redes, class_name: 'FibraRede', dependent: :restrict_with_exception
   has_many :caixas, through: :redes
   has_many :autenticacoes, through: :conexoes
+  has_many :os, as: :infraestrutura, dependent: :nullify
   has_one :device, as: :deviceable, dependent: :destroy
 
   # Scopes

@@ -1,5 +1,5 @@
 / app/views/pontos/_form.html.slim
-= simple_form_for(@ponto) do |f|
+= simple_form_for(ponto) do |f|
   = f.error_notification
   = f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present?
 
@@ -35,8 +35,8 @@
                     include_blank: 'Nenhum', input_html: { class: 'form-select' }
 
   .d-flex.justify-content-between.align-items-center
-      - if @ponto.persisted?
-        = link_to 'Cancelar', ponto_path(@ponto), class: 'btn btn-outline-secondary'
+      - if ponto.persisted?
+        = link_to 'Cancelar', ponto_path(ponto), class: 'btn btn-outline-secondary'
       - else
         = link_to 'Cancelar', pontos_path, class: 'btn btn-outline-secondary'
       = button_tag class: 'btn btn-primary px-4'

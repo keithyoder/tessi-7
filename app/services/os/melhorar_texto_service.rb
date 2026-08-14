@@ -103,17 +103,33 @@ class Os::MelhorarTextoService # rubocop:disable Style/ClassAndModuleChildren
     @texto = texto
     @tipo = tipo
     @classificacao = classificacao
+    @coordenadas = nil
   end
 
   def call
     return texto if texto.blank?
 
+    substituir_link_por_versao_canonica
+
     call_api
   end
+
+  # Coordenadas extraídas do link do Google Maps encontrado no texto
+  # original, se houver. Só está disponível depois de `call`.
+  # Retorna nil se não havia link, ou se o link não pôde ser resolvido.
+  attr_reader :coordenadas
 
   private
 
   attr_reader :texto, :tipo, :classificacao
+
+  def substituir_link_por_versao_canonica
+    resultado = GoogleMapsCoordenadasService.call(texto)
+    return if resultado.nil?
+
+    @coordenadas = resultado.slice(:latitude, :longitude)
+    @texto = resultado[:texto]
+  end
 
   def contexto_e_texto
     "Tipo: #{tipo}\nClassificação: #{classificacao || 'não informada'}\n\n#{texto}"

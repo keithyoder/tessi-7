@@ -10,7 +10,7 @@ class Os::AgendamentosController < ApplicationController # rubocop:disable Style
       .com_endereco_carregado
       .includes(:classificacao, :tecnico_1, :tecnico_2)
       .where(agendado_em: @data.all_day)
-      .order(:tecnico_1_id, :agendado_em, :id)
+      .order(:tecnico_1_id, :fechamento, :agendado_em, :id)
 
     @concluidas, @pendentes = @os_do_dia.partition { |os| os.fechamento.present? }
   end
@@ -39,7 +39,7 @@ class Os::AgendamentosController < ApplicationController # rubocop:disable Style
       )
     end
 
-    redirect_to os_index_path, notice: t('.notice')
+    redirect_to agendamento_dia_os_index_path(data: agendado_em), notice: t('.notice')
   end
 
   private

@@ -1,3 +1,14 @@
-h1 Novo Ponto
-= render 'form', ponto: @ponto
-= link_to 'Back', pontos_path
+/ app/views/pontos/new.html.slim
+.row.mb-4
+  .col-12
+    .card.border-0.shadow-sm
+      .card-body.p-4
+        .d-flex.justify-content-between.align-items-center
+          h2.mb-0 Novo Ponto de Acesso
+          = back_button(pontos_path)
+
+.row
+  .col-12
+    .card.border-0.shadow-sm
+      .card-body
+        = render 'form', ponto: @ponto

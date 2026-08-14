@@ -1,7 +1,14 @@
-.card
-  = render 'shared/edit_header',
-    { object: @ponto,
-      titulo: 'Ponto de Acesso' }
-  .card-body
-    = render 'form', ponto: @ponto
-s
+/ app/views/pontos/edit.html.slim
+.row.mb-4
+  .col-12
+    .card.border-0.shadow-sm
+      .card-body.p-4
+        .d-flex.justify-content-between.align-items-center
+          h2.mb-0 Editar #{@ponto.nome}
+          = back_button(ponto_path(@ponto))
+
+.row
+  .col-12
+    .card.border-0.shadow-sm
+      .card-body
+        = render 'form', ponto: @ponto

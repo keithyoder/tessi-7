@@ -5,7 +5,7 @@ class PontosController < ApplicationController
 
   authorize_resource
   before_action :set_ponto, only: %i[edit update destroy]
-  before_action :set_ponto, only: %i[show], if: -> { request.format.json? }
+  before_action :set_ponto_json, only: %i[show], if: -> { request.format.json? }
   before_action :set_ponto_with_details, only: %i[show], unless: -> { request.format.json? }
   before_action :set_available_devices, only: %i[new edit create update]
 
@@ -84,6 +84,10 @@ class PontosController < ApplicationController
   private
 
   def set_ponto
+    @ponto = Ponto.find(params[:id])
+  end
+
+  def set_ponto_json
     @ponto = Ponto.find(params[:id])
   end
 

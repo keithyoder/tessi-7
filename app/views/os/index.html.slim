@@ -68,7 +68,13 @@
                   span.badge.bg-secondary Fechada
               td= l(os.created_at, format: :date_time)
               - unless incorporado?
-                td= link_to os.pessoa.nome, os.pessoa, class: 'text-decoration-none', data: { turbo_frame: '_top' }
+                td
+                  - if os.pessoa.present?
+                    = link_to os.pessoa.nome, os.pessoa, class: 'text-decoration-none', data: { turbo_frame: '_top' }
+                  - else
+                    = link_to os.infraestrutura, class: 'text-decoration-none', data: { turbo_frame: '_top' } do
+                      span.text-muted.small= "#{infraestrutura_tipo_humanizado(os.infraestrutura_type)}: "
+                      = os.infraestrutura.nome
               td
                 .fw-semibold= link_to os.tipo, os_path(os), class: 'text-decoration-none', data: { turbo_frame: '_top' }
               td.d-none.d-md-table-cell= os.classificacao&.nome || '—'

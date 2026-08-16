@@ -71,6 +71,7 @@ class Os < ApplicationRecord
   scope :cidade, ->(cidade_id) { joins(:pessoa, :logradouro, :bairro, :cidade).where(cidades: { id: cidade_id }) }
   validates :tipo, :descricao, presence: true
   validates :conexao, presence: true, if: :reparo?
+  validates :resultado, presence: true, if: :fechamento?
   validate :tecnicos_diferentes
   validate :pessoa_ou_infraestrutura
 

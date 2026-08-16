@@ -6,6 +6,7 @@
 #
 #  id         :bigint           not null, primary key
 #  nome       :string
+#  sla_dias   :integer
 #  tipo       :integer
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
@@ -22,7 +23,8 @@ class Classificacao < ApplicationRecord
     Reparo: 2,
     Transferência: 3,
     Retirada: 4,
-    Atendimento: 5
+    Atendimento: 5,
+    Infraestrutura: 6
   }
 
   scope :atendimentos, -> { where(tipo: :Atendimento) }

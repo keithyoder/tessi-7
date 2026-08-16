@@ -53,6 +53,14 @@
             .small.text-muted= @os.conexao.usuario
             .small.text-muted= @os.conexao.ponto.nome
             .small.text-muted= @os.conexao.endereco
+- elsif @os.infraestrutura.present?
+  .row.mb-4
+    .col-md-4
+      = link_to @os.infraestrutura, class: 'text-decoration-none'
+        .card.border-0.shadow-sm.h-100
+          .card-body
+            .text-muted.small.mb-1= @os.infraestrutura_type
+            .fw-bold= @os.infraestrutura.nome
 
 / Detalhes
 .row.mb-4
@@ -61,8 +69,16 @@
       .card-body
         .row.g-4
           .col-md-4
-            .text-muted.small Assinante
-            .fw-medium= link_to @os.pessoa.nome, @os.pessoa, class: 'text-decoration-none'
+            .text-muted.small
+              - if @os.pessoa.present?
+                | Assinante
+              - else
+                = infraestrutura_tipo_humanizado(@os.infraestrutura_type)
+            .fw-medium
+              - if @os.pessoa.present?
+                = link_to @os.pessoa.nome, @os.pessoa, class: 'text-decoration-none'
+              - else
+                = link_to @os.infraestrutura.nome, @os.infraestrutura, class: 'text-decoration-none'
           .col-md-4
             .text-muted.small Aberto Por
             .fw-medium= @os.aberto_por.primeiro_nome

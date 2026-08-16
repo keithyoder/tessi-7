@@ -4,6 +4,7 @@
   = f.hidden_field :aberto_por_id
 
   - pessoa = f.object.pessoa
+  - infraestrutura = f.object.infraestrutura
 
   / ── Ordem de Serviço ────────────────────────────────────────────────
   .card.mb-3
@@ -21,18 +22,26 @@
   .card.mb-3
     .card-header Vínculos
     .card-body
-      .row.g-3
-        .col-12.col-md[data-controller="busca" data-busca-url-value="/pessoas.json" data-busca-campos-meta-value='["cpf","endereco"]' data-action="busca:selecionada->os#carregarConexoes"]
-          .form-group
-            label.form-label Pessoa
-            .position-relative
-              = f.hidden_field :pessoa_id, data: { busca_target: 'id', os_target: 'pessoa' }
-              input.form-control type="text" placeholder="Digite para buscar..." value=pessoa&.nome autocomplete="off" data-busca-target="input" data-action="input->busca#buscar"
-        .col-3
-          = f.association :conexao,
-              collection: [f.object.conexao].compact,
-              label_method: ->(conexao) { label_conexao_form(conexao) },
-              input_html: { data: { os_target: 'conexao' } }
+      - if infraestrutura.present?
+        = f.hidden_field :infraestrutura_type
+        = f.hidden_field :infraestrutura_id
+        .d-flex.align-items-center.gap-2
+          i.bi.bi-hdd-network.text-muted
+          span.text-muted Infraestrutura:
+          = link_to infraestrutura.nome, infraestrutura, class: 'fw-medium text-decoration-none', target: '_blank'
+      - else
+        .row.g-3
+          .col-12.col-md[data-controller="busca" data-busca-url-value="/pessoas.json" data-busca-campos-meta-value='["cpf","endereco"]' data-action="busca:selecionada->os#carregarConexoes"]
+            .form-group
+              label.form-label Pessoa
+              .position-relative
+                = f.hidden_field :pessoa_id, data: { busca_target: 'id', os_target: 'pessoa' }
+                input.form-control type="text" placeholder="Digite para buscar..." value=pessoa&.nome autocomplete="off" data-busca-target="input" data-action="input->busca#buscar"
+          .col-3
+            = f.association :conexao,
+                collection: [f.object.conexao].compact,
+                label_method: ->(conexao) { label_conexao_form(conexao) },
+                input_html: { data: { os_target: 'conexao' } }
 
   / ── Equipe ───────────────────────────────────────────────────────────
   .card.mb-3

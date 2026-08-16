@@ -12,7 +12,15 @@ html
             span> ORDEM DE SERVIÇO -
             = @os.tipo.upcase
     p
-    = render 'cliente'
+    - if @os.pessoa.present?
+      = render 'cliente'
+    - elsif @os.infraestrutura.present?
+      table.full-width
+        tbody
+          tr
+            td colspan="8"
+              p.termo.campo = infraestrutura_tipo_humanizado(@os.infraestrutura_type)
+              span.termo.variable = @os.infraestrutura.nome
     p
     - if @os.conexao.present?
       =render 'conexao'
@@ -25,7 +33,7 @@ html
         tr
           td colspan="8" 
             p.termo.campo Diagnóstico:
-            span.termo.variable =@os.descricao
+            span.termo.variable = simple_format(@os.descricao)
         tr
           td colspan="8" 
             p.termo.campo Solução:

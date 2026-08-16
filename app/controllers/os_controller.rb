@@ -1,21 +1,18 @@
 # frozen_string_literal: true
 
 class OsController < ApplicationController
+  include TurboFrameIndex
+
   before_action :set_os, only: %i[show edit update destroy]
   before_action :set_params_for_legacy_header, only: %i[show]
 
-  layout -> { turbo_frame_request? ? false : 'application' }
+  escopavel_por :pessoa_id, :conexao_id, :servidor_id, :ponto_id
+
   authorize_resource
-
-  # Parâmetros pelos quais uma OS pode ser filtrada quando exibida dentro
-  # da aba de outro recurso (Pessoa, Conexao).
-  PARAMETROS_ESCOPO = %i[pessoa_id conexao_id].freeze
-
-  helper_method :id_frame, :incorporado?
 
   # GET /os
   def index
-    @q = escopo_base.includes(:pessoa, :classificacao).ransack(params[:q])
+    @q = escopo.includes(:pessoa, :classificacao).ransack(params[:q])
     @q.sorts = 'created_at asc' if @q.sorts.empty?
     @search_params = params.fetch(:q, {}).permit(:pessoa_nome_cont, :tipo_eq, :cidade, :fechamento_null).to_h
 
@@ -35,7 +32,13 @@ class OsController < ApplicationController
 
   # GET /os/new
   def new
-    @os = Os.new(pessoa_id: params[:pessoa_id], aberto_por: current_user, responsavel: current_user)
+    @os = Os.new(
+      pessoa_id: params[:pessoa_id],
+      infraestrutura_type: params[:infraestrutura_type],
+      infraestrutura_id: params[:infraestrutura_id],
+      aberto_por: current_user,
+      responsavel: current_user
+    )
   end
 
   # GET /os/1/edit
@@ -79,25 +82,20 @@ class OsController < ApplicationController
     @params = params
   end
 
-  # Verdadeiro quando a index está sendo exibida como aba incorporada
-  # (Pessoa, Conexao) em vez da página avulsa /os.
-  def incorporado?
-    PARAMETROS_ESCOPO.any? { |parametro| params[parametro].present? }
-  end
-
-  # Id do turbo-frame da index. Na página avulsa usa um id fixo; quando
-  # incorporada, gera um id compatível com a aba, ex. "pessoa_5_os".
-  def id_frame
-    escopo = PARAMETROS_ESCOPO.find { |parametro| params[parametro].present? }
-    return 'os_index' unless escopo
-
-    "#{escopo.to_s.delete_suffix('_id')}_#{params[escopo]}_os"
-  end
-
-  def escopo_base
+  # Os não tem servidor_id/ponto_id como coluna — a infraestrutura é
+  # polimórfica (infraestrutura_type/infraestrutura_id). Por isso o
+  # escopo aqui traduz servidor_id/ponto_id manualmente em vez de usar
+  # o aplicar_escopo genérico do concern.
+  def escopo # rubocop:disable Metrics/AbcSize
     consulta = Os.all
-    PARAMETROS_ESCOPO.each do |parametro|
-      consulta = consulta.where(parametro => params[parametro]) if params[parametro].present?
+    consulta = consulta.where(pessoa_id: params[:pessoa_id]) if params[:pessoa_id].present?
+    consulta = consulta.where(conexao_id: params[:conexao_id]) if params[:conexao_id].present?
+    if params[:servidor_id].present?
+      consulta = consulta.where(infraestrutura_type: 'Servidor', infraestrutura_id: params[:servidor_id])
+    end
+    if params[:ponto_id].present?
+      consulta = consulta.where(infraestrutura_type: 'Ponto',
+                                infraestrutura_id: params[:ponto_id])
     end
     consulta
   end
@@ -105,6 +103,7 @@ class OsController < ApplicationController
   def os_params
     params.require(:os).permit(
       :aberto_por_id, :classificacao_id, :conexao_id, :descricao,
+      :infraestrutura_type, :infraestrutura_id,
       :pessoa_id, :responsavel_id, :tecnico_1_id, :tecnico_2_id, :tipo
     )
   end

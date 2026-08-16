@@ -41,6 +41,7 @@ Rails.application.routes.draw do # rubocop:disable Metrics/BlockLength
   resources :ip_redes
   resources :fibra_redes
   resources :fibra_caixas
+  resources :autenticacoes, only: [:index]
 
   resources :devices, only: [] do
     resources :device_backups, only: %i[index show], as: :backups do

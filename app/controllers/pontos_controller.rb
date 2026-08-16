@@ -2,6 +2,9 @@
 
 class PontosController < ApplicationController
   include ConexoesHelper
+  include TurboFrameIndex
+
+  escopavel_por :servidor_id
 
   authorize_resource
   before_action :set_ponto, only: %i[edit update destroy]
@@ -10,21 +13,11 @@ class PontosController < ApplicationController
   before_action :set_available_devices, only: %i[new edit create update]
 
   def index
-    @q = Ponto.ransack(params[:q])
-    @q.sorts = 'nome'
+    @q = aplicar_escopo(base_com_contadores).ransack(params[:q])
+    @q.sorts = 'nome' if @q.sorts.empty?
     @search_params = params[:q]&.to_unsafe_h || {}
 
-    @pagy, @pontos = pagy(
-      @q.result
-        .left_joins(:conexoes)
-        .select(
-          'pontos.*',
-          'COUNT(conexoes.id) AS conexoes_count',
-          'COUNT(CASE WHEN conexoes.bloqueado THEN 1 END) AS bloqueadas_count'
-        )
-        .group('pontos.id')
-        .includes(:servidor)
-    )
+    @pagy, @pontos = pagy(@q.result)
   end
 
   def snmp
@@ -112,6 +105,18 @@ class PontosController < ApplicationController
       :nome, :sistema, :tecnologia, :servidor_id, :ip, :ipv6, :device_id,
       :latitude, :longitude
     )
+  end
+
+  def base_com_contadores
+    Ponto
+      .left_joins(:conexoes)
+      .select(
+        'pontos.*',
+        'COUNT(conexoes.id) AS conexoes_count',
+        'COUNT(CASE WHEN conexoes.bloqueado THEN 1 END) AS bloqueadas_count'
+      )
+      .group('pontos.id')
+      .includes(:servidor)
   end
 
   def set_available_devices

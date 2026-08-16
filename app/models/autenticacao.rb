@@ -19,5 +19,5 @@
 class Autenticacao < ApplicationRecord
   self.table_name = 'radpostauth'
   self.primary_key = 'id'
-  belongs_to :conexao, primary_key: :username, foreign_key: :usuario
+  belongs_to :conexao, primary_key: :usuario, foreign_key: :username, inverse_of: :autenticacoes
 end

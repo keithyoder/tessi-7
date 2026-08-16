@@ -38,11 +38,6 @@ class ServidoresController < ApplicationController
     @search_params = params[:q]&.to_unsafe_h || {}
 
     @pagy, @pontos = pagy(@q.result)
-
-    @autenticacoes = @servidor
-      .autenticacoes
-      .order(authdate: :desc)
-      .page(params[:page])
   end
 
   def backup

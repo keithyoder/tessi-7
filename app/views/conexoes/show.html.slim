@@ -64,7 +64,7 @@ ul.nav.nav-pills
       = @conexao.pessoa.nome
       |  - 
       = @conexao.ip.to_s
-    = render 'autenticacoes/table'
+    = turbo_frame_tag "conexao_#{@conexao.id}_autenticacoes", src: autenticacoes_path(conexao_id: @conexao.id), loading: :lazy
   #trafego.tab-pane.fade[role="tabpanel" aria-labelledby="trafego-tab"]
     h3
       = @conexao.pessoa.nome

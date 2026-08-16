@@ -1,2 +1,2 @@
 #autenticacao.tab-pane.fade role="tabpanel" aria-labelledby="autenticacao-tab"
-  = render 'autenticacoes/table'
+  = turbo_frame_tag "servidor_#{servidor.id}_autenticacoes", src: autenticacoes_path(servidor_id: servidor.id), loading: :lazy

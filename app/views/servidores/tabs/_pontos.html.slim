@@ -1,2 +1,2 @@
 #pontos.tab-pane.fade role="tabpanel" aria-labelledby="pontos-tab"
-  = render 'pontos/table', exclude: "servidor"
+  = turbo_frame_tag "servidor_#{servidor.id}_pontos", src: pontos_path(servidor_id: servidor.id), loading: :lazy

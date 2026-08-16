@@ -1,0 +1,36 @@
+= simple_form_for(@fibra_caixa) do |f|
+  = f.error_notification
+  = f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present?
+
+  .card.border-0.shadow-sm.mb-4
+    .card-body.p-4
+      h6.text-muted.text-uppercase.fw-semibold.mb-3.small Identificação
+      .row.g-3
+        .col-12.col-md-4
+          = f.input :nome
+        .col-12.col-md-4
+          = f.association :fibra_rede, collection: FibraRede.order(:nome), label_method: :nome
+        .col-12.col-sm-6.col-md-2
+          = f.input :capacidade
+        .col-12.col-sm-6.col-md-2
+          = f.input :poste
+
+  .card.border-0.shadow-sm.mb-4
+    .card-body.p-4
+      h6.text-muted.text-uppercase.fw-semibold.mb-3.small Endereço
+      .row.g-3
+        .col-12.col-md-4
+          = f.input :fibra_cor, collection: FibraCaixa.fibra_cores.keys
+        .col-12.col-md-8
+          = f.association :logradouro, collection: Logradouro.includes(:bairro, :cidade, :estado).order(:nome), label_method: :endereco
+
+  = render partial: 'shared/localizacao', locals: { f:, titulo: f.object.nome.presence || 'Localização' }
+
+  .d-flex.justify-content-between.align-items-center
+    - if @fibra_caixa.persisted?
+      = link_to 'Cancelar', fibra_caixa_path(@fibra_caixa), class: 'btn btn-outline-secondary'
+    - else
+      = link_to 'Cancelar', fibra_caixas_path, class: 'btn btn-outline-secondary'
+    = button_tag class: 'btn btn-primary px-4'
+      i.bi.bi-check-lg.me-1
+      |  Salvar

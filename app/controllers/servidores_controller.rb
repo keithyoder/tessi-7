@@ -22,6 +22,7 @@ class ServidoresController < ApplicationController
   # GET /servidores/1.json
   def show
     @servidor = Servidor.find(params[:id])
+    @online = @servidor.ping?
 
     base = @servidor.pontos
       .left_joins(:conexoes)
@@ -34,8 +35,9 @@ class ServidoresController < ApplicationController
 
     @q = base.ransack(params[:q])
     @q.sorts = 'nome'
+    @search_params = params[:q]&.to_unsafe_h || {}
 
-    @pontos = @q.result.page(params[:page])
+    @pagy, @pontos = pagy(@q.result)
 
     @autenticacoes = @servidor
       .autenticacoes
@@ -141,7 +143,8 @@ class ServidoresController < ApplicationController
   def servidor_params
     params.require(:servidor).permit(
       :nome, :ip, :usuario, :senha, :api_porta, :ssh_porta, :snmp_porta,
-      :snmp_comunidade, :radius_porta, :radius_secret, :ativo
+      :snmp_comunidade, :radius_porta, :radius_secret, :ativo,
+      :latitude, :longitude
     )
   end
 end

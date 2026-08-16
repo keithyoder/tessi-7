@@ -25,6 +25,8 @@
         .col-12.col-sm-6.col-md-4
           = f.input :ipv6, as: :string, input_html: { placeholder: '::1' }
 
+  = render partial: 'shared/localizacao', locals: { f:, titulo: f.object.nome.presence || 'Localização' }
+
   .card.border-0.shadow-sm.mb-4
     .card-body.p-4
       h6.text-muted.text-uppercase.fw-semibold.mb-3.small Dispositivo

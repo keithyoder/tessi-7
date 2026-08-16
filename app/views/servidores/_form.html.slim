@@ -1,0 +1,51 @@
+= simple_form_for(@servidor) do |f|
+  = f.error_notification
+  = f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present?
+
+  .card.border-0.shadow-sm.mb-4
+    .card-body.p-4
+      h6.text-muted.text-uppercase.fw-semibold.mb-3.small Identificação
+      .row.g-3
+        .col-12.col-md-8
+          = f.input :nome, input_html: { autofocus: true, placeholder: 'Nome do concentrador' }
+        .col-12.col-md-4.d-flex.align-items-center
+          = f.input :ativo, as: :boolean, wrapper: :vertical_boolean, label: 'Ativo'
+
+  .card.border-0.shadow-sm.mb-4
+    .card-body.p-4
+      h6.text-muted.text-uppercase.fw-semibold.mb-3.small Acesso
+      .row.g-3
+        .col-12.col-sm-6.col-md-3
+          = f.input :ip, as: :string, input_html: { placeholder: '10.0.0.1' }
+        .col-12.col-sm-6.col-md-3
+          = f.input :api_porta, input_html: { placeholder: '8728' }
+        .col-12.col-sm-6.col-md-3
+          = f.input :ssh_porta, input_html: { placeholder: '22' }
+        .col-12.col-sm-6.col-md-3
+          = f.input :usuario, input_html: { placeholder: 'admin' }
+        .col-12.col-md-6
+          = f.input :senha, input_html: { autocomplete: 'new-password' }
+
+  .card.border-0.shadow-sm.mb-4
+    .card-body.p-4
+      h6.text-muted.text-uppercase.fw-semibold.mb-3.small SNMP e Radius
+      .row.g-3
+        .col-12.col-sm-6.col-md-3
+          = f.input :snmp_comunidade, label: 'Comunidade SNMP'
+        .col-12.col-sm-6.col-md-3
+          = f.input :snmp_porta, label: 'Porta SNMP', input_html: { placeholder: '161' }
+        .col-12.col-sm-6.col-md-3
+          = f.input :radius_secret, as: :password, label: 'Secret Radius', input_html: { autocomplete: 'new-password' }
+        .col-12.col-sm-6.col-md-3
+          = f.input :radius_porta, label: 'Porta Radius', input_html: { placeholder: '1812' }
+
+  = render partial: 'shared/localizacao', locals: { f:, titulo: f.object.nome.presence || 'Localização' }
+
+  .d-flex.justify-content-between.align-items-center
+    - if @servidor.persisted?
+      = link_to 'Cancelar', servidor_path(@servidor), class: 'btn btn-outline-secondary'
+    - else
+      = link_to 'Cancelar', servidores_path, class: 'btn btn-outline-secondary'
+    = button_tag class: 'btn btn-primary px-4'
+      i.bi.bi-check-lg.me-1
+      |  Salvar

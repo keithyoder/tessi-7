@@ -1,0 +1,90 @@
+#overview.tab-pane.fade.show.active role="tabpanel"
+  .row.g-4
+    / Access Information
+    .col-lg-6
+      .card.border-0.shadow-sm.h-100
+        .card-header.bg-white.border-bottom
+          h5.mb-0
+            i.bi.bi-lock.me-2
+            | Informações de Acesso
+        .card-body
+          .row.g-3
+            .col-12
+              .d-flex.justify-content-between.align-items-center
+                span.text-muted IP
+                = link_to "http://#{servidor.ip}", target: '_blank', class: "text-decoration-none fw-medium" do
+                  = servidor.ip
+                  i.bi.bi-box-arrow-up-right.ms-1.small
+
+            .col-12
+              .d-flex.justify-content-between.align-items-center
+                span.text-muted Usuário
+                code.bg-light.px-2.py-1.rounded = servidor.usuario
+
+            .col-12
+              .d-flex.justify-content-between.align-items-center
+                span.text-muted Senha
+                code.bg-light.px-2.py-1.rounded = servidor.senha.present? ? servidor.senha : "••••••••"
+
+            .col-12
+              .d-flex.justify-content-between.align-items-center
+                span.text-muted Porta API
+                span.fw-medium = servidor.api_porta
+
+            .col-12
+              .d-flex.justify-content-between.align-items-center
+                span.text-muted Porta SSH
+                span.fw-medium = servidor.ssh_porta
+
+    / SNMP & Radius
+    .col-lg-6
+      .card.border-0.shadow-sm.h-100
+        .card-header.bg-white.border-bottom
+          h5.mb-0
+            i.bi.bi-shield-lock.me-2
+            | SNMP e Radius
+        .card-body
+          .row.g-3
+            .col-12
+              .d-flex.justify-content-between.align-items-center
+                span.text-muted Comunidade SNMP
+                code.bg-light.px-2.py-1.rounded = servidor.snmp_comunidade
+
+            .col-12
+              .d-flex.justify-content-between.align-items-center
+                span.text-muted Porta SNMP
+                span.fw-medium = servidor.snmp_porta
+
+            .col-12
+              .d-flex.justify-content-between.align-items-center
+                span.text-muted Secret Radius
+                code.bg-light.px-2.py-1.rounded = servidor.radius_secret.present? ? servidor.radius_secret : "••••••••"
+
+            .col-12
+              .d-flex.justify-content-between.align-items-center
+                span.text-muted Porta Radius
+                span.fw-medium = servidor.radius_porta
+
+  - if online
+    .row.g-4.mt-4
+      .col-12
+        .card.border-0.shadow-sm
+          .card-header.bg-white.border-bottom
+            h5.mb-0
+              i.bi.bi-activity.me-2
+              | Status
+          .card-body
+            .row.g-3
+              - servidor.system_info&.each do |info, value|
+                .col-md-6
+                  .d-flex.justify-content-between.align-items-center
+                    span.text-muted = info.titleize
+                    span.fw-medium = value
+              .col-md-6
+                .d-flex.justify-content-between.align-items-center
+                  span.text-muted Usuários PPPoE
+                  span.fw-medium = servidor.ppp_users
+              .col-md-6
+                .d-flex.justify-content-between.align-items-center
+                  span.text-muted Usuários Hotspot
+                  span.fw-medium = servidor.hotspot_users

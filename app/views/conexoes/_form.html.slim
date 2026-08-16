@@ -88,21 +88,7 @@
           .col-12.col-md
             = f.input :complemento, placeholder: pessoa&.complemento, hint: false
 
-        .row.g-3.mt-1
-          .col-12.col-md-3
-            = f.input :latitude, required: false, input_html: { id: "conexao_latitude", data: { geolocation_target: "latitude", action: "input->geolocation#updateMap" } }
-          .col-12.col-md-3
-            = f.input :longitude, required: false, input_html: { id: "conexao_longitude", data: { geolocation_target: "longitude", action: "input->geolocation#updateMap" } }
-
-        .row.mt-3
-          .col
-            .map-container data-controller="map" data-map-latitude-value=map[:lat] data-map-longitude-value=map[:lng] data-map-zoom-value=map[:zoom] data-map-markers-value=conexao_map_markers(@conexao).to_json data-geolocation-target="map"
-
-        .row.mt-3
-          .col
-            button.btn.btn-secondary type="button" data-action="click->geolocation#getLocation"
-              i.bi.bi-geo-alt-fill aria-hidden="true"
-              |  GPS
+    = render partial: 'shared/localizacao', locals: { f:, titulo: pessoa&.nome || 'Localização' }
 
   / ── Actions ─────────────────────────────────────────────────────────
   .d-flex.gap-2.mt-3

@@ -109,7 +109,8 @@ class PontosController < ApplicationController
 
   def ponto_params
     params.require(:ponto).permit(
-      :nome, :sistema, :tecnologia, :servidor_id, :ip, :ipv6, :device_id
+      :nome, :sistema, :tecnologia, :servidor_id, :ip, :ipv6, :device_id,
+      :latitude, :longitude
     )
   end
 

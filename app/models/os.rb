@@ -77,6 +77,7 @@ class Os < ApplicationRecord
 
   scope :com_endereco_carregado, lambda {
     includes(
+      :infraestrutura,
       pessoa: [
         { logradouro: { bairro: { cidade: :estado } } },
         { bairro: { cidade: :estado } },
@@ -165,7 +166,15 @@ class Os < ApplicationRecord
 
   def endereco_estimado
     return conexao.endereco if conexao.present?
+    return infraestrutura.nome if infraestrutura.present?
 
     [pessoa.endereco.presence, pessoa.bairro&.nome_cidade_uf].compact.join(' - ')
+  end
+
+  def link_google_maps
+    return conexao.link_google_maps if conexao&.link_google_maps.present?
+    return nil unless infraestrutura&.latitude.present? && infraestrutura&.longitude.present?
+
+    "http://maps.google.com/maps?q=#{infraestrutura.latitude},#{infraestrutura.longitude}"
   end
 end

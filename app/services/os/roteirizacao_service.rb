@@ -40,7 +40,10 @@ class Os::RoteirizacaoService # rubocop:disable Style/ClassAndModuleChildren
 
   def carregar_medias_por_logradouro(os_list)
     logradouro_ids = os_list.filter_map do |os|
-      os.pessoa.logradouro_id unless coordenadas_proprias?(os.pessoa)
+      next if os.infraestrutura.present?
+      next if coordenadas_proprias?(os.conexao)
+
+      os.pessoa.logradouro_id
     end.uniq
 
     @media_por_logradouro = {}
@@ -59,19 +62,26 @@ class Os::RoteirizacaoService # rubocop:disable Style/ClassAndModuleChildren
       .each_with_object({}) { |(id, lat, lng, count), h| h[id] = [lat, lng, count] }
   end
 
-  def coordenadas_proprias?(pessoa)
-    pessoa.latitude.present? && pessoa.longitude.present?
+  def coordenadas_proprias?(registro)
+    registro.present? && registro.latitude.present? && registro.longitude.present?
   end
 
   def coordenadas_para(os)
-    pessoa = os.pessoa
-    return [pessoa.latitude, pessoa.longitude, 'pessoa'] if coordenadas_proprias?(pessoa)
+    return coordenadas_de_infraestrutura(os) if os.infraestrutura.present?
+    return [os.conexao.latitude, os.conexao.longitude, 'conexão'] if coordenadas_proprias?(os.conexao)
 
-    media = @media_por_logradouro[pessoa.logradouro_id]
+    media = @media_por_logradouro[os.pessoa.logradouro_id]
     return [nil, nil, nil] if media.nil?
 
     lat, lng, count = media
     [lat, lng, "aprox. média de #{count} conexão#{'ões' if count > 1} no logradouro"]
+  end
+
+  def coordenadas_de_infraestrutura(os)
+    infra = os.infraestrutura
+    return [nil, nil, nil] unless infra.latitude.present? && infra.longitude.present?
+
+    [infra.latitude, infra.longitude, 'infraestrutura']
   end
 
   def agrupar_por_proximidade(pontos)
@@ -131,12 +141,15 @@ class Os::RoteirizacaoService # rubocop:disable Style/ClassAndModuleChildren
   end
 
   def nomear_grupo(grupo)
-    municipio = grupo.map { |os| os.pessoa.cidade&.nome }.compact.first || 'Município desconhecido'
+    municipio = grupo.filter_map { |os| os.pessoa&.cidade&.nome }.first || 'Município desconhecido'
 
-    logradouros = grupo.filter_map { |os| os.pessoa.logradouro&.nome }
+    logradouros = grupo.filter_map { |os| os.pessoa&.logradouro&.nome }
     principais = logradouros.tally.sort_by { |_, count| -count }.first(2).map(&:first)
 
-    "#{municipio} - #{principais.join('/')}"
+    return "#{municipio} - #{principais.join('/')}" if principais.any?
+
+    infra_nomes = grupo.filter_map { |os| os.infraestrutura&.nome }.first(2)
+    infra_nomes.any? ? "#{municipio} - #{infra_nomes.join('/')}" : municipio
   end
 
   def pior_sla(grupo)

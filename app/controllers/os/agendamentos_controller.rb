@@ -13,6 +13,11 @@ class Os::AgendamentosController < ApplicationController # rubocop:disable Style
       .order(:tecnico_1_id, :fechamento, :agendado_em, :id)
 
     @concluidas, @pendentes = @os_do_dia.partition { |os| os.fechamento.present? }
+
+    respond_to do |format|
+      format.html
+      format.text { @grupos = agrupar_por_tecnico(@pendentes) }
+    end
   end
 
   def new
@@ -52,5 +57,22 @@ class Os::AgendamentosController < ApplicationController # rubocop:disable Style
     params[:data].present? ? Date.parse(params[:data]) : Date.current
   rescue ArgumentError
     Date.current
+  end
+
+  def agrupar_por_tecnico(lista)
+    lista
+      .group_by { |os| [os.tecnico_1_id, os.tecnico_2_id] }
+      .map do |_ids, grupo|
+        {
+          tecnicos: [grupo.first.tecnico_1&.primeiro_nome, grupo.first.tecnico_2&.primeiro_nome].compact.join(' / '),
+          municipio: municipio_predominante(grupo),
+          os_list: grupo
+        }
+      end
+  end
+
+  def municipio_predominante(lista)
+    lista.filter_map { |os| os.pessoa&.cidade&.nome }
+      .tally.max_by { |_nome, count| count }&.first || 'Município desconhecido'
   end
 end

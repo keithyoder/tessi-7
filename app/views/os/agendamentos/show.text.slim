@@ -1,0 +1,10 @@
+- linhas = []
+- @grupos.each do |grupo|
+  - linhas << "=== #{grupo[:tecnicos]} - #{grupo[:municipio]} ==="
+  - grupo[:os_list].each_with_index do |os, i|
+    - nome = os.pessoa&.nome || os.infraestrutura&.nome
+    - linhas << "#{i + 1}. #{nome} - #{os.endereco_estimado}"
+    - linhas << "   #{os.link_google_maps}" if os.link_google_maps.present?
+    - linhas << ""
+  - linhas << ""
+== linhas.join("\n")

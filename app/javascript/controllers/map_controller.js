@@ -28,7 +28,7 @@ export default class extends Controller {
   connect() {
     console.log("Map controller connected")
     console.log("Lat:", this.latitudeValue, "Lng:", this.longitudeValue)
-    
+
     requestAnimationFrame(() => {
       this.initializeMap()
     })
@@ -37,7 +37,7 @@ export default class extends Controller {
   initializeMap() {
     const rect = this.element.getBoundingClientRect()
     console.log("Element dimensions:", rect.width, rect.height)
-    
+
     if (rect.height === 0) {
       console.error("Map container has no height!")
       return
@@ -79,11 +79,11 @@ export default class extends Controller {
       }).addTo(this.map)
 
       this.addMarkers()
-      
+
       setTimeout(() => {
         this.map.invalidateSize()
       }, 100)
-      
+
     } catch (error) {
       console.error("Error initializing map:", error)
     }
@@ -102,7 +102,7 @@ export default class extends Controller {
     this.markersValue.forEach(marker => {
       const lat = parseFloat(marker.lat)
       const lng = parseFloat(marker.lng)
-      
+
       if (isNaN(lat) || isNaN(lng)) {
         console.error("Invalid marker coordinates:", marker)
         return
@@ -117,7 +117,7 @@ export default class extends Controller {
       if (marker.draggable) {
         // Create custom circular icon for draggable markers
         const customIcon = this.createCircleIcon(marker.color || '#007bff')
-        
+
         m = L.marker([lat, lng], {
           icon: customIcon,
           draggable: true,
@@ -126,6 +126,10 @@ export default class extends Controller {
 
         // Handle drag events
         this.makeDraggable(m, marker)
+
+        // Remember the draggable marker so setMarker() can move it later
+        // instead of creating a duplicate pin
+        this.marker = m
       } else if (marker.color) {
         // Non-draggable circle marker
         m = L.circleMarker([lat, lng], {
@@ -157,6 +161,28 @@ export default class extends Controller {
     }
   }
 
+  // Called by geolocation_controller whenever coordinates are set from
+  // somewhere other than dragging the pin itself (GPS, typing, pasting
+  // a coordinate or Google Maps link). Moves the existing draggable
+  // marker if there is one, or creates one for a record that didn't
+  // have coordinates yet — otherwise the map recenters with no pin
+  // visible until the page is reloaded.
+  setMarker(lat, lng) {
+    if (this.marker) {
+      this.marker.setLatLng([lat, lng])
+    } else {
+      const customIcon = this.createCircleIcon('#007bff')
+      this.marker = L.marker([lat, lng], {
+        icon: customIcon,
+        draggable: true,
+        title: 'Localização'
+      }).addTo(this.map)
+      this.makeDraggable(this.marker, { title: 'Localização' })
+    }
+
+    this.map.setView([lat, lng], this.zoomValue)
+  }
+
   createCircleIcon(color) {
     // Create a circular icon using HTML/CSS instead of SVG
     return L.divIcon({
@@ -169,8 +195,6 @@ export default class extends Controller {
   }
 
   makeDraggable(marker, markerData) {
-    let originalOpacity
-
     marker.on('dragstart', (e) => {
       console.log("Drag started")
       // Add dragging class for visual feedback
@@ -180,21 +204,16 @@ export default class extends Controller {
       }
     })
 
-    // marker.on('drag', (e) => {
-    //   const latlng = e.target.getLatLng()
-    //   console.log("Dragging to:", latlng.lat.toFixed(6), latlng.lng.toFixed(6))
-    // })
-
     marker.on('dragend', (e) => {
       const latlng = e.target.getLatLng()
       console.log("Drag ended at:", latlng.lat.toFixed(6), latlng.lng.toFixed(6))
-      
+
       // Remove dragging class
       const element = e.target.getElement()
       if (element) {
         element.classList.remove('dragging')
       }
-      
+
       // Update popup if it exists
       if (markerData.popup) {
         const newPopup = `${markerData.title || 'Localização'}<br>Latitude: ${latlng.lat.toFixed(6)}<br>Longitude: ${latlng.lng.toFixed(6)}<br><em>Arraste para ajustar</em>`

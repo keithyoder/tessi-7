@@ -25,6 +25,7 @@ Rails.application.routes.draw do # rubocop:disable Metrics/BlockLength
   end
   resources :bairros
   resources :logradouros
+  post 'localizacao/resolver_coordenadas', to: 'localizacao#resolver_coordenadas'
 
   # Network Infrastructure
   resources :servidores do

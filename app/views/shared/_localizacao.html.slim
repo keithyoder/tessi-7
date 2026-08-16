@@ -6,6 +6,10 @@
 .card.border-0.shadow-sm.mb-4
   .card-body.p-4[data-controller="geolocation"]
     h6.text-muted.text-uppercase.fw-semibold.mb-3.small Localização
+    .row.g-3.mb-2
+      .col-12
+        label.form-label.small.text-muted Colar coordenada ou link do Google Maps
+        input.form-control type="text" placeholder="-8.359412, -36.960812 ou https://maps.google.com/..." data-geolocation-target="colar" data-action="input->geolocation#parseInput"
     .row.g-3
       .col-12.col-md-3
         = f.input :latitude, required: false, input_html: { data: { geolocation_target: "latitude", action: "input->geolocation#updateMap" } }

@@ -43,7 +43,7 @@ class Os::RoteirizacaoService # rubocop:disable Style/ClassAndModuleChildren
       next if os.infraestrutura.present?
       next if coordenadas_proprias?(os.conexao)
 
-      os.pessoa.logradouro_id
+      os.pessoa&.logradouro_id
     end.uniq
 
     @media_por_logradouro = {}
@@ -66,22 +66,47 @@ class Os::RoteirizacaoService # rubocop:disable Style/ClassAndModuleChildren
     registro.present? && registro.latitude.present? && registro.longitude.present?
   end
 
+  # Tenta, em ordem, cada fonte possível de coordenadas — a primeira que
+  # encontrar algo ganha. Cada método abaixo retorna nil (não [nil,nil,nil])
+  # quando não tem resposta, para permitir cair para a próxima fonte.
   def coordenadas_para(os)
-    return coordenadas_de_infraestrutura(os) if os.infraestrutura.present?
-    return [os.conexao.latitude, os.conexao.longitude, 'conexão'] if coordenadas_proprias?(os.conexao)
+    coordenadas_de_infraestrutura(os) ||
+      coordenadas_de_conexao(os) ||
+      coordenadas_de_media_logradouro(os) ||
+      coordenadas_da_descricao(os) ||
+      [nil, nil, nil]
+  end
+
+  def coordenadas_de_infraestrutura(os)
+    return nil unless os.infraestrutura.present?
+
+    infra = os.infraestrutura
+    return nil unless infra.latitude.present? && infra.longitude.present?
+
+    [infra.latitude, infra.longitude, 'infraestrutura']
+  end
+
+  def coordenadas_de_conexao(os)
+    return nil unless coordenadas_proprias?(os.conexao)
+
+    [os.conexao.latitude, os.conexao.longitude, 'conexão']
+  end
+
+  def coordenadas_de_media_logradouro(os)
+    return nil if os.pessoa.blank?
 
     media = @media_por_logradouro[os.pessoa.logradouro_id]
-    return [nil, nil, nil] if media.nil?
+    return nil if media.nil?
 
     lat, lng, count = media
     [lat, lng, "aprox. média de #{count} conexão#{'ões' if count > 1} no logradouro"]
   end
 
-  def coordenadas_de_infraestrutura(os)
-    infra = os.infraestrutura
-    return [nil, nil, nil] unless infra.latitude.present? && infra.longitude.present?
+  def coordenadas_da_descricao(os)
+    resultado = GoogleMapsCoordenadasService.call(os.descricao)
+    return nil if resultado.nil?
 
-    [infra.latitude, infra.longitude, 'infraestrutura']
+    [resultado[:latitude], resultado[:longitude], 'link na descrição']
   end
 
   def agrupar_por_proximidade(pontos)

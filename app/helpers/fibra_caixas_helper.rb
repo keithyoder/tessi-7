@@ -9,6 +9,7 @@ module FibraCaixasHelper
       markers.append("markers=label:#{c.porta}|#{c.latitude},#{c.longitude}")
     end
     if fibra_caixa.latitude && fibra_caixa.longitude
+      pontos.append([fibra_caixa.longitude, fibra_caixa.latitude])
       markers.append ["markers=color:blue%7Clabel:C|#{fibra_caixa.latitude},#{fibra_caixa.longitude}"]
     end
     if markers.length.positive?

@@ -28,7 +28,8 @@ class LogradourosController < ApplicationController
 
   # GET /logradouros/1
   def show
-    @conexoes = @logradouro.conexoes.page(params[:page])
+    @pagy_conexoes, @conexoes = pagy(@logradouro.conexoes, page_param: :conexoes_page)
+    @conexoes_status = Conexao.status_conexoes(@conexoes)
     @params = params.permit(:tab)
   end
 

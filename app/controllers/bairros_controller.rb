@@ -23,7 +23,8 @@ class BairrosController < ApplicationController
     @logradouros = @q.result.order(:nome).page(params[:logradouros_page])
 
     @conexao_q = @bairro.conexoes.ransack(params[:conexao_q])
-    @conexoes = @conexao_q.result.order(:ip).page(params[:conexoes_page])
+    @pagy_conexoes, @conexoes = pagy(@conexao_q.result.order(:ip), page_param: :conexoes_page)
+    @conexoes_status = Conexao.status_conexoes(@conexoes)
 
     @params = conexoes_params(params)
   end

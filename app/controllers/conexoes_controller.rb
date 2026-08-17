@@ -43,10 +43,30 @@ class ConexoesController < ApplicationController
 
   # GET /conexoes/1
   # GET /conexoes/1.json
+  # GET /conexoes/1
+  # GET /conexoes/1.json
   def show
     @conexao = Conexao.find(params[:id])
+    @autenticacoes = @conexao.autenticacoes.order(authdate: :desc).page params[:page]
     @conexao_verificar_atributos = @conexao.conexao_verificar_atributos.order(:atributo)
     @conexao_enviar_atributos = @conexao.conexao_enviar_atributos.order(:atributo)
+
+    infraestruturas_relacionadas = [
+      @conexao.ponto,
+      @conexao.ponto&.servidor,
+      @conexao.caixa,
+      @conexao.caixa&.fibra_rede
+    ].compact
+
+    @os_abertas = Os.abertas
+      .where(conexao_id: @conexao.id)
+      .or(Os.abertas.where(infraestrutura: infraestruturas_relacionadas))
+      .includes(:classificacao, :infraestrutura)
+      .order(created_at: :desc)
+
+    @atendimentos_abertos = @conexao.atendimentos.abertos
+      .includes(:classificacao)
+      .order(created_at: :desc)
   end
 
   # GET /conexoes/new

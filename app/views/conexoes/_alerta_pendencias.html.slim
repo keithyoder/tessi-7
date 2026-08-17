@@ -1,0 +1,40 @@
+- if os_abertas.any? || atendimentos_abertos.any?
+  .row.mb-4
+    .col-12
+      .alert.alert-warning.border-0.shadow-sm.mb-3
+        .d-flex.align-items-center.gap-2
+          i.bi.bi-exclamation-triangle-fill.fs-5
+          strong Existem chamados abertos relacionados a esta conexão
+
+      .row.g-3
+        - os_abertas.each do |os|
+          .col-xxl-3.col-xl-4.col-lg-6.col-12
+            .card.border-start.border-warning.border-4.shadow-sm.h-100
+              .card-body.d-flex.justify-content-between.align-items-center.gap-3
+                div
+                  .d-flex.align-items-center.gap-2.mb-1
+                    span.badge.bg-secondary
+                      = os.infraestrutura.present? ? infraestrutura_tipo_humanizado(os.infraestrutura_type) : 'Conexão'
+                    strong = "OS ##{os.id}"
+                  .text-muted.small = os.tipo
+                  - if os.classificacao.present?
+                    .text-muted.small = os.classificacao.nome
+                  .text-muted.small.mt-1
+                    i.bi.bi-calendar3.me-1
+                    = os.created_at.strftime('%d/%m/%Y')
+                = link_to 'Abrir', os_path(os), class: 'btn btn-sm btn-outline-dark flex-shrink-0'
+
+        - atendimentos_abertos.each do |atendimento|
+          .col-xxl-3.col-xl-4.col-lg-6.col-12
+            .card.border-start.border-info.border-4.shadow-sm.h-100
+              .card-body.d-flex.justify-content-between.align-items-center.gap-3
+                div
+                  .d-flex.align-items-center.gap-2.mb-1
+                    span.badge.bg-info.text-dark Atendimento
+                    strong = "##{atendimento.id}"
+                  - if atendimento.classificacao.present?
+                    .text-muted.small = atendimento.classificacao.nome
+                  .text-muted.small.mt-1
+                    i.bi.bi-calendar3.me-1
+                    = atendimento.created_at.strftime('%d/%m/%Y')
+                = link_to 'Abrir', atendimento_path(atendimento), class: 'btn btn-sm btn-outline-dark flex-shrink-0'

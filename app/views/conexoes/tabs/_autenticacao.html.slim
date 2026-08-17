@@ -1,0 +1,4 @@
+#autenticacao.tab-pane.fade[role="tabpanel" aria-labelledby="autenticacao-tab"]
+  .card.border-0.shadow-sm
+    .card-body
+      = turbo_frame_tag "conexao_#{conexao.id}_autenticacoes", src: autenticacoes_path(conexao_id: conexao.id), loading: :lazy

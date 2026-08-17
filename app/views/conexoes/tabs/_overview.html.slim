@@ -1,0 +1,88 @@
+#overview.tab-pane.fade.show.active[role="tabpanel" aria-labelledby="overview-tab"]
+  .row.g-4
+    / Left column — stacked info cards
+    .col-lg-6
+      .d-flex.flex-column.gap-4
+        - if conexao.observacao.present?
+          .card.border-0.shadow-sm
+            .card-header.bg-white.border-bottom
+              h5.mb-0
+                i.bi.bi-chat-left-text.me-2
+                | Observação
+            .card-body
+              = simple_format(conexao.observacao)
+
+        .card.border-0.shadow-sm
+          .card-header.bg-white.border-bottom
+            h5.mb-0
+              i.bi.bi-lock.me-2
+              | Acesso & Radius
+          .card-body
+            .row.g-3
+              .col-12
+                .d-flex.justify-content-between.align-items-center
+                  span.text-muted Senha
+                  code.bg-light.px-2.py-1.rounded = conexao.senha
+
+              - if conexao.mac.present?
+                .col-12
+                  .d-flex.justify-content-between.align-items-center
+                    span.text-muted MAC
+                    code.bg-light.px-2.py-1.rounded = conexao.mac
+
+              - if conexao.ipv6.present?
+                .col-12
+                  .d-flex.justify-content-between.align-items-center
+                    span.text-muted IPv6
+                    span.fw-medium = conexao.ipv6
+
+              - if conexao.caixa.present?
+                .col-12
+                  .d-flex.justify-content-between.align-items-center
+                    span.text-muted Caixa de Atendimento
+                    = link_to "#{conexao.caixa.nome}, porta #{conexao.porta}", conexao.caixa, class: 'fw-medium text-decoration-none'
+
+              - if conexao.velocidade.present?
+                .col-12
+                  .d-flex.justify-content-between.align-items-center
+                    span.text-muted Velocidade Personalizada
+                    span.fw-medium = conexao.velocidade
+
+              .col-12
+                .d-flex.justify-content-between.align-items-center
+                  span.text-muted Auto Bloqueio
+                  span.fw-medium = conexao.auto_bloqueio.as_simnao.capitalize
+
+        .card.border-0.shadow-sm
+          .card-header.bg-white.border-bottom
+            h5.mb-0
+              i.bi.bi-file-text.me-2
+              | Contrato & Endereço
+          .card-body
+            .row.g-3
+              .col-12
+                .d-flex.justify-content-between.align-items-center
+                  span.text-muted Endereço
+                  - endereco = conexao.logradouro || conexao.pessoa.logradouro
+                  = link_to endereco&.endereco || conexao.pessoa.logradouro.endereco, endereco, class: 'fw-medium text-decoration-none text-end'
+
+              .col-12
+                .d-flex.justify-content-between.align-items-center
+                  span.text-muted Contrato
+                  - if conexao.contrato.present?
+                    = link_to "#{conexao.contrato.id} #{conexao.contrato.adesao}", conexao.contrato, class: 'fw-medium text-decoration-none'
+                  - else
+                    span.text-muted.fst-italic Sem contrato
+
+    / Right column — map
+    .col-lg-6
+      - if conexao.latitude.present? && conexao.longitude.present?
+        .card.border-0.shadow-sm.h-100
+          .card-body.p-0.d-flex.align-items-stretch
+            = link_to "http://maps.google.com/maps?q=#{conexao.latitude},#{conexao.longitude}&ll=#{conexao.latitude},#{conexao.longitude}&z=18", target: "_blank", class: "w-100" do
+              = image_tag "https://maps.googleapis.com/maps/api/staticmap?zoom=17&size=1000x400&center=#{conexao.latitude},#{conexao.longitude}&markers=|#{conexao.latitude},#{conexao.longitude}&key=#{Rails.application.credentials.google_maps_api_key}", alt: "Map", class: 'img-fluid rounded w-100 h-100', style: 'object-fit: cover;'
+      - else
+        .card.border-0.shadow-sm.h-100
+          .card-body.d-flex.align-items-center.justify-content-center.text-muted
+            i.bi.bi-geo-alt.me-2
+            | Sem coordenadas cadastradas

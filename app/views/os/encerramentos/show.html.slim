@@ -11,8 +11,12 @@
   .card-body
     .row.g-3
       .col-12.col-md-6
-        .small.text-muted Cliente
-        .fw-semibold= @os.pessoa.nome
+        - if @os.pessoa.present?
+          .small.text-muted Cliente
+          .fw-semibold= @os.pessoa.nome
+        - else
+          .small.text-muted= infraestrutura_tipo_humanizado(@os.infraestrutura_type)
+          .fw-semibold= @os.infraestrutura.nome
       .col-12.col-md-3
         .small.text-muted Tipo
         span.badge.bg-secondary= @os.tipo

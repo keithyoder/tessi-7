@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class LocalizacaoController < ApplicationController
+  skip_authorization_check
+
   # POST /localizacao/resolver_coordenadas
   #
   # Recebe um texto qualquer (link colado, mensagem do WhatsApp, endereço)

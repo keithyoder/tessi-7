@@ -138,4 +138,8 @@ class Servidor < ApplicationRecord
       'danger'
     end
   end
+
+  def to_s
+    nome
+  end
 end

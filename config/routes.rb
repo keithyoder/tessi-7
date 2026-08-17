@@ -42,6 +42,7 @@ Rails.application.routes.draw do # rubocop:disable Metrics/BlockLength
   resources :ip_redes
   resources :fibra_redes
   resources :fibra_caixas
+  resources :enlaces
   resources :autenticacoes, only: [:index]
 
   resources :devices, only: [] do
@@ -129,7 +130,6 @@ Rails.application.routes.draw do # rubocop:disable Metrics/BlockLength
     end
   end
   resources :classificacoes, except: [:show]
-  resources :clasificacoes
   resources :excecoes
 
   # SAC

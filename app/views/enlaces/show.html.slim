@@ -1,0 +1,67 @@
+.d-flex.justify-content-between.align-items-start.mb-4
+  div
+    h1.h3.mb-1 = @enlace.to_s
+    span.badge.bg-secondary = @enlace.tecnologia
+  .d-flex.gap-2
+    = edit_button(@enlace)
+    = delete_button(@enlace)
+    = back_button(enlaces_path)
+
+.row.g-3.mb-4
+  .col-md-3
+    .card.h-100
+      .card-body
+        .text-muted.small Tecnologia
+        .fs-5.fw-semibold = @enlace.tecnologia
+
+  .col-md-3
+    .card.h-100
+      .card-body
+        - if @enlace.tecnologia_Radio?
+          .text-muted.small Canal
+          .fs-5.fw-semibold = @enlace.canal.presence || '—'
+        - else
+          .text-muted.small Cor da fibra
+          .fs-5.fw-semibold = @enlace.fibra_cor&.capitalize || '—'
+
+  .col-md-3
+    .card.h-100
+      .card-body
+        .text-muted.small Capacidade
+        .fs-5.fw-semibold = @enlace.capacidade_formatada || '—'
+
+  .col-md-3
+    .card.h-100
+      .card-body
+        .text-muted.small Sinal normal
+        .fs-5.fw-semibold = @enlace.sinal_normal_formatado || '—'
+
+.row.g-3.mb-4
+  - [@enlace.ponta_a, @enlace.ponta_b].each do |extremidade|
+    .col-md-6
+      .card.h-100
+        .card-header.fw-semibold
+          = "Ponta #{extremidade.posicao}"
+        .card-body
+          - if extremidade.infraestrutura
+            dl.row.mb-0
+              dt.col-sm-4 Infraestrutura
+              dd.col-sm-8
+                = link_to extremidade.infraestrutura.to_s, polymorphic_path(extremidade.infraestrutura)
+                span.badge.bg-light.text-dark.ms-2 = extremidade.infraestrutura_type
+
+              - if extremidade.ip.present?
+                dt.col-sm-4 IP
+                dd.col-sm-8 = extremidade.ip
+
+              - if extremidade.device
+                dt.col-sm-4 Device
+                dd.col-sm-8 = extremidade.device.mac
+          - else
+            p.text-muted.mb-0 Nenhuma infraestrutura vinculada.
+
+- if @enlace.observacoes.present?
+  .card
+    .card-header.fw-semibold Observações
+    .card-body
+      p.mb-0 = simple_format(@enlace.observacoes)

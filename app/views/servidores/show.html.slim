@@ -87,6 +87,17 @@ ul.nav.nav-tabs.mb-4 role="tablist"
 
   li.nav-item role="presentation"
     button.nav-link[
+      id="enlaces-tab"
+      data-bs-toggle="tab"
+      data-bs-target="#enlaces"
+      type="button"
+      role="tab"
+    ]
+      i.bi.bi-link-45deg.me-2
+      | Enlaces
+
+  li.nav-item role="presentation"
+    button.nav-link[
       id="autenticacao-tab"
       data-bs-toggle="tab"
       data-bs-target="#autenticacao"
@@ -96,8 +107,21 @@ ul.nav.nav-tabs.mb-4 role="tablist"
       i.bi.bi-shield-lock.me-2
       | Autenticação
 
+  li.nav-item role="presentation"
+    button.nav-link[
+      id="os-tab"
+      data-bs-toggle="tab"
+      data-bs-target="#os"
+      type="button"
+      role="tab"
+    ]
+      i.bi.bi-clipboard-check.me-2
+      | Ordens de Serviço
+
 / Tab Content
 .tab-content
   = render 'servidores/tabs/overview', servidor: @servidor, online: @online
   = render 'servidores/tabs/pontos', servidor: @servidor
+  = render 'servidores/tabs/enlaces', servidor: @servidor
   = render 'servidores/tabs/autenticacao', servidor: @servidor
+  = render 'servidores/tabs/os', servidor: @servidor

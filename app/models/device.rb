@@ -36,7 +36,9 @@ class Device < ApplicationRecord
   belongs_to :equipamento, optional: true
   has_many :backups, class_name: 'DeviceBackup', dependent: :destroy
 
-  validates :deviceable_type, inclusion: { in: %w[Ponto Conexao] }
+  scope :unlinked, -> { where(deviceable_id: nil) }
+
+  validates :deviceable_type, inclusion: { in: %w[Ponto Conexao EnlaceExtremidade] }
   validates :mac, uniqueness: true, allow_nil: true
 
   def ip
@@ -67,6 +69,11 @@ class Device < ApplicationRecord
 
   def effective_password
     senha.presence || default_password
+  end
+
+  def label_for_select
+    parts = [mac, equipamento&.modelo].compact
+    parts.any? ? parts.join(' · ') : "Device ##{id}"
   end
 
   private

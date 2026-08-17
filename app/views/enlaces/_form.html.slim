@@ -1,0 +1,65 @@
+= simple_form_for @enlace do |f|
+  = f.error_notification
+
+  .row.g-3[data-controller="enlace"]
+    .col-md-3
+      = f.input :tecnologia, collection: Enlace.tecnologias.keys, include_blank: false, \
+          input_html: { data: { enlace_target: 'tecnologia', action: 'change->enlace#alternar' } }
+
+    .col-md-3[data-enlace-target="wrapperCanal"]
+      = f.input :canal, label: 'Canal', required: false
+
+    .col-md-3[data-enlace-target="wrapperFibraCor"]
+      = f.input :fibra_cor, collection: Enlace.fibra_cores.keys, include_blank: 'Nenhuma', required: false
+
+    .col-md-3
+      = f.input :capacidade_bytes, label: 'Capacidade (bytes/s)', hint: 'ex: 1000000000 = 1 Gbps', required: false
+
+    .col-md-3
+      = f.input :sinal_normal, label: 'Sinal normal (dBm)', required: false
+
+  = f.input :observacoes, as: :text, input_html: { rows: 3 }, required: false
+
+  hr.my-4
+
+  = f.simple_fields_for :extremidades do |ef|
+    - tipo_atual = ef.object.infraestrutura_type || 'Servidor'
+    .card.mb-3
+      .card-header.fw-semibold
+        = ef.object.posicao_A? ? 'Ponta A' : 'Ponta B'
+      .card-body[data-controller="extremidade"]
+        = ef.hidden_field :posicao
+        = ef.hidden_field :infraestrutura_type, data: { extremidade_target: 'tipoHidden' }
+
+        .row.g-3
+          .col-md-4
+            label.form-label Tipo de infraestrutura
+            select.form-select data-extremidade-target="tipo" data-action="change->extremidade#alternar"
+              option value="Servidor" selected=(tipo_atual == 'Servidor') Servidor
+              option value="Ponto" selected=(tipo_atual == 'Ponto') Ponto
+
+          .col-md-8[data-extremidade-target="wrapperServidor"]
+            label.form-label Servidor
+            select.form-select id="#{ef.object_name}_infra_servidor" name="#{ef.object_name}[infraestrutura_id]" data-extremidade-target="servidor" disabled=(tipo_atual != 'Servidor')
+              option value=""
+              - Servidor.order(:nome).each do |servidor|
+                option value=servidor.id selected=(tipo_atual == 'Servidor' && ef.object.infraestrutura_id == servidor.id)
+                  = servidor.nome
+
+          .col-md-8[data-extremidade-target="wrapperPonto"]
+            label.form-label Ponto
+            select.form-select id="#{ef.object_name}_infra_ponto" name="#{ef.object_name}[infraestrutura_id]" data-extremidade-target="ponto" disabled=(tipo_atual != 'Ponto')
+              option value=""
+              - Ponto.order(:nome).each do |ponto|
+                option value=ponto.id selected=(tipo_atual == 'Ponto' && ef.object.infraestrutura_id == ponto.id)
+                  = ponto.nome
+
+          .col-md-6
+            = ef.input :ip, as: :string, required: false
+
+          .col-md-6
+            = ef.input :device_id, collection: @available_devices, label_method: :label_for_select, value_method: :id, include_blank: 'Nenhum', required: false
+
+  .mt-4
+    = f.button :submit, class: 'btn btn-primary'
+    = link_to 'Cancelar', enlaces_path, class: 'btn btn-link'

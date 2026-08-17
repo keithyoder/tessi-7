@@ -64,7 +64,7 @@ class Ability
   # Level 2 technician
   def tecnico_n2_permissions
     can :update, [Cidade, Ponto, Servidor]
-    can %i[create update], [FibraRede, FibraCaixa, IpRede, Conexao, Equipamento]
+    can %i[create update], [FibraRede, FibraCaixa, IpRede, Conexao, Equipamento, Enlace]
     can :destroy, Conexao
     can %i[backup backups], Servidor
     can :download, DeviceBackup

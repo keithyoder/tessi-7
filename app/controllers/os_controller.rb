@@ -6,7 +6,7 @@ class OsController < ApplicationController
   before_action :set_os, only: %i[show edit update destroy]
   before_action :set_params_for_legacy_header, only: %i[show]
 
-  escopavel_por :pessoa_id, :conexao_id, :servidor_id, :ponto_id
+  escopavel_por :pessoa_id, :conexao_id, :servidor_id, :ponto_id, :enlace_id
 
   authorize_resource
 

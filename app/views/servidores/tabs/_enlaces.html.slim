@@ -1,0 +1,2 @@
+.tab-pane.fade[id="enlaces" role="tabpanel"]
+  = turbo_frame_tag "servidor_#{@servidor.id}_enlaces", src: enlaces_path(servidor_id: @servidor.id), loading: 'lazy'

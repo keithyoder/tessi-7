@@ -40,13 +40,16 @@ class Enlace::ProvisionarDispositivosService # rubocop:disable Style/ClassAndMod
   attr_reader :enlace
 
   def provisionar(extremidade)
-    return :ja_existia if extremidade.device.present?
     return :sem_ip if extremidade.ip.blank?
 
-    device = Devices::Ubiquiti.new(deviceable: extremidade)
-    device.atualizar_snmp! ? :criado : :inacessivel
+    device = extremidade.device || Devices::Ubiquiti.new(deviceable: extremidade)
+    criacao = device.new_record?
+
+    return :inacessivel unless device.atualizar_snmp!
+
+    criacao ? :criado : :atualizado
   rescue ActiveRecord::RecordInvalid => e
-    Rails.logger.warn("[Enlace ##{enlace.id}] falha ao criar device para extremidade ##{extremidade.id}: #{e.message}")
+    Rails.logger.warn("[Enlace ##{enlace.id}] falha ao criar/atualizar device para extremidade ##{extremidade.id}: #{e.message}")
     :mac_duplicado
   end
 end

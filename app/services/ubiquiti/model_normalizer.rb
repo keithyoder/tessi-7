@@ -24,7 +24,7 @@ module Ubiquiti
       match = PATTERNS.find { |p| snmp_modelo.match?(p[:match]) }
 
       if match
-        match[:equipamento]
+        match[:modelo]
       else
         Rails.logger.warn("Modelo SNMP desconhecido: #{snmp_modelo}")
         nil

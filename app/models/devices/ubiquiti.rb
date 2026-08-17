@@ -59,7 +59,7 @@ module Devices
       attrs[:conectados] = info[:conectados].to_i if info[:conectados].present?
 
       eq = ::Ubiquiti::ModelNormalizer.resolve(info[:modelo])
-      attrs[:equipamento] = eq if eq
+      attrs[:equipamento] = Equipamento.find_by(modelo: eq) if eq
 
       update!(attrs)
     rescue SNMP::RequestTimeout, Errno::EHOSTUNREACH => e

@@ -43,7 +43,8 @@ module Devices
     # Accessors for properties
     store_accessor :properties,
                    :signal, :noise, :ssid, :frequencia, :canal_tamanho,
-                   :conectados, :qualidade_airmax, :station_ccq
+                   :conectados, :qualidade_airmax, :station_ccq,
+                   :distancia, :tx_rate, :rx_rate, :modo
 
     def atualizar_snmp!
       info = ::Ubiquiti::SnmpReader.new(self).coletar_informacoes
@@ -57,6 +58,10 @@ module Devices
       attrs[:frequencia] = info[:frequencia] if info[:frequencia].present?
       attrs[:canal_tamanho] = info[:canal_tamanho].to_i if info[:canal_tamanho].present?
       attrs[:conectados] = info[:conectados].to_i if info[:conectados].present?
+      attrs[:distancia] = info[:distancia].to_f if info[:distancia].present?
+      attrs[:tx_rate] = info[:tx_rate].to_i if info[:tx_rate].present?
+      attrs[:rx_rate] = info[:rx_rate].to_i if info[:rx_rate].present?
+      attrs[:modo] = info[:modo] if info[:modo].present?
 
       eq = ::Ubiquiti::ModelNormalizer.resolve(info[:modelo])
       attrs[:equipamento] = Equipamento.find_by(modelo: eq) if eq

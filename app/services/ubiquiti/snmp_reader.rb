@@ -8,12 +8,18 @@ module Ubiquiti
 
     OIDS = {
       uptime: 'SNMPv2-MIB::sysUpTime.0',
+      modo_radio: 'SNMPv2-SMI::enterprises.41112.1.4.1.1.2.1',
       ssid: 'SNMPv2-SMI::enterprises.41112.1.4.5.1.2.1',
       frequencia: 'SNMPv2-SMI::enterprises.41112.1.4.1.1.4.1',
       canal_tamanho: 'SNMPv2-SMI::enterprises.41112.1.4.5.1.14.1',
       conectados: 'SNMPv2-SMI::enterprises.41112.1.4.5.1.15.1',
       qualidade_airmax: 'SNMPv2-SMI::enterprises.41112.1.4.6.1.3.1',
       station_ccq: 'SNMPv2-SMI::enterprises.41112.1.4.5.1.7.1',
+      signal: 'SNMPv2-SMI::enterprises.41112.1.4.5.1.5.1',
+      noise: 'SNMPv2-SMI::enterprises.41112.1.4.5.1.8.1',
+      distancia: 'SNMPv2-SMI::enterprises.41112.1.4.1.1.7.1',
+      tx_rate: 'SNMPv2-SMI::enterprises.41112.1.4.5.1.9.1',
+      rx_rate: 'SNMPv2-SMI::enterprises.41112.1.4.5.1.10.1',
       modelo: '1.2.840.10036.3.1.2.1.3.5',
       firmware: '1.2.840.10036.3.1.2.1.4.5',
       sys_descr: '1.3.6.1.2.1.1.1.0',
@@ -22,6 +28,7 @@ module Ubiquiti
     }.freeze
 
     COMMUNITY = Provisioner::SNMP_COMMUNITY
+    MODOS_RADIO = { '1' => 'station', '2' => 'ap', '3' => 'ap-repeater', '4' => 'ap-wds' }.freeze
 
     attr_reader :device
 
@@ -36,6 +43,7 @@ module Ubiquiti
         result[:modelo] = resolve_modelo(result)
         result[:mac] = resolve_mac(result)
         result[:firmware] = resolve_firmware(result)
+        result[:modo] = resolve_modo(result)
         result
       end
     end
@@ -109,11 +117,11 @@ module Ubiquiti
         oid_key = OIDS.key(vb.name.to_s)
         next unless oid_key
 
-        result[oid_key] = if %i[mac mac_ubnt].include?(oid_key)
-                            vb.value
-                          else
-                            vb.value.to_s
-                          end
+        if %i[mac mac_ubnt].include?(oid_key)
+          result[oid_key] = vb.value
+        elsif valid_snmp_value?(vb.value.to_s)
+          result[oid_key] = vb.value.to_s
+        end
       end
       result
     end

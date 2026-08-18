@@ -2,6 +2,8 @@
 
 module Ubiquiti
   class SnmpReader
+    WIRELESS_IFDESCR_PATTERN = /\A(ath|wifi|wlan)/i
+
     require 'snmp'
 
     OIDS = {
@@ -117,7 +119,16 @@ module Ubiquiti
     end
 
     def resolve_mac(result)
-      format_mac_value(result[:mac]) || format_mac_value(result[:mac_ubnt])
+      format_mac_value(mac_interface_sem_fio)
+    end
+
+    def mac_interface_sem_fio
+      with_snmp_manager do |manager|
+        manager.walk(['1.3.6.1.2.1.2.2.1.2', '1.3.6.1.2.1.2.2.1.6']) do |descr_vb, mac_vb|
+          return mac_vb.value if descr_vb.value.to_s.match?(WIRELESS_IFDESCR_PATTERN)
+        end
+      end
+      nil
     end
 
     def format_mac_value(value)

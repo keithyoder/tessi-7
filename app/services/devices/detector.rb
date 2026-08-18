@@ -9,7 +9,7 @@ module Devices
     require 'snmp'
 
     SYS_DESCR_OID = '1.3.6.1.2.1.1.1.0'
-    COMMUNITY = Ubiquiti::Provisioner::SNMP_COMMUNITY
+    COMMUNITY = Devices::Ubiquiti::Provisioner::SNMP_COMMUNITY
 
     # Ordem importa: o primeiro padrão que casar vence.
     PADROES = [
@@ -31,7 +31,7 @@ module Devices
       descr = sys_descr
       return nil if descr.nil?
 
-      PADROES.find { |p| descr.match?(p[:match]) }&.fetch(:classe)
+      PADROES.find { |p| descr.match?(p[:match]) }&.fetch(:classe)&.safe_constantize
     end
 
     private

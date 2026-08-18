@@ -131,7 +131,8 @@ class Devices::Ubiquiti::SnmpReader # rubocop:disable Style/ClassAndModuleChildr
   end
 
   def resolve_mac(result)
-    format_mac_value(mac_interface_sem_fio)
+    mac = format_mac_value(mac_interface_sem_fio)
+    mac || format_mac_value(result[:mac_ubnt])
   end
 
   def mac_interface_sem_fio

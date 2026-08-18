@@ -67,6 +67,33 @@ class Enlace < ApplicationRecord
     "#{ponta_a&.infraestrutura} ↔ #{ponta_b&.infraestrutura}"
   end
 
+  def canal_atual
+    device = ponta_a&.device
+    return nil if device&.frequencia.blank?
+
+    texto = "#{device.frequencia} MHz"
+    texto += " (#{device.canal_tamanho})" if device.canal_tamanho.present?
+    texto
+  end
+
+  def ssid_atual
+    ponta_a&.device&.ssid
+  end
+
+  def distancia_atual
+    metros = ponta_a&.device&.distancia
+    return nil if metros.blank?
+
+    metros >= 1000 ? "#{(metros / 1000.0).round(2)} km" : "#{metros.round} m"
+  end
+
+  def taxa_atual
+    device = ponta_a&.device
+    return nil if device.blank? || (device.tx_rate.blank? && device.rx_rate.blank?)
+
+    "#{formatar_mbps(device.tx_rate)} / #{formatar_mbps(device.rx_rate)}"
+  end
+
   private
 
   def format_number(valor)
@@ -84,5 +111,11 @@ class Enlace < ApplicationRecord
   def limpar_campo_irrelevante
     self.canal = nil if tecnologia_Fibra?
     self.fibra_cor = nil if tecnologia_Radio?
+  end
+
+  def formatar_mbps(bps)
+    return '—' if bps.blank?
+
+    "#{(bps.to_f / 1_000_000).round} Mbps"
   end
 end

@@ -42,5 +42,11 @@ class EnlaceExtremidade < ApplicationRecord
     reload_device
   end
 
+  def sinal_atual
+    return nil if device&.signal.blank?
+
+    "#{device.signal} dBm"
+  end
+
   delegate :to_s, to: :infraestrutura
 end

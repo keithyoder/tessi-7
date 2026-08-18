@@ -8,29 +8,47 @@
     = back_button(enlaces_path)
 
 .row.g-3.mb-4
-  .col-md-3
+  .col-md-3.col-6
     .card.h-100
       .card-body
         .text-muted.small Tecnologia
         .fs-5.fw-semibold = @enlace.tecnologia
 
-  .col-md-3
-    .card.h-100
-      .card-body
-        - if @enlace.tecnologia_Radio?
+  - if @enlace.tecnologia_Radio?
+    .col-md-3.col-6
+      .card.h-100
+        .card-body
           .text-muted.small Canal
-          .fs-5.fw-semibold = @enlace.canal.presence || '—'
-        - else
+          .fs-5.fw-semibold = @enlace.canal_atual.presence || '—'
+    .col-md-3.col-6
+      .card.h-100
+        .card-body
+          .text-muted.small SSID
+          .fs-5.fw-semibold = @enlace.ssid_atual.presence || '—'
+    .col-md-3.col-6
+      .card.h-100
+        .card-body
+          .text-muted.small Distância
+          .fs-5.fw-semibold = @enlace.distancia_atual.presence || '—'
+    .col-md-3.col-6
+      .card.h-100
+        .card-body
+          .text-muted.small Taxa (TX / RX)
+          .fs-5.fw-semibold = @enlace.taxa_atual.presence || '—'
+  - else
+    .col-md-3.col-6
+      .card.h-100
+        .card-body
           .text-muted.small Cor da fibra
           .fs-5.fw-semibold = @enlace.fibra_cor&.capitalize || '—'
 
-  .col-md-3
+  .col-md-3.col-6
     .card.h-100
       .card-body
         .text-muted.small Capacidade
         .fs-5.fw-semibold = @enlace.capacidade_formatada || '—'
 
-  .col-md-3
+  .col-md-3.col-6
     .card.h-100
       .card-body
         .text-muted.small Sinal normal
@@ -48,15 +66,24 @@
               dt.col-sm-4 Infraestrutura
               dd.col-sm-8
                 = link_to extremidade.infraestrutura.to_s, polymorphic_path(extremidade.infraestrutura)
-                span.badge.bg-light.text-dark.ms-2 = extremidade.infraestrutura_type
+                span.badge.bg-light.text-dark.ms-2 = infraestrutura_tipo_humanizado(extremidade.infraestrutura_type)
 
               - if extremidade.ip.present?
                 dt.col-sm-4 IP
-                dd.col-sm-8 = extremidade.ip
+                dd.col-sm-8
+                  = link_to extremidade.ip.to_s, "https://#{extremidade.ip}", target: '_blank', rel: 'noopener noreferrer'
+                  i.bi.bi-box-arrow-up-right.ms-1.small
 
               - if extremidade.device
-                dt.col-sm-4 Device
+                dt.col-sm-4 Equipamento
+                dd.col-sm-8 = extremidade.device.equipamento&.descricao || 'Não identificado'
+
+                dt.col-sm-4 MAC
                 dd.col-sm-8 = extremidade.device.mac
+
+              - if extremidade.sinal_atual
+                dt.col-sm-4 Sinal
+                dd.col-sm-8 = extremidade.sinal_atual
           - else
             p.text-muted.mb-0 Nenhuma infraestrutura vinculada.
 

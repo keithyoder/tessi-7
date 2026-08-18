@@ -139,6 +139,10 @@ module Ubiquiti
       nil
     end
 
+    def resolve_modo(result)
+      MODOS_RADIO[result[:modo_radio]]
+    end
+
     def format_mac_value(value)
       bytes = value.to_s.bytes
       return nil if bytes.length != 6

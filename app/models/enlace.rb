@@ -4,15 +4,15 @@
 #
 # Table name: enlaces
 #
-#  id                :bigint           not null, primary key
-#  canal             :string
-#  capacidade_bytes  :bigint
-#  fibra_cor         :integer
-#  observacoes       :text
-#  sinal_normal      :decimal(5, 2)
-#  tecnologia        :integer          not null
-#  created_at        :datetime         not null
-#  updated_at        :datetime         not null
+#  id               :bigint           not null, primary key
+#  canal            :string
+#  capacidade_bytes :bigint
+#  fibra_cor        :integer
+#  observacoes      :text
+#  sinal_normal     :decimal(5, 2)
+#  tecnologia       :integer          not null
+#  created_at       :datetime         not null
+#  updated_at       :datetime         not null
 #
 class Enlace < ApplicationRecord
   include Ransackable

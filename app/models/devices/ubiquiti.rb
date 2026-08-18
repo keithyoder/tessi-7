@@ -5,7 +5,7 @@
 # Table name: devices
 #
 #  id              :bigint           not null, primary key
-#  deviceable_type :string           not null
+#  deviceable_type :string
 #  firmware        :string
 #  last_seen_at    :datetime
 #  mac             :string
@@ -15,7 +15,7 @@
 #  usuario         :string
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
-#  deviceable_id   :bigint           not null
+#  deviceable_id   :bigint
 #  equipamento_id  :bigint
 #
 # Indexes
@@ -31,7 +31,6 @@
 #
 #  fk_rails_...  (equipamento_id => equipamentos.id)
 #
-# app/models/devices/ubiquiti.rb
 module Devices
   class Ubiquiti < Device
     PASSWORD_GROUPS = {
@@ -47,7 +46,7 @@ module Devices
                    :distancia, :tx_rate, :rx_rate, :modo
 
     def atualizar_snmp!
-      info = ::Ubiquiti::SnmpReader.new(self).coletar_informacoes
+      info = SnmpReader.new(self).coletar_informacoes
 
       attrs = { last_seen_at: Time.current }
       attrs[:mac] = info[:mac] if info[:mac].present?

@@ -4,14 +4,24 @@
 #
 # Table name: enlace_extremidades
 #
-#  id                    :bigint           not null, primary key
-#  infraestrutura_type   :string           not null
-#  ip                    :inet
-#  posicao               :integer          not null
-#  created_at            :datetime         not null
-#  updated_at            :datetime         not null
-#  enlace_id             :bigint           not null
-#  infraestrutura_id     :bigint           not null
+#  id                  :bigint           not null, primary key
+#  infraestrutura_type :string           not null
+#  ip                  :inet
+#  posicao             :integer          not null
+#  created_at          :datetime         not null
+#  updated_at          :datetime         not null
+#  enlace_id           :bigint           not null
+#  infraestrutura_id   :bigint           not null
+#
+# Indexes
+#
+#  index_enlace_extremidades_on_enlace_id              (enlace_id)
+#  index_enlace_extremidades_on_enlace_id_and_posicao  (enlace_id,posicao) UNIQUE
+#  index_enlace_extremidades_on_infraestrutura         (infraestrutura_type,infraestrutura_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (enlace_id => enlaces.id)
 #
 class EnlaceExtremidade < ApplicationRecord
   include Ransackable

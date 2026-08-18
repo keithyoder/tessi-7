@@ -65,8 +65,8 @@ class Conexao < ApplicationRecord
   has_many :faturas, through: :contrato
   has_many :conexao_enviar_atributos, dependent: :delete_all
   has_many :conexao_verificar_atributos, dependent: :delete_all
-  has_many :autenticacoes, primary_key: :usuario, foreign_key: :username, dependent: :nullify, inverse_of: :conexao
-  has_many :rad_accts, primary_key: :usuario, foreign_key: :username, dependent: :nullify
+  has_many :autenticacoes, primary_key: :usuario, foreign_key: :username, dependent: :nothing, inverse_of: :conexao
+  has_many :rad_accts, primary_key: :usuario, foreign_key: :username, dependent: :nothing
   has_many :os, dependent: :nullify
   has_many :atendimentos, dependent: :nullify
   belongs_to :equipamento, optional: true

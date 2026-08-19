@@ -3,7 +3,7 @@
 class EnlacesController < ApplicationController
   include TurboFrameIndex
 
-  escopavel_por :servidor_id
+  escopavel_por :servidor_id, :ponto_id
 
   authorize_resource
   before_action :set_enlace, only: %i[show edit update destroy]
@@ -13,9 +13,14 @@ class EnlacesController < ApplicationController
 
   def index
     consulta = Enlace.distinct
+
     if params[:servidor_id].present?
       consulta = consulta.joins(:extremidades).where(
         enlace_extremidades: { infraestrutura_type: 'Servidor', infraestrutura_id: params[:servidor_id] }
+      )
+    elsif params[:ponto_id].present?
+      consulta = consulta.joins(:extremidades).where(
+        enlace_extremidades: { infraestrutura_type: 'Ponto', infraestrutura_id: params[:ponto_id] }
       )
     end
 

@@ -112,8 +112,8 @@ class Devices::AirFiber::SnmpReader # rubocop:disable Style/ClassAndModuleChildr
     colunas = STATION_COLUMNS.transform_values { |n| "#{STATION_BASE}.#{n}" }
     linha = {}
 
-    manager.walk(colunas.values) do |*varbinds|
-      colunas.keys.each_with_index { |chave, i| linha[chave] = varbinds[i].value }
+    manager.walk(colunas.values) do |varbind_list|
+      colunas.keys.each_with_index { |chave, i| linha[chave] = varbind_list[i].value }
       break
     end
 

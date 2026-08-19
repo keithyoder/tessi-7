@@ -21,7 +21,7 @@
               = @ponto.sistema
               = " • "
               = link_to @ponto.servidor.nome, @ponto.servidor, class: "text-decoration-none"
-          
+
           .d-flex.gap-2.mt-3.mt-md-0
             = link_to ponto_path(@ponto, format: :kml), class: 'btn btn-outline-secondary btn-sm', data: { turbo: false }
               i.bi.bi-download.me-1
@@ -59,63 +59,14 @@
 
 / Navigation Tabs
 ul.nav.nav-tabs.mb-4 role="tablist"
-  li.nav-item role="presentation"
-    button.nav-link.active[
-      id="overview-tab"
-      data-bs-toggle="tab"
-      data-bs-target="#overview"
-      type="button"
-      role="tab"
-    ]
-      i.bi.bi-info-circle.me-2
-      | Visão Geral
-  
-  li.nav-item role="presentation"
-    button.nav-link[
-      id="network-tab"
-      data-bs-toggle="tab"
-      data-bs-target="#network"
-      type="button"
-      role="tab"
-    ]
-      i.bi.bi-hdd-network.me-2
-      | Rede & IPs
-  
-  li.nav-item role="presentation"
-    button.nav-link[
-      id="map-tab"
-      data-bs-toggle="tab"
-      data-bs-target="#map"
-      type="button"
-      role="tab"
-    ]
-      i.bi.bi-geo-alt.me-2
-      | Mapa
-  
-  li.nav-item role="presentation"
-    button.nav-link[
-      id="conexoes-tab"
-      data-bs-toggle="tab"
-      data-bs-target="#conexoes"
-      type="button"
-      role="tab"
-    ]
-      i.bi.bi-people.me-2
-      | Conexões
-      span.badge.bg-primary.ms-2 = @ponto.conexoes.count
-
+  = render 'shared/nav_tab_link', id: 'overview', icon: 'bi-info-circle', label: 'Visão Geral', active: true
+  = render 'shared/nav_tab_link', id: 'network', icon: 'bi-hdd-network', label: 'Rede & IPs'
+  = render 'shared/nav_tab_link', id: 'map', icon: 'bi-geo-alt', label: 'Mapa'
+  = render 'shared/nav_tab_link', id: 'conexoes', icon: 'bi-people', label: 'Conexões', badge: @ponto.conexoes.count
+  = render 'shared/nav_tab_link', id: 'enlaces', icon: 'bi-link-45deg', label: 'Enlaces'
+  = render 'shared/nav_tab_link', id: 'os', icon: 'bi-clipboard-check', label: 'Ordens de Serviço'
   - if @ponto.sistema_Ubnt?
-    li.nav-item role="presentation"
-      button.nav-link[
-        id="backups-tab"
-        data-bs-toggle="tab"
-        data-bs-target="#backups"
-        type="button"
-        role="tab"
-      ]
-        i.bi.bi-clock-history.me-2
-        | Backups
-        span.badge.bg-secondary.ms-2 = @ponto.device.backups.count
+    = render 'shared/nav_tab_link', id: 'backups', icon: 'bi-clock-history', label: 'Backups', badge: @ponto.device.backups.count
 
 / Tab Content
 .tab-content
@@ -123,5 +74,7 @@ ul.nav.nav-tabs.mb-4 role="tablist"
   = render 'pontos/tabs/network', ponto: @ponto
   = render 'pontos/tabs/map', ponto: @ponto
   = render 'pontos/tabs/conexoes', ponto: @ponto
+  = render 'pontos/tabs/enlaces', ponto: @ponto
+  = render 'pontos/tabs/os', ponto: @ponto
   - if @ponto.sistema_Ubnt?
     = render 'pontos/tabs/backups', ponto: @ponto

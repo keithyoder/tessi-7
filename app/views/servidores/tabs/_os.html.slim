@@ -1,2 +1,7 @@
 .tab-pane.fade[id="os" role="tabpanel"]
-    = turbo_frame_tag "servidor_#{@servidor.id}_os", src: os_index_path(servidor_id: @servidor.id), loading: 'lazy'
+  .d-flex.justify-content-end.mb-3
+    = link_to new_os_path(infraestrutura_type: 'Servidor', infraestrutura_id: @servidor.id), class: 'btn btn-primary', data: { turbo_frame: '_top' }
+      i.bi.bi-plus-lg.me-1
+      | Nova OS
+
+  = turbo_frame_tag "servidor_#{@servidor.id}_os", src: os_index_path(servidor_id: @servidor.id), loading: 'lazy'

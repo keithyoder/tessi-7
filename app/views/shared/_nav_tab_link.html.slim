@@ -1,0 +1,18 @@
+/ locals: id (String), icon (String, e.g. "bi-info-circle"), label (String)
+/         active (Boolean, default false), badge (Integer/String, optional)
+- active = local_assigns.fetch(:active, false)
+- badge = local_assigns.fetch(:badge, nil)
+
+li.nav-item role="presentation"
+  button.nav-link[
+    class=(active ? 'active' : nil)
+    id="#{id}-tab"
+    data-bs-toggle="tab"
+    data-bs-target="##{id}"
+    type="button"
+    role="tab"
+  ]
+    i.bi class="#{icon} me-2"
+    = label
+    - if badge.present?
+      span.badge.bg-primary.ms-2 = badge

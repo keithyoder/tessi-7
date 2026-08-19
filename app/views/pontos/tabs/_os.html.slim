@@ -1,0 +1,7 @@
+.tab-pane.fade[id="os" role="tabpanel"]
+  .d-flex.justify-content-end.mb-3
+    = link_to new_os_path(infraestrutura_type: 'Ponto', infraestrutura_id: @ponto.id), class: 'btn btn-primary', data: { turbo_frame: '_top' }
+      i.bi.bi-plus-lg.me-1
+      | Nova OS
+
+  = turbo_frame_tag "ponto_#{@ponto.id}_os", src: os_index_path(ponto_id: @ponto.id), loading: 'lazy'

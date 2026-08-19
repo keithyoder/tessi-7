@@ -46,7 +46,10 @@ class Devices::AirFiber < Device # rubocop:disable Style/ClassAndModuleChildren
     attrs[:remote_ip] = info[:remote_ip] if info[:remote_ip].present?
     attrs[:latencia] = info[:latencia].to_i if info[:latencia].present?
 
-    attrs[:equipamento] = Equipamento.find_by(modelo: info[:modelo]) if info[:modelo].present?
+    if info[:modelo].present?
+      equipamento = Equipamento.find_by(modelo: info[:modelo])
+      attrs[:equipamento] = equipamento if equipamento
+    end
 
     update!(attrs)
   rescue SNMP::RequestTimeout, Errno::EHOSTUNREACH => e

@@ -5,7 +5,8 @@ module Ubiquiti
     # Patterns mapped to the canonical enum key
     # Order matters — first match wins
     PATTERNS = [
-      { match: /nanoloco|loco\s*m5/i,          modelo: 'NanoLoco M5' },
+      { match: /nanoloco|loco\s*m5/i, modelo: 'NanoLoco M5' },
+      { match: /rocket\s*5ac\s*lite/i,         modelo: 'Rocket 5AC Lite' },
       { match: /rocket\s*m5/i,                 modelo: 'Rocket M5' },
       { match: /liteap ac/i,                   modelo: 'Litebeam AC-16-120' },
       { match: /litebeam.*5ac|lbe.*5ac/i,      modelo: 'Litebeam 5ac-gen2-br 23dbi' },

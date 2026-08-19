@@ -131,16 +131,16 @@ class Devices::Ubiquiti::SnmpReader # rubocop:disable Style/ClassAndModuleChildr
   end
 
   def resolve_mac(result)
-    mac = format_mac_value(mac_interface_sem_fio)
-    mac || format_mac_value(result[:mac_ubnt])
-  end
+    own = format_mac_value(result[:mac])
+    return own if own
 
-  def mac_interface_sem_fio
     with_snmp_manager do |manager|
-      manager.walk(['1.3.6.1.2.1.2.2.1.2', '1.3.6.1.2.1.2.2.1.6']) do |descr_vb, mac_vb|
-        return mac_vb.value if descr_vb.value.to_s.match?(WIRELESS_IFDESCR_PATTERN)
+      manager.walk('1.3.6.1.2.1.2.2.1.6') do |vb|
+        valor = format_mac_value(vb.value)
+        return valor if valor
       end
     end
+
     nil
   end
 

@@ -1,0 +1,9 @@
+.tab-pane.fade id="os" role="tabpanel"
+  .d-flex.justify-content-end.mb-3
+    = link_to new_os_path(infraestrutura_type: 'FibraCaixa', infraestrutura_id: fibra_caixa.id), class: 'btn btn-primary', data: { turbo_frame: '_top' }
+      i.bi.bi-plus-lg.me-1
+      | Nova OS
+
+  = turbo_frame_tag "caixa_#{fibra_caixa.id}_os", src: os_index_path(caixa_id: fibra_caixa.id), loading: :lazy do
+    .text-center.py-5
+      .spinner-border.text-primary role="status"

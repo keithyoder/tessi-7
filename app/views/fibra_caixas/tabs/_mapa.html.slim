@@ -1,0 +1,11 @@
+.tab-pane.fade.show.active id="mapa" role="tabpanel"
+  .card.border-0.shadow-sm.h-100
+    .card-body.p-0
+      #fibra-caixa-map.w-100[
+        style="height: 500px; border-radius: 0.375rem;"
+        data-controller="map"
+        data-map-latitude-value=@map_center.first
+        data-map-longitude-value=@map_center.last
+        data-map-zoom-value="16"
+        data-map-markers-value=@markers.to_json
+      ]

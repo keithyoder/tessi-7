@@ -6,7 +6,7 @@ class OsController < ApplicationController
   before_action :set_os, only: %i[show edit update destroy]
   before_action :set_params_for_legacy_header, only: %i[show]
 
-  escopavel_por :pessoa_id, :conexao_id, :servidor_id, :ponto_id, :enlace_id
+  escopavel_por :pessoa_id, :conexao_id, :servidor_id, :ponto_id, :enlace_id, :caixa_id, :rede_id
 
   authorize_resource
 
@@ -90,6 +90,12 @@ class OsController < ApplicationController
     consulta = Os.all
     consulta = consulta.where(pessoa_id: params[:pessoa_id]) if params[:pessoa_id].present?
     consulta = consulta.where(conexao_id: params[:conexao_id]) if params[:conexao_id].present?
+    if params[:caixa_id].present?
+      consulta = consulta.where(infraestrutura_type: 'FibraCaixa', infraestrutura_id: params[:caixa_id])
+    end
+    if params[:rede_id].present?
+      consulta = consulta.where(infraestrutura_type: 'FibraRede', infraestrutura_id: params[:rede_id])
+    end
     if params[:servidor_id].present?
       consulta = consulta.where(infraestrutura_type: 'Servidor', infraestrutura_id: params[:servidor_id])
     end

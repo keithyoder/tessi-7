@@ -1,19 +1,62 @@
-.card
-  .row
-    .col-md-7
-      .card
-        = render 'shared/show_header', {object: @fibra_caixa, titulo: "Caixa de Atendimento #{@fibra_caixa.nome}"}
-        .card-body
-          .card-columns[style="column-count: 2"]
-            = link_to @fibra_caixa.fibra_rede do
-              = render 'shared/field_card', {campo: "Rede", valor: @fibra_caixa.fibra_rede.nome}
-            = render 'shared/field_card', {campo: "Capacidade", valor: "#{@fibra_caixa.conexoes.count}/#{@fibra_caixa.capacidade}"}
-            = render 'shared/field_card', {campo: "Cor da Fibra", valor: @fibra_caixa.fibra_cor}
-            = link_to @fibra_caixa.logradouro do
-              = render 'shared/field_card', {campo: "Logradouro", valor: @fibra_caixa.logradouro.present? ? @fibra_caixa.logradouro.nome : ""}
-    .col-md-3
-      .card-body
-        p[align="center"]
-          = image_tag "https://maps.googleapis.com/maps/api/staticmap?size=400x310&#{markers(@fibra_caixa)}&key=#{Rails.application.credentials.google_maps_api_key}", alt: "Map"
-.card
-  = render 'conexoes/table', {exclude: ['ponto']}
+/ Hero Section
+.row.mb-4
+  .col-12
+    .card.border-0.shadow-sm
+      .card-body.p-4
+        .d-flex.justify-content-between.align-items-start.flex-wrap
+          div
+            .d-flex.align-items-center.gap-3.mb-2.flex-wrap
+              h2.mb-0 = "Caixa de Atendimento #{@fibra_caixa.nome}"
+              - if @fibra_caixa.conexoes.count >= @fibra_caixa.capacidade.to_i
+                span.badge.bg-danger.fs-6
+                  i.bi.bi-exclamation-triangle
+                  = " Lotada"
+              - else
+                span.badge.bg-success.fs-6
+                  i.bi.bi-check-circle
+                  = " Disponível"
+            .text-muted
+              = link_to @fibra_caixa.fibra_rede.nome, @fibra_caixa.fibra_rede, class: "text-decoration-none"
+              - if @fibra_caixa.logradouro.present?
+                = " • "
+                = link_to @fibra_caixa.logradouro.nome, @fibra_caixa.logradouro, class: "text-decoration-none"
+
+          .d-flex.gap-2.mt-3.mt-md-0
+            = back_button(fibra_caixas_path)
+            = edit_button(@fibra_caixa)
+            = delete_button(@fibra_caixa)
+
+/ Quick Stats
+.row.g-3.mb-4
+  .col-lg-3.col-md-6.col-6
+    .card.border-0.shadow-sm.h-100
+      .card-body.text-center
+        .text-muted.small.mb-1 Capacidade
+        .fs-5.fw-bold = "#{@fibra_caixa.conexoes.count}/#{@fibra_caixa.capacidade}"
+  .col-lg-3.col-md-6.col-6
+    .card.border-0.shadow-sm.h-100
+      .card-body.text-center
+        .text-muted.small.mb-1 Cor da Fibra
+        .fs-5.fw-bold = @fibra_caixa.fibra_cor&.capitalize || "—"
+  .col-lg-3.col-md-6.col-6
+    .card.border-0.shadow-sm.h-100
+      .card-body.text-center
+        .text-muted.small.mb-1 Poste
+        .fs-5.fw-bold = @fibra_caixa.poste.presence || "—"
+  .col-lg-3.col-md-6.col-6
+    .card.border-0.shadow-sm.h-100
+      .card-body.text-center
+        .text-muted.small.mb-1 Rede
+        .fs-5.fw-bold = link_to @fibra_caixa.fibra_rede.nome, @fibra_caixa.fibra_rede, class: "text-decoration-none"
+
+/ Navigation Tabs
+ul.nav.nav-tabs.mb-4 role="tablist"
+  = render 'shared/nav_tab_link', id: 'mapa', icon: 'bi-geo-alt', label: 'Mapa', active: true
+  = render 'shared/nav_tab_link', id: 'conexoes', icon: 'bi-diagram-3', label: 'Conexões', badge: @fibra_caixa.conexoes.count
+  = render 'shared/nav_tab_link', id: 'os', icon: 'bi-tools', label: 'OS'
+
+/ Tab Content
+.tab-content
+  = render 'fibra_caixas/tabs/mapa', fibra_caixa: @fibra_caixa
+  = render 'fibra_caixas/tabs/conexoes', fibra_caixa: @fibra_caixa
+  = render 'fibra_caixas/tabs/os', fibra_caixa: @fibra_caixa

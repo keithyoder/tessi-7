@@ -2,9 +2,10 @@
   = f.error_notification
   = f.error_notification message: f.object.errors[:base].to_sentence if f.object.errors[:base].present?
 
-  .card.border-0.shadow-sm.mb-4
-    .card-body.p-4
-      h6.text-muted.text-uppercase.fw-semibold.mb-3.small Identificação
+  / ── Identificação ───────────────────────────────────────────────────
+  .card.mb-3
+    .card-header Identificação
+    .card-body
       .row.g-3
         .col-12.col-md-4
           = f.input :nome
@@ -15,14 +16,19 @@
         .col-12.col-sm-6.col-md-2
           = f.input :poste
 
-  .card.border-0.shadow-sm.mb-4
-    .card-body.p-4
-      h6.text-muted.text-uppercase.fw-semibold.mb-3.small Endereço
+  / ── Endereço ─────────────────────────────────────────────────────────
+  .card.mb-3
+    .card-header Endereço
+    .card-body[data-controller="busca" data-busca-url-value="/logradouros.json" data-busca-campos-meta-value='["bairro","cidade"]']
       .row.g-3
         .col-12.col-md-4
           = f.input :fibra_cor, collection: FibraCaixa.fibra_cores.keys
         .col-12.col-md-8
-          = f.association :logradouro, collection: Logradouro.includes(:bairro, :cidade, :estado).order(:nome), label_method: :endereco
+          .form-group
+            label.form-label Logradouro
+            .position-relative
+              = f.hidden_field :logradouro_id, data: { busca_target: "id" }
+              input.form-control type="text" placeholder="Digite para buscar..." value=@fibra_caixa.logradouro&.endereco autocomplete="off" data-busca-target="input" data-action="input->busca#buscar"
 
   = render partial: 'shared/localizacao', locals: { f:, titulo: f.object.nome.presence || 'Localização' }
 

@@ -8,7 +8,7 @@ module Contratos
     # Just shows or downloads the PDF
     def show
       pdf = Contratos::TermoService.new(@contrato).gerar_pdf
-      send_data pdf,
+      send_data pdf.string,
                 filename: "termo_#{@contrato.id}.pdf",
                 type: 'application/pdf',
                 disposition: 'inline' # or 'attachment' to force download

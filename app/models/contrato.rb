@@ -162,6 +162,11 @@ class Contrato < ApplicationRecord
         bloqueado: suspenso,
         inadimplente: atraso
       )
+    rescue StandardError => e
+      Rails.logger.error(
+        "atualizar_conexoes: erro ao atualizar conexao ##{conexao.id} " \
+        "no contrato ##{id} — #{e.message}"
+      )
     end
   end
 
@@ -232,13 +237,15 @@ class Contrato < ApplicationRecord
   end
 
   def enderecos
-    return ["#{pessoa.endereco} - #{pessoa.logradouro.bairro.nome_cidade_uf}"] if conexoes.empty?
+    if conexoes.empty?
+      return ["#{pessoa.endereco} - #{pessoa.logradouro.bairro.nome_cidade_uf} - #{pessoa.logradouro.cep}"]
+    end
 
     conexoes.map do |conexao|
       if conexao.logradouro.present?
-        "#{conexao.logradouro.nome} - #{conexao.logradouro.bairro.nome_cidade_uf}"
+        "#{conexao.logradouro.nome} - #{conexao.logradouro.bairro.nome_cidade_uf} - #{conexao.logradouro.cep}"
       else
-        "#{pessoa.endereco} - #{pessoa.logradouro.bairro.nome_cidade_uf}"
+        "#{pessoa.endereco} - #{pessoa.logradouro.bairro.nome_cidade_uf} - #{pessoa.logradouro.cep}"
       end
     end
   end

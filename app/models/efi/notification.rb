@@ -44,8 +44,6 @@ module Efi
                   Contrato.find(custom_id).faturas.em_aberto.first
     end
 
-    private
-
     def custom_id
       payload['data'].first['custom_id'].to_i
     end
@@ -53,6 +51,8 @@ module Efi
     def charge_id
       payload['data'].last.dig('identifiers', 'charge_id')
     end
+
+    private
 
     def charge_status?(payload, status)
       CHARGE_TYPES.any?(payload['type']) && payload['status']['current'] == status

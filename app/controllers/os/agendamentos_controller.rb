@@ -61,7 +61,7 @@ class Os::AgendamentosController < ApplicationController # rubocop:disable Style
 
   def agrupar_por_tecnico(lista)
     lista
-      .group_by { |os| [os.tecnico_1_id, os.tecnico_2_id] }
+      .group_by { |os| tecnico_pair_key(os) }
       .map do |_ids, grupo|
         {
           tecnicos: [grupo.first.tecnico_1&.primeiro_nome, grupo.first.tecnico_2&.primeiro_nome].compact.join(' / '),
@@ -69,6 +69,10 @@ class Os::AgendamentosController < ApplicationController # rubocop:disable Style
           os_list: grupo
         }
       end
+  end
+
+  def tecnico_pair_key(os)
+    [os.tecnico_1_id, os.tecnico_2_id].sort_by { |id| id || -1 }
   end
 
   def municipio_predominante(lista)

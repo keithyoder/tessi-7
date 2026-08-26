@@ -12,23 +12,16 @@ class EnlacesController < ApplicationController
   before_action :set_available_devices, only: %i[new edit create update]
 
   def index
-    consulta = Enlace.distinct
-
-    if params[:servidor_id].present?
-      consulta = consulta.joins(:extremidades).where(
-        enlace_extremidades: { infraestrutura_type: 'Servidor', infraestrutura_id: params[:servidor_id] }
-      )
-    elsif params[:ponto_id].present?
-      consulta = consulta.joins(:extremidades).where(
-        enlace_extremidades: { infraestrutura_type: 'Ponto', infraestrutura_id: params[:ponto_id] }
-      )
-    end
+    consulta = filtrar_por_infraestrutura(Enlace.distinct)
 
     @q = consulta.ransack(params[:q])
     @q.sorts = 'created_at desc' if @q.sorts.empty?
     @search_params = params.fetch(:q, {}).permit(:tecnologia_eq).to_h
 
-    @pagy, @enlaces = pagy(@q.result.includes(extremidades: :infraestrutura), limit: 12)
+    @pagy, @enlaces = pagy(
+      @q.result.includes(extremidades: [:infraestrutura, { device: :equipamento }]),
+      limit: 12
+    )
   end
 
   def show; end
@@ -87,5 +80,17 @@ class EnlacesController < ApplicationController
       :canal, :capacidade_bytes, :fibra_cor, :observacoes, :sinal_normal, :tecnologia,
       extremidades_attributes: %i[device_id id infraestrutura_id infraestrutura_type ip posicao]
     )
+  end
+
+  def filtrar_por_infraestrutura(consulta)
+    tipo, id = if params[:servidor_id].present?
+                 ['Servidor', params[:servidor_id]]
+               elsif params[:ponto_id].present?
+                 ['Ponto', params[:ponto_id]]
+               end
+
+    return consulta if tipo.nil?
+
+    consulta.joins(:extremidades).where(enlace_extremidades: { infraestrutura_type: tipo, infraestrutura_id: id })
   end
 end

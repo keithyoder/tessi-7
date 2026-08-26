@@ -41,6 +41,17 @@ class Device < ApplicationRecord
   validates :deviceable_type, inclusion: { in: %w[Ponto Conexao EnlaceExtremidade] }, allow_nil: true
   validates :mac, uniqueness: true, allow_nil: true
 
+  # Leituras de telemetria — subclasses que ainda não implementaram coleta
+  # (ex.: SNMP) devem responder nil em vez de levantar NoMethodError.
+  # Subclasses com store_accessor :properties, ... sobrescrevem estes.
+  def signal = nil
+  def ssid = nil
+  def frequencia = nil
+  def canal_tamanho = nil
+  def distancia = nil
+  def tx_rate = nil
+  def rx_rate = nil
+
   def ip
     deviceable.ip.to_s
   end

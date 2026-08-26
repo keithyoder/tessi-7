@@ -37,8 +37,10 @@
           tr.text-muted.small.text-uppercase
             th.ps-4 Enlace
             th Tecnologia
-            th.d-none.d-md-table-cell Canal / Cor
-            th.d-none.d-lg-table-cell Capacidade
+            th.d-none.d-md-table-cell SSID / Cor
+            th.d-none.d-lg-table-cell Canal
+            th.d-none.d-lg-table-cell Equip. A
+            th.d-none.d-lg-table-cell Equip. B
             th.text-center Sinal
         tbody
           - @enlaces.each do |enlace|
@@ -48,13 +50,23 @@
               td = enlace.tecnologia
               td.d-none.d-md-table-cell
                 - if enlace.tecnologia_Radio?
-                  = enlace.canal.presence || content_tag(:span, '—', class: 'text-muted')
+                  = enlace.ssid_atual.presence || content_tag(:span, '—', class: 'text-muted')
                 - else
                   = enlace.fibra_cor&.capitalize || content_tag(:span, '—', class: 'text-muted')
               td.d-none.d-lg-table-cell
-                = enlace.capacidade_formatada || content_tag(:span, '—', class: 'text-muted')
+                - if enlace.tecnologia_Radio?
+                  = enlace.canal_atual.presence || content_tag(:span, '—', class: 'text-muted')
+                - else
+                  = content_tag(:span, '—', class: 'text-muted')
+              td.d-none.d-lg-table-cell
+                = enlace.ponta_a&.device&.equipamento&.descricao || content_tag(:span, '—', class: 'text-muted')
+              td.d-none.d-lg-table-cell
+                = enlace.ponta_b&.device&.equipamento&.descricao || content_tag(:span, '—', class: 'text-muted')
               td.text-center
-                = enlace.sinal_normal_formatado || content_tag(:span, '—', class: 'text-muted')
+                - if enlace.tecnologia_Radio?
+                  = enlace.ponta_a&.sinal_atual.presence || content_tag(:span, '—', class: 'text-muted')
+                - else
+                  = enlace.sinal_normal_formatado || content_tag(:span, '—', class: 'text-muted')
 
     - if @pagy.pages > 1
       .card-footer.bg-transparent.border-top.d-flex.justify-content-center.py-3

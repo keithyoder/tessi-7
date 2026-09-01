@@ -39,7 +39,7 @@ class Servidor < ApplicationRecord
 
   scope :ativo, -> { where('ativo') }
 
-  RANSACK_ATTRIBUTES = %w[nome].freeze
+  RANSACK_ATTRIBUTES = %w[nome ativo].freeze
   RANSACK_ASSOCIATIONS = %w[].freeze
 
   def self.to_csv

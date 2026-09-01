@@ -65,26 +65,53 @@
                 span.text-muted Porta Radius
                 span.fw-medium = servidor.radius_porta
 
-  - if online
+  - device = servidor.device
+  - device_online = device&.last_seen_at.present? && device.last_seen_at > 10.minutes.ago
+
+  - if device
     .row.g-4.mt-4
       .col-12
         .card.border-0.shadow-sm
-          .card-header.bg-white.border-bottom
+          .card-header.bg-white.border-bottom.d-flex.justify-content-between.align-items-center
             h5.mb-0
               i.bi.bi-activity.me-2
               | Status
+            - if device.last_seen_at
+              small class="text-#{device_online ? 'muted' : 'danger'}"
+                | Atualizado #{time_ago_in_words(device.last_seen_at)} atrás
+            - else
+              small.text-muted Ainda não atualizado
           .card-body
-            .row.g-3
-              - servidor.system_info&.each do |info, value|
+            - if device.last_seen_at
+              .row.g-3
                 .col-md-6
                   .d-flex.justify-content-between.align-items-center
-                    span.text-muted = info.titleize
-                    span.fw-medium = value
-              .col-md-6
-                .d-flex.justify-content-between.align-items-center
-                  span.text-muted Usuários PPPoE
-                  span.fw-medium = servidor.ppp_users
-              .col-md-6
-                .d-flex.justify-content-between.align-items-center
-                  span.text-muted Usuários Hotspot
-                  span.fw-medium = servidor.hotspot_users
+                    span.text-muted Versão
+                    span.fw-medium = device.firmware
+
+                .col-md-6
+                  .d-flex.justify-content-between.align-items-center
+                    span.text-muted Board
+                    span.fw-medium = device.board_name
+
+                .col-md-6
+                  .d-flex.justify-content-between.align-items-center
+                    span.text-muted Uptime
+                    span.fw-medium = device.uptime
+
+                .col-md-6
+                  .d-flex.justify-content-between.align-items-center
+                    span.text-muted CPU
+                    span.fw-medium = "#{device.cpu_load}%"
+
+                .col-md-6
+                  .d-flex.justify-content-between.align-items-center
+                    span.text-muted Usuários PPPoE
+                    span.fw-medium = device.ppp_users_count
+
+                .col-md-6
+                  .d-flex.justify-content-between.align-items-center
+                    span.text-muted Usuários Hotspot
+                    span.fw-medium = device.hotspot_users_count
+            - else
+              p.text-muted.mb-0 Aguardando primeira coleta de status.

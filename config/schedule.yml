@@ -1,0 +1,5 @@
+# config/schedule.yml
+monitorar_servidores:
+  cron: "*/15 * * * *"
+  class: "MonitorarServidoresJob"
+  queue: default

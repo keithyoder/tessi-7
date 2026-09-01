@@ -65,7 +65,7 @@ ul.nav.nav-tabs.mb-4 role="tablist"
   = render 'shared/nav_tab_link', id: 'conexoes', icon: 'bi-people', label: 'Conexões', badge: @ponto.conexoes.count
   = render 'shared/nav_tab_link', id: 'enlaces', icon: 'bi-link-45deg', label: 'Enlaces'
   = render 'shared/nav_tab_link', id: 'os', icon: 'bi-clipboard-check', label: 'Ordens de Serviço'
-  - if @ponto.sistema_Ubnt?
+  - if @ponto.sistema_Ubnt? && @ponto.device
     = render 'shared/nav_tab_link', id: 'backups', icon: 'bi-clock-history', label: 'Backups', badge: @ponto.device.backups.count
 
 / Tab Content

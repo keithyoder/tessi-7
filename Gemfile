@@ -129,6 +129,7 @@ group :development do
   gem 'capistrano-passenger'
   gem 'capistrano-rails'
   gem 'capistrano-rbenv'
+  gem 'capistrano-sidekiq', require: false
   gem 'web-console'
 end
 

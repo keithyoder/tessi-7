@@ -2,18 +2,23 @@
 
 class ServidoresController < ApplicationController
   before_action :set_servidor, only: %i[show edit update destroy backup mapa]
-  load_and_authorize_resource
+  authorize_resource
 
   # GET /servidores
   # GET /servidores.json
+
   def index
-    @q = Servidor.ransack(params[:q])
-    @q.sorts = 'nome'
-    @servidores = @q.result.page params[:page]
+    params[:q] ||= {}
+    @q = Servidor.accessible_by(current_ability).includes(device: :equipamento).ransack(params[:q])
+    @q.sorts = 'nome' if @q.sorts.empty?
+    @search_params = @q.conditions.map { |c| [c.attributes.first, c.values.first] }.to_h
+
+    @pagy, @servidores = pagy(@q.result, limit: 12)
+
     respond_to do |format|
       format.html
       format.csv do
-        send_data @servidores.except(:limit, :offset).to_csv, filename: "concentradores  -#{Time.zone.today}.csv"
+        send_data @q.result.to_csv, filename: "concentradores-#{Time.zone.today}.csv"
       end
     end
   end

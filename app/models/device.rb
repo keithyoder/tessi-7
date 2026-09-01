@@ -38,7 +38,7 @@ class Device < ApplicationRecord
 
   scope :unlinked, -> { where(deviceable_id: nil) }
 
-  validates :deviceable_type, inclusion: { in: %w[Ponto Conexao EnlaceExtremidade] }, allow_nil: true
+  validates :deviceable_type, inclusion: { in: %w[Ponto Conexao EnlaceExtremidade Servidor] }, allow_nil: true
   validates :mac, uniqueness: true, allow_nil: true
 
   # Leituras de telemetria — subclasses que ainda não implementaram coleta
@@ -58,7 +58,7 @@ class Device < ApplicationRecord
 
   def name
     case deviceable
-    when Ponto then deviceable.nome
+    when Servidor, Ponto then deviceable.nome
     when Conexao then "#{deviceable.pessoa.nome} #{deviceable.observacao.to_s.first(10)}".strip
     when EnlaceExtremidade then "Enlace: #{deviceable.infraestrutura} (#{deviceable.posicao})"
     end
@@ -66,6 +66,7 @@ class Device < ApplicationRecord
 
   def servidor_nome
     case deviceable
+    when Servidor then deviceable.nome
     when Ponto then deviceable.servidor.nome
     when Conexao then deviceable.ponto.servidor.nome
     when EnlaceExtremidade
@@ -76,6 +77,10 @@ class Device < ApplicationRecord
 
   def ap?
     deviceable_type == 'Ponto'
+  end
+
+  def concentrador?
+    deviceable_type == 'Servidor'
   end
 
   def effective_user

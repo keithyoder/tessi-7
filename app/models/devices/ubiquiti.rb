@@ -45,6 +45,7 @@ module Devices
                    :conectados, :qualidade_airmax, :station_ccq,
                    :distancia, :tx_rate, :rx_rate, :modo
 
+    alias atualizar! atualizar_snmp!
     def atualizar_snmp!
       info = SnmpReader.new(self).coletar_informacoes
 

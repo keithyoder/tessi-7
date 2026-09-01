@@ -29,6 +29,7 @@ class Servidor < ApplicationRecord
   require 'csv'
   require 'cgi'
   include Ransackable
+  include Deviceable
 
   has_many :pontos, dependent: :restrict_with_exception
   has_many :conexoes, through: :pontos

@@ -39,6 +39,7 @@ gem 'devise'
 # ------------------------------------------------------------
 # Background jobs / Scheduling
 # ------------------------------------------------------------
+gem 'connection_pool', '~> 2.4'
 gem 'redis', '~> 4.0'
 gem 'rufus-scheduler'
 gem 'sidekiq', '~> 6.5'

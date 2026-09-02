@@ -162,10 +162,10 @@ GEM
     capistrano-rbenv (2.2.0)
       capistrano (~> 3.1)
       sshkit (~> 1.3)
-    capistrano-sidekiq (3.2.0)
+    capistrano-sidekiq (3.0.0)
       capistrano (>= 3.9.0)
       capistrano-bundler
-      sidekiq (>= 7.0)
+      sidekiq (>= 6.0.6)
     capybara (3.40.0)
       addressable
       matrix
@@ -400,14 +400,14 @@ GEM
       nio4r (~> 2.0)
     raabro (1.5.0)
     racc (1.8.1)
-    rack (3.2.6)
-    rack-session (2.1.2)
-      base64 (>= 0.1.0)
-      rack (>= 3.0.0)
+    rack (2.2.24)
+    rack-session (1.0.2)
+      rack (< 3)
     rack-test (2.2.0)
       rack (>= 1.3)
-    rackup (2.3.1)
-      rack (>= 3)
+    rackup (1.0.1)
+      rack (< 3)
+      webrick
     rails (7.2.3.2)
       actioncable (= 7.2.3.2)
       actionmailbox (= 7.2.3.2)
@@ -458,8 +458,6 @@ GEM
       rbs (>= 4.0.0)
       tsort
     redis (4.8.1)
-    redis-client (0.30.1)
-      connection_pool
     regexp_parser (2.12.0)
     reline (0.6.3)
       io-console (~> 0.5)
@@ -536,12 +534,10 @@ GEM
       rexml (~> 3.2, >= 3.2.5)
       rubyzip (>= 1.2.2, < 4.0)
       websocket (~> 1.0)
-    sidekiq (8.1.6)
-      connection_pool (>= 3.0.0)
-      json (>= 2.16.0)
-      logger (>= 1.7.0)
-      rack (>= 3.2.0)
-      redis-client (>= 0.29.0)
+    sidekiq (6.5.7)
+      connection_pool (>= 2.2.5)
+      rack (~> 2.0)
+      redis (>= 4.5.0, < 5)
     sidekiq-cron (2.4.0)
       cronex (>= 0.13.0)
       fugit (~> 1.8, >= 1.11.1)
@@ -603,6 +599,7 @@ GEM
       activemodel (>= 6.0.0)
       bindex (>= 0.4.0)
       railties (>= 6.0.0)
+    webrick (1.9.2)
     websocket (1.2.11)
     websocket-driver (0.8.2)
       base64
@@ -689,7 +686,7 @@ DEPENDENCIES
   sassc
   sdk_ruby_apis_efi!
   selenium-webdriver
-  sidekiq
+  sidekiq (~> 6.5)
   sidekiq-cron
   simple_form
   slim

@@ -9,6 +9,8 @@ class ServidoresController < ApplicationController
 
   def index
     params[:q] ||= {}
+    params[:q][:ativo_eq] = 'true' unless params[:q].key?(:ativo_eq)
+
     @q = Servidor.accessible_by(current_ability).includes(device: :equipamento).ransack(params[:q])
     @q.sorts = 'nome' if @q.sorts.empty?
     @search_params = @q.conditions.map { |c| [c.attributes.first, c.values.first] }.to_h
